@@ -14,7 +14,6 @@ Built upon the AHLE Dashboard framework.
 
 ```
 .
-├── Data and Processing Code/   # Directory for data and processing files
 ├── Dash App/          			# Directory for Dash App files
 │   ├── assets/			    	# Directory for assets within dashboard
 │   ├── data/			     	# Directory for processed data used within dashboard

@@ -1,0 +1,65 @@
+# Table of contents
+# Learn more at https://jupyterbook.org/customize/toc.html
+
+format: jb-book
+root: intro
+parts:
+  - caption: Overview
+    chapters:
+    - file: Tool/Overview of the tabs
+    - file: Tool/Downloading results
+  - caption: Global Overview
+    chapters:
+    - file: Tool/govr_basic_controls.md
+  - caption: Global AHLE Details
+    chapters:
+    - file: Tool/gdtl_basic_controls.md
+  - caption: Major Producers Tabs
+    chapters:
+    - file: Analysis/Overview of the approach
+    - file: Tool/Selecting country, year, and metric
+    - file: Tool/Changing inputs
+    - file: Tool/Reading the charts
+      sections:
+      - file: Tool/Production chart
+      - file: Tool/Cost chart
+    - file: Tool/Reading the data tables
+      sections:
+      - file: Tool/Main table
+      - file: Tool/Breed standard table
+    - file: Analysis/Poultry analysis details
+      sections:
+      - file: Analysis/Calculating head placed_poultry
+      - file: Analysis/Slider references_poultry
+      - file: Analysis/Breed standards_poultry
+      - file: Analysis/Cost data_poultry
+    - file: Analysis/Swine analysis details
+      sections:
+      - file: Analysis/Calculating head placed_swine
+      - file: Analysis/Slider references_swine
+      - file: Analysis/Breed standards_swine
+      - file: Analysis/Cost data_swine
+    #- file: Analysis/Challenges and open issues
+  - caption: Antimicrobial Usage
+    chapters:
+    #- file: Analysis/amu_overview
+    - file: Tool/amu_readingthecharts
+      sections:
+      - file: Tool/amu_1_bar_and_donut
+      - file: Tool/amu_2_map_and_drilldown
+      - file: Tool/amu_3_usage_price_variability
+    - file: Tool/amu_readingthedata
+      sections:
+      - file: Tool/amu_main_table
+      - file: Tool/amu_region_table
+      - file: Tool/amu_amr_table
+    #- file: Analysis/amu_details
+    #  sections:
+    #  - file: Analysis/amu_dri
+  - caption: References
+    chapters:
+    - file: References/General
+    - file: References/Poultry
+    - file: References/Swine
+    - file: References/Ethiopia
+    - file: References/ref_amu
