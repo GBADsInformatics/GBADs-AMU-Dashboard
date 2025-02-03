@@ -1,1 +1,0 @@
-# The compartmental population model
