@@ -1983,25 +1983,25 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         # Create Map for AMR prevalence
         if quantity == 'Antimicrobial Resistance (country level)':
             if len(input_df_amr):
-               amu_map_fig = px.scatter_geo(input_df_amr,
-                                            locations="location_name",
-                                            locationmode='country names',
-                                            color="woah_region",
-                                            hover_name="woah_region",
-                                            size=map_value,
-                                            projection="natural earth",
-                                            custom_data=['woah_region',
-                                                         map_value,
-                                                         'location_name',
-                                                         'antimicrobial_class',
-                                                         'pathogen',
-                                                         'sum_isolates'],
-                                            color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
-                                                                "Americas": 'rgb(248,156,116)',
-                                                                "Europe": 'rgb(220,176,242)',
-                                                                "Africa": 'rgb(135,197,95)',
-                                                                "Middle East": 'rgb(254,136,177)'}
-                                            )
+                amu_map_fig = px.scatter_geo(input_df_amr,
+                                             locations="location_name",
+                                             locationmode='country names',
+                                             color="woah_region",
+                                             hover_name="woah_region",
+                                             size=map_value,
+                                             projection="natural earth",
+                                             custom_data=['woah_region',
+                                                          map_value,
+                                                          'location_name',
+                                                          'antimicrobial_class',
+                                                          'pathogen',
+                                                          'sum_isolates'],
+                                             color_discrete_map={"Asia, Far East and Oceania": 'rgb(102,197,204)',
+                                                                 "Americas": 'rgb(248,156,116)',
+                                                                 "Europe": 'rgb(220,176,242)',
+                                                                 "Africa": 'rgb(135,197,95)',
+                                                                 "Middle East": 'rgb(254,136,177)'}
+                                             )
 
             else:
                 amu_map_fig = go.Figure()
@@ -2331,26 +2331,26 @@ def update_stacked_bar_amu (classification, quantity, select_amu_graph):
         # )
 
     elif select_amu_graph.upper() == 'PERCENT':
-         amu_bar_fig = px.histogram(
-             stackedbar_df,
-             x=x_var,
-             y=y_var,
-             color=color,
-             color_discrete_map=color_map,
-             barnorm='percent',
-             text_auto='.1f',
-             labels={
+        amu_bar_fig = px.histogram(
+            stackedbar_df,
+            x=x_var,
+            y=y_var,
+            color=color,
+            color_discrete_map=color_map,
+            barnorm='percent',
+            text_auto='.1f',
+            labels={
                 x_var: "",
                 "antimicrobial_class_group": "Antimicrobial Class"
                 }
-             )
+            )
 
          # Add titles
-         amu_bar_fig.update_layout(title_text=f'Regional Percent of AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
-                                   font_size=15,
-                                   plot_bgcolor="#ededed",
-                                   )
-         amu_bar_fig.update_yaxes(title_text=f"% of AMU {quantity}")
+        amu_bar_fig.update_layout(title_text=f'Regional Percent of AMU {quantity} by {classification}<br><sup>for countries reporting to WOAH</sup>',
+                                  font_size=15,
+                                  plot_bgcolor="#ededed",
+                                  )
+        amu_bar_fig.update_yaxes(title_text=f"% of AMU {quantity}")
 
     # Remove legend (share with donut chart)
     amu_bar_fig.update_layout(showlegend=False)
@@ -2807,12 +2807,12 @@ def update_expenditure_amu(input_json, expenditure_units):
 #############################################################################################################
 
 if __name__ == "__main__":
-   # NOTE: These statements are not executed when in gunicorn, because in gunicorn this program is loaded as module
+    # NOTE: These statements are not executed when in gunicorn, because in gunicorn this program is loaded as module
 
-   # use_port = fa.get_open_port()  # selects first unused port >= 8050
-   use_port = 8050                 # set to fixed fixed number
+    # use_port = fa.get_open_port()  # selects first unused port >= 8050
+    use_port = 8050                 # set to fixed fixed number
 
-   fa.run_server(app, use_port, debug=True)
+    fa.run_server(app, use_port, debug=True)
 
 def returnApp():
     """
