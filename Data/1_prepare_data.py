@@ -149,6 +149,7 @@ GRANDPARENT_FOLDER = os.path.dirname(PARENT_FOLDER)
 
 RAWDATA_FOLDER = os.path.join(CURRENT_FOLDER, 'raw_data')
 PRODATA_FOLDER = os.path.join(CURRENT_FOLDER, 'processed_data')
+DASHDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Dash App', 'data')
 
 #%% DENMARK
 # *****************************************************************************
@@ -180,11 +181,11 @@ rename_cols = {
     ,'unnamed:_1_level_0_farm_type':"farm_type"
     ,'unnamed:_2_level_0_number_of_farms':"number_of_farms"
     # ,'burden_of_amr_at_farm_level_median':""
-    # ,'burden_of_amr_at_farm_level_5_pct_ile':""
-    # ,'burden_of_amr_at_farm_level_95_pct_ile':""
+    ,'burden_of_amr_at_farm_level_5_pct_ile':"burden_of_amr_at_farm_level_5pctile"
+    ,'burden_of_amr_at_farm_level_95_pct_ile':"burden_of_amr_at_farm_level_95pctile"
     # ,'burden_of_amr_at_pop_level_median':""
-    # ,'burden_of_amr_at_pop_level_5_pct_ile':""
-    # ,'burden_of_amr_at_pop_level_95_pct_ile':""
+    ,'burden_of_amr_at_pop_level_5_pct_ile':"burden_of_amr_at_pop_level_5pctile"
+    ,'burden_of_amr_at_pop_level_95_pct_ile':"burden_of_amr_at_pop_level_95pctile"
     ,'health_expenditure_due_to_amr_diahorrea_amu_expenditure':"amr_health_exp_amu"
     ,'health_expenditure_due_to_amr_diahorrea_feed_corrections':"amr_health_exp_feed"
     ,'health_expenditure_due_to_amr_diahorrea_production_losses':"amr_health_exp_prod"
@@ -202,8 +203,41 @@ den_ahle = pd.read_excel(
     ,sheet_name='AHLE'
 )
 den_ahle = clean_colnames(den_ahle)
+
+rename_cols = {
+    'ahle_at_farm_level___median':'ahle_at_farm_level_median'
+    ,'ahle_at_farm_level___5_pct_ile':'ahle_at_farm_level_5pctile'
+    ,'ahle_at_farm_level___95_pct_ile':'ahle_at_farm_level_95pctile'
+    ,'ahle_at_pop_level___median':'ahle_at_pop_level_median'
+    ,'ahle_at_pop_level___5_pct_ile':'ahle_at_pop_level_5pctile'
+    ,'ahle_at_pop_level___95_pct_ile':'ahle_at_pop_level_95pctile'
+}
+den_ahle = den_ahle.rename(columns=rename_cols)
+
 datainfo(den_ahle)
 export_dataframe(den_ahle, PRODATA_FOLDER)
+
+# =============================================================================
+#### AMR and AHLE combo
+# =============================================================================
+den_amr_ahle = pd.merge(
+    left=den_amr
+    ,right=den_ahle.drop(columns='number_of_farms')
+    ,on='farm_type'
+    ,how='left'
+)
+
+# Add calcs
+den_amr_ahle = den_amr_ahle.eval(
+    '''
+    burden_of_amr_at_pop_level_median_pctofahle = burden_of_amr_at_pop_level_median / ahle_at_pop_level_median
+    burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
+    burden_of_amr_at_pop_level_95pctile_pctofahle = burden_of_amr_at_pop_level_95pctile / ahle_at_pop_level_95pctile
+    '''
+)
+datainfo(den_amr_ahle)
+export_dataframe(den_amr_ahle, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 
 # =============================================================================
 #### AHLE details from Bern
