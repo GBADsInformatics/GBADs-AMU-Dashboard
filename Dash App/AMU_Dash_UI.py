@@ -471,7 +471,9 @@ gbadsDash.layout = html.Div([
                html.Br(),
 
            #### -- DROPDOWN CONTROLS
-           html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global"),
+           html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global",
+                   style={"margin-bottom": ".07rem !important",
+                          'font-style':'italic'}),
             # html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
             # html.A("Source: WOAH 2018"
             #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
@@ -1135,6 +1137,119 @@ gbadsDash.layout = html.Div([
            ]),
 
             ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+
+        ########################## TODO: Mockups for tab options ##########################
+
+        #### Option 1 - Case Study tab
+        # #### CASE STUDY TAB
+        # dcc.Tab(label="Case Study", children =[
+
+        #     #### -- COUNTRY/SPECIES SELECT
+        #     dbc.Row([
+
+        #         # Case Study Countries
+        #         dbc.Col([
+        #             html.H6("Countries"),
+        #             dcc.Dropdown(id='select-case-study-countries-amu',
+        #                   options=[
+        #                       'Denmark'
+        #                       ,'Ethiopia'
+        #                       ],
+        #                   value='Denmark',
+        #                   clearable=True,
+        #                   ),
+        #             ]),
+
+        #         # Case Study Species
+        #         dbc.Col([
+        #             html.H6("Species"),
+        #             dcc.Dropdown(id='select-case-study-species-amu',
+        #                   options=[
+        #                       'Cattle'
+        #                       ,'Swine'
+        #                       ],
+        #                   value='Swine',
+        #                   clearable=True,
+        #                   ),
+        #             ]),
+
+        #     # END OF CONTROLS ROW
+        #     ], justify='evenly'),
+
+        # ### END OF CASE STUDY TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+        #### Option 2 - Species tabs
+        # #### SWINE TAB
+        # dcc.Tab(label="Swine", children =[
+        #     html.H3("Denmark Swine Case Study",
+        #             style={"margin-bottom": ".07rem !important",
+        #                    'font-style':'italic'}),
+        # ### END OF SWINE TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+        # #### CATTLE TAB
+        # dcc.Tab(label="Cattle", children =[
+        #     html.H3("Ethiopia Cattle Case Study",
+        #             style={"margin-bottom": ".07rem !important",
+        #                    'font-style':'italic'}),
+        # ### END OF CATTLE TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+        #### Option 3 - Countries tabs
+        # #### DENMARK CASE STUDY TAB
+        # dcc.Tab(label="Denmark Case Study", children =[
+        #     html.H3("Denmark Swine Case Study",
+        #             style={"margin-bottom": ".07rem !important",
+        #                    'font-style':'italic'}),
+        # ### END OF DENMARK CASE STUDY TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+        # #### ETHIOPIA CASE STUDY TAB
+        # dcc.Tab(label="Ethiopia Case Study", children =[
+        #     html.H3("Ethiopia Cattle Case Study",
+        #             style={"margin-bottom": ".07rem !important",
+        #                    'font-style':'italic'}),
+        # ### END OF ETHIOPIA CASE STUDY TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+
+        #### Option 4 - AHLE & AMU tabs with case study select
+        # #### DENMARK CASE STUDY TAB
+        # dcc.Tab(label="AHLE", children =[
+        #         #### -- COUNTRY/SPECIES SELECT
+        #         dbc.Row([
+
+        #             # Case Study Countries
+        #             dbc.Col([
+        #                 html.H6("Countries"),
+        #                 dcc.Dropdown(id='select-case-study-countries-amu',
+        #                       options=[
+        #                           'Denmark'
+        #                           ,'Ethiopia'
+        #                           ],
+        #                       value='Denmark',
+        #                       clearable=True,
+        #                       ),
+        #                 ]),
+
+        #             # Case Study Species
+        #             dbc.Col([
+        #                 html.H6("Species"),
+        #                 dcc.Dropdown(id='select-case-study-species-amu',
+        #                       options=[
+        #                           'Cattle'
+        #                           ,'Swine'
+        #                           ],
+        #                       value='Swine',
+        #                       clearable=True,
+        #                       ),
+        #                 ]),
+
+        #         # END OF CONTROLS ROW
+        #         ], justify='evenly'),
+        # ### END OF DENMARK CASE STUDY TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
 
         ### END OF TABS ###
