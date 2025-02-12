@@ -1,7 +1,7 @@
 #%% ABOUT
 '''
-This code reads data files provided by the University of Liverpool and University
-of Bern and creates structured data tables for use in the dashboard.
+This code reads data files provided by the University of Liverpool and the
+University of Bern and creates structured data tables for use in the dashboard.
 
 Contributors:
     Justin Replogle, First Analytics
@@ -204,3 +204,46 @@ den_ahle = pd.read_excel(
 den_ahle = clean_colnames(den_ahle)
 datainfo(den_ahle)
 export_dataframe(den_ahle, PRODATA_FOLDER)
+
+# =============================================================================
+#### AHLE details from Bern
+# =============================================================================
+den_ahle_dtl = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
+    ,sheet_name='AHLE from U Bern'
+)
+den_ahle_dtl = clean_colnames(den_ahle_dtl)
+datainfo(den_ahle_dtl)
+export_dataframe(den_ahle_dtl, PRODATA_FOLDER)
+
+# =============================================================================
+#### AHLE inputs from Bern
+# =============================================================================
+den_ahle_inputs = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
+    ,sheet_name='Inputs from U Bern'
+)
+den_ahle_inputs = clean_colnames(den_ahle_inputs)
+datainfo(den_ahle_inputs)
+export_dataframe(den_ahle_inputs, PRODATA_FOLDER)
+
+# =============================================================================
+#### AHLE scenario comparisons from Bern
+# =============================================================================
+den_ahle_comp = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
+    ,sheet_name='Scenario comps from U Bern'
+    ,header=[0,1]   # Header is split over two rows
+)
+den_ahle_comp = colnames_from_index(den_ahle_comp)      # Flatten multi-indexed column names
+den_ahle_comp = clean_colnames(den_ahle_comp)
+
+rename_cols = {
+    "all_columns_are_differences_per_year_scenario":"scenario"
+    ,"all_columns_are_differences_per_year_farm_type":"farm_type"
+    ,"farm_delta_variable_costs___delta_gm":"farm_delta_variable_costs_prpn_delta_gm"
+}
+den_ahle_comp = den_ahle_comp.rename(columns=rename_cols)
+
+datainfo(den_ahle_comp)
+export_dataframe(den_ahle_comp, PRODATA_FOLDER)
