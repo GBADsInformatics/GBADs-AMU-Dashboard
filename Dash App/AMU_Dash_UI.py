@@ -1215,41 +1215,41 @@ gbadsDash.layout = html.Div([
         #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
         #### Option 4 - AHLE & AMU tabs with case study select
-        #### DENMARK CASE STUDY TAB
-        dcc.Tab(label="AHLE", children =[
-                #### -- COUNTRY/SPECIES SELECT
-                dbc.Row([
+        # #### DENMARK CASE STUDY TAB
+        # dcc.Tab(label="AHLE", children =[
+        #         #### -- COUNTRY/SPECIES SELECT
+        #         dbc.Row([
 
-                    # Case Study Countries
-                    dbc.Col([
-                        html.H6("Countries"),
-                        dcc.Dropdown(id='select-case-study-countries-amu',
-                              options=[
-                                  'Denmark'
-                                  ,'Ethiopia'
-                                  ],
-                              value='Denmark',
-                              clearable=True,
-                              ),
-                        ]),
+        #             # Case Study Countries
+        #             dbc.Col([
+        #                 html.H6("Countries"),
+        #                 dcc.Dropdown(id='select-case-study-countries-amu',
+        #                       options=[
+        #                           'Denmark'
+        #                           ,'Ethiopia'
+        #                           ],
+        #                       value='Denmark',
+        #                       clearable=True,
+        #                       ),
+        #                 ]),
 
-                    # Case Study Species
-                    dbc.Col([
-                        html.H6("Species"),
-                        dcc.Dropdown(id='select-case-study-species-amu',
-                              options=[
-                                  'Cattle'
-                                  ,'Swine'
-                                  ],
-                              value='Swine',
-                              clearable=True,
-                              ),
-                        ]),
+        #             # Case Study Species
+        #             dbc.Col([
+        #                 html.H6("Species"),
+        #                 dcc.Dropdown(id='select-case-study-species-amu',
+        #                       options=[
+        #                           'Cattle'
+        #                           ,'Swine'
+        #                           ],
+        #                       value='Swine',
+        #                       clearable=True,
+        #                       ),
+        #                 ]),
 
-                # END OF CONTROLS ROW
-                ], justify='evenly'),
-        ### END OF DENMARK CASE STUDY TAB
-            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+        #         # END OF CONTROLS ROW
+        #         ], justify='evenly'),
+        # ### END OF DENMARK CASE STUDY TAB
+        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
 
 
         ### END OF TABS ###
