@@ -95,12 +95,7 @@ user_guide_tab_selected_style ={
 # =============================================================================
 # Define folder location
 CWD = os.getcwd()
-DASH_DATA_FOLDER = os.path.join(CWD ,'Data')
-
-# -----------------------------------------------------------------------------
-# Denmark AMR
-# -----------------------------------------------------------------------------
-den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
+DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
 # -----------------------------------------------------------------------------
 # Antimicrobial Usage
@@ -224,6 +219,85 @@ def create_tree_map_amu(input_df, value, categories):
 
     # # Add value to bottom leaf node labels
     # tree_map_fig.data[0].textinfo = 'label+text+value'
+
+    return tree_map_fig
+
+# This function creates a plotly treemap with an option to show weighted averages
+# instead of sums for boxes above the base level.
+# It first calculates weighted averages using a pivot table, then draws the treemap by
+# specifying the id and parent for each box.
+# 2023/3/22: There is a bug causing a blank chart when AGGREGATION == 'mean'. Not using this at this time.
+def create_treemap_withagg(
+        INPUT_DF
+        ,HIERARCHY              # List: categorical variables that define hierarchy, in desired order most to least aggregated
+        ,COLOR_BY               # String: variable to color by. WARNING: must be one of the variables in HIERARCHY.
+        ,VALUE_VAR              # String: variable with values to plot
+        ,AGGREGATION='sum'      # String: how to aggregate VALUE_VAR. 'sum' (default) or 'mean'.
+        ,WEIGHT_VAR=None        # String (optional): variable to use for weighting if AGGREGATION='mean'.
+    ):
+    if AGGREGATION == 'mean':
+        dfmod = INPUT_DF.copy()
+
+        # Create weighted value
+        if WEIGHT_VAR:
+            dfmod['treemap_weight'] = dfmod[WEIGHT_VAR]
+        else:
+            dfmod['treemap_weight'] = 1
+        dfmod['treemap_weighted_value'] = dfmod[VALUE_VAR] * dfmod['treemap_weight']
+
+        # For each variable in the hierarchy, create summary rows where that variable is ALL
+        # Calculate the mean of the weighted value
+        treemap_df = pd.DataFrame()     # Initialize dataframe to hold results
+        for i ,VAR in enumerate(HIERARCHY):
+            summary_rows = dfmod.pivot_table(
+                index=HIERARCHY[:i+1]     # Index is all hierarchy variables up to i
+                ,values=['treemap_weighted_value' ,'treemap_weight']
+                ,aggfunc='sum'
+                ).reset_index()
+            # summary_rows['treemap_value'] = summary_rows['treemap_weighted_value'] / summary_rows['treemap_weight']
+            treemap_df = pd.concat([treemap_df ,summary_rows] ,axis=0 ,ignore_index=True)
+
+        # Add a row for the global total
+        global_row = pd.DataFrame(dfmod[['treemap_weighted_value' ,'treemap_weight']].sum()).transpose()
+        treemap_df = pd.concat([global_row ,treemap_df] ,axis=0 ,ignore_index=True)
+
+        # Calculate weighted mean
+        treemap_df['treemap_value'] = treemap_df['treemap_weighted_value'] / treemap_df['treemap_weight']
+
+        # Drop rows with zero or negative value - these cause plotly to fail silently!
+        treemap_df = treemap_df.query("treemap_value > 0")
+
+        # Add columns for id and parent
+        treemap_df['treemap_id'] = treemap_df[f'{HIERARCHY[0]}'].str.cat(treemap_df[HIERARCHY[1:]] ,sep='|' ,na_rep='_all_')
+        treemap_df['treemap_id'] = treemap_df['treemap_id'].str.replace('|_all_' ,'' ,regex=False)
+        treemap_df[['treemap_parent' ,'treemap_parent_remainder']] = treemap_df['treemap_id'].str.rsplit('|' ,n=1 ,expand=True)
+
+        treemap_df.loc[treemap_df['treemap_parent_remainder'].isnull() ,'treemap_parent'] = '_all_'  # First level of hierarchy gets parent _all_
+        treemap_df.loc[treemap_df['treemap_id'] == '_all_' ,'treemap_parent'] = ''  # Global level of hierarchy gets parent blank
+
+        # Draw tree map
+        # Figure is blank with no errors!!
+        tree_map_fig = px.treemap(
+            ids=treemap_df['treemap_id']
+            ,parents=treemap_df['treemap_parent']
+            ,values=treemap_df['treemap_value']
+            ,color=treemap_df[COLOR_BY]
+            )
+
+        # Figure is blank with no errors!!
+        # tree_map_fig = go.Figure(go.Treemap(
+        #     ids=treemap_df['treemap_id']
+        #     ,parents=treemap_df['treemap_parent']
+        #     ,values=treemap_df['treemap_value']
+        #     ))
+
+    elif AGGREGATION == 'sum':
+        tree_map_fig = px.treemap(
+            INPUT_DF
+            ,path=HIERARCHY
+            ,values=VALUE_VAR
+            ,color=COLOR_BY
+            )
 
     return tree_map_fig
 
@@ -2167,6 +2241,24 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
         # Use create map defined above
         amu_map_fig = create_tree_map_amu(input_df, value, categories)
+
+        # treemap_hierarchy = ['region_with_countries_reporting', categories, 'antimicrobial_class']
+        # if quantity == 'Antimicrobial usage: tonnes':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_tonnes'
+        #         )
+        # elif quantity == 'Antimicrobial usage: mg per kg biomass':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_mg_perkgbiomass'
+        #         ,AGGREGATION='mean'
+        #         ,WEIGHT_VAR='biomass_total_kg_reporting'
+        #         )
 
         # Add title
         amu_map_fig.update_layout(title_text=f'{quantity} drill down by region and {category_title} | Countries reporting to WOAH',
