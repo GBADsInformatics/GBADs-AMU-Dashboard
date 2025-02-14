@@ -98,11 +98,6 @@ CWD = os.getcwd()
 DASH_DATA_FOLDER = os.path.join(CWD ,'Data')
 
 # -----------------------------------------------------------------------------
-# Denmark AMR
-# -----------------------------------------------------------------------------
-den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
-
-# -----------------------------------------------------------------------------
 # Antimicrobial Usage
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
@@ -122,6 +117,12 @@ amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined
 
 # Antimicrobial resistance data
 amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
+
+# -----------------------------------------------------------------------------
+# Denmark AMR
+# -----------------------------------------------------------------------------
+den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
+den_amr_ahle_tall = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_tall.pkl.gz'))
 
 # =============================================================================
 #### User options and defaults
@@ -219,7 +220,32 @@ def create_tree_map_amu(input_df, value, categories):
                               maxdepth=3,
                               color='region',
                               # color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
-                              color_discrete_map={'(?)':'lightgrey', 'Africa':'rgb(135,197,95)', 'Americas':'rgb(248,156,116)', 'Asia, Far East and Oceania':'rgb(102,197,204)', 'Europe':'rgb(220,176,242)', 'Middle East':'rgb(254,136,177)'},
+                              color_discrete_map={
+                                  '(?)':'lightgrey',
+                                  'Africa':'rgb(135,197,95)',
+                                  'Americas':'rgb(248,156,116)',
+                                  'Asia, Far East and Oceania':'rgb(102,197,204)',
+                                  'Europe':'rgb(220,176,242)',
+                                  'Middle East':'rgb(254,136,177)'
+                                  },
+                              )
+
+    # # Add value to bottom leaf node labels
+    # tree_map_fig.data[0].textinfo = 'label+text+value'
+
+    return tree_map_fig
+
+def create_tree_map_den(input_df, value, categories):
+    tree_map_fig = px.treemap(input_df,
+                              path=[
+                                  px.Constant("Global"),
+                                  'region_with_countries_reporting',
+                                  categories,
+                                  'antimicrobial_class',
+                                  ],
+                              values=value,
+                              maxdepth=3,
+                              color='region',
                               )
 
     # # Add value to bottom leaf node labels
@@ -256,8 +282,6 @@ gbadsDash.layout = html.Div([
         ], justify='between'),
 
     #### Data to pass between callbacks
-    # dcc.Store(id='core-data-poultry'),
-    # dcc.Store(id='core-data-swine'),
     dcc.Store(id='amu-regional-data'),
 
     #### TABS

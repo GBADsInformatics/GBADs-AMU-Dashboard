@@ -239,6 +239,16 @@ datainfo(den_amr_ahle)
 export_dataframe(den_amr_ahle, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 
+# Reshape for plotting
+den_amr_ahle_tall = den_amr_ahle.melt(
+	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
+	,value_vars=['burden_of_amr_at_farm_level_median', 'ahle_at_farm_level_median']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
+	,var_name='orig_col'             # Name for new "variable" column
+	,value_name='value'              # Name for new "value" column
+)
+export_dataframe(den_amr_ahle_tall, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle_tall, DASHDATA_FOLDER)
+
 # =============================================================================
 #### AHLE details from Bern
 # =============================================================================
