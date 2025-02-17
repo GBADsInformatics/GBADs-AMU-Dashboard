@@ -233,17 +233,12 @@ def create_tree_map_amu(input_df, value, categories):
 
     return tree_map_fig
 
-def create_tree_map_den(input_df, value, categories):
+def create_tree_map_den(input_df, value, path, colorby):
     tree_map_fig = px.treemap(input_df,
-                              path=[
-                                  px.Constant("Global"),
-                                  'region_with_countries_reporting',
-                                  categories,
-                                  'antimicrobial_class',
-                                  ],
+                              path=path,
                               values=value,
                               maxdepth=3,
-                              color='region',
+                              color=colorby,
                               )
 
     # # Add value to bottom leaf node labels
@@ -298,8 +293,6 @@ gbadsDash.layout = html.Div([
         ], justify='center'),
 
     #### Data to pass between callbacks
-    # dcc.Store(id='core-data-poultry'),
-    # dcc.Store(id='core-data-swine'),
     dcc.Store(id='amu-regional-data'),
 
     #### TABS
@@ -1158,6 +1151,33 @@ gbadsDash.layout = html.Div([
             # END OF CONTROLS ROW
             ], justify='evenly'),
 
+            #### -- MOSAIC PLOT (TREEMAP)
+            dbc.Row([
+                dbc.Col([
+                    dbc.Spinner(children=[
+                        dcc.Graph(id='den-amr-treemap',
+                                  style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_AMU_Stacked_Bar'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      })
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                ]),
+
         ### END OF CASE STUDY TAB
             ]),
 
@@ -1167,8 +1187,6 @@ gbadsDash.layout = html.Div([
                  'margin-left': '10px'}, )
 
         ])
-
-
 
 #%% 5. CALLBACKS
 # This section does the interactivity work with the web page
@@ -2711,6 +2729,22 @@ def update_expenditure_amu(input_json, expenditure_units):
                      )
 
     return bar_fig
+
+# Denmark AMR treemap
+@gbadsDash.callback(
+    Output('den-amr-treemap', 'figure'),
+    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    )
+def update_den_amr_treemap(dummy_input):
+    input_df = den_amr_ahle_tall.query("scenario == 'Average'").query("farm_type != 'Total'")
+    treemap_fig = create_tree_map_den(
+        input_df
+        ,value='value'
+        ,path=[px.Constant('Denmark'), 'farm_type', 'orig_col']
+        ,colorby='farm_type'
+        )
+    return treemap_fig
 
 # AMU for terrestrial animals, with uncertainty
 # @gbadsDash.callback(
