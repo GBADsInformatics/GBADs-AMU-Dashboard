@@ -79,6 +79,11 @@ app.config.suppress_callback_exceptions = True    # Use to remove warnings when 
 ###############################################################################################
 # Define tab styles
 
+# Tab styles
+tab_style = {'font-size':"1.5625rem",
+             'font-weight': 'bold',
+             }
+
 # Tab colors based on grouping
 user_guide_tab_style ={
     'border-color': 'grey',
@@ -95,7 +100,7 @@ user_guide_tab_selected_style ={
 # =============================================================================
 # Define folder location
 CWD = os.getcwd()
-DASH_DATA_FOLDER = os.path.join(CWD ,'Data')
+DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
 # -----------------------------------------------------------------------------
 # Antimicrobial Usage
@@ -220,14 +225,7 @@ def create_tree_map_amu(input_df, value, categories):
                               maxdepth=3,
                               color='region',
                               # color_discrete_map={'(?)':'lightgrey', 'Africa':'#636FFA', 'Americas':'#EF553B', 'Asia, Far East and Oceania':'#00CC97', 'Europe':'#AB63FA', 'Middle East':'#FFC091'},
-                              color_discrete_map={
-                                  '(?)':'lightgrey',
-                                  'Africa':'rgb(135,197,95)',
-                                  'Americas':'rgb(248,156,116)',
-                                  'Asia, Far East and Oceania':'rgb(102,197,204)',
-                                  'Europe':'rgb(220,176,242)',
-                                  'Middle East':'rgb(254,136,177)'
-                                  },
+                              color_discrete_map={'(?)':'lightgrey', 'Africa':'rgb(135,197,95)', 'Americas':'rgb(248,156,116)', 'Asia, Far East and Oceania':'rgb(102,197,204)', 'Europe':'rgb(220,176,242)', 'Middle East':'rgb(254,136,177)'},
                               )
 
     # # Add value to bottom leaf node labels
@@ -265,39 +263,70 @@ gbadsDash.layout = html.Div([
         dbc.Col(
             html.Div([
                 html.A(href="https://animalhealthmetrics.org/",
+                       target='_blank',
                        children=[
-                       html.Img(title="Link to GBADS site", src=os.environ.get("BASE_URL", "") + '/assets/GBADs-LOGO-Black-sm.png')
+                       html.Img(title="Link to GBADs site",
+                                src=os.environ.get("BASE_URL", "") + '/assets/GBADs-LOGO-Black-sm.png')
+
                        ]
                        ),
-                # html.H3("Inclusiveness Challenge Delivery Rigour Transparency",
-                html.H3("Global Burden of Animal Diseases",
+                # html.H5("Inclusiveness Challenge Delivery Rigour Transparency",
+                html.H5("Global Burden of Animal Diseases",
                         style={"font-style": "italic",
-                               "margin": "0",
-                               "padding": "0"}),
+                               "padding": "0",
+                               "margin-bottom":"0rem !important"}),
                 ], style = {'margin-left':"10px",
-                            "margin-bottom":"10px",
-                            'margin-right':"10px"},
+                            # "margin-bottom":"10px",
+                            'margin-right':"10px",},
                 )
             ),
-        ], justify='between'),
+
+        ### END OF BRANDING & HEADING
+        ]),
+
+    #### DASHBOARD TITLE
+    dbc.Row([
+        dbc.Col([
+            # Dashboard title
+            html.H1('Antimicrobial Usage',
+                    style={'color': '#F7931D',
+                           "font-weight": "bold",
+                           "justify-self": "center"}
+                    ),
+            ], xs=12, sm=12, md=12, lg=9, xl=9)
+        ### END OF DASHBOARD TITLE
+        ], justify='center'),
 
     #### Data to pass between callbacks
+    # dcc.Store(id='core-data-poultry'),
+    # dcc.Store(id='core-data-swine'),
     dcc.Store(id='amu-regional-data'),
 
     #### TABS
-    dcc.Tabs([
+    dbc.Tabs([
 
         #### USER GUIDE TAB
-        dcc.Tab(label="User Guide & References", children =[
+        dbc.Tab(label="User Guide & References",
+                tabClassName="flex-grow-1 text-center",
+                    tab_style = tab_style,
+                    style = {"height":"100vh",
+                        },
+                children =[
             html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
                         style={"width":"100%",
                                 "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
                                 },)
         ### END OF USER GUIDE TAB
-            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+            ]),
 
         #### ANTIMICROBIAL USAGE TAB
-       dcc.Tab(label="Antimicrobial Usage (AMU)", id='AMU-tab', children =[
+       dbc.Tab(label="Antimicrobial Usage (AMU)",
+               id='AMU-tab',
+               tabClassName="flex-grow-1 text-center",
+               tab_style = tab_style,
+               style = {"height":"100vh",
+                        },
+               children =[
             #### -- NAVIGATION BUTTONS
             dbc.Row([
                 # Regional & Global AMU
@@ -1086,120 +1115,51 @@ gbadsDash.layout = html.Div([
                )),
            ]),
 
-            ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+            ]),
 
 
-        ########################## TODO: Mockups for tab options ##########################
+        #### CASE STUDY TAB
+        dbc.Tab(label="Case Studies",
+                tabClassName="flex-grow-1 text-center",
+                tab_style = tab_style,
+                style = {"height":"100vh",
+                         },
+                children =[
 
-        #### Option 1 - Case Study tab
-        # #### CASE STUDY TAB
-        # dcc.Tab(label="Case Study", children =[
+            #### -- COUNTRY/SPECIES SELECT
+            dbc.Row([
 
-        #     #### -- COUNTRY/SPECIES SELECT
-        #     dbc.Row([
+                # Case Study Countries
+                dbc.Col([
+                    html.H6("Countries"),
+                    dcc.Dropdown(id='select-case-study-countries-amu',
+                          options=[
+                              'Denmark'
+                              ,'Ethiopia'
+                              ],
+                          value='Denmark',
+                          clearable=True,
+                          ),
+                    ]),
 
-        #         # Case Study Countries
-        #         dbc.Col([
-        #             html.H6("Countries"),
-        #             dcc.Dropdown(id='select-case-study-countries-amu',
-        #                   options=[
-        #                       'Denmark'
-        #                       ,'Ethiopia'
-        #                       ],
-        #                   value='Denmark',
-        #                   clearable=True,
-        #                   ),
-        #             ]),
+                # Case Study Species
+                dbc.Col([
+                    html.H6("Species"),
+                    dcc.Dropdown(id='select-case-study-species-amu',
+                          options=[
+                              'Cattle'
+                              ,'Swine'
+                              ],
+                          value='Swine',
+                          clearable=True,
+                          ),
+                    ]),
 
-        #         # Case Study Species
-        #         dbc.Col([
-        #             html.H6("Species"),
-        #             dcc.Dropdown(id='select-case-study-species-amu',
-        #                   options=[
-        #                       'Cattle'
-        #                       ,'Swine'
-        #                       ],
-        #                   value='Swine',
-        #                   clearable=True,
-        #                   ),
-        #             ]),
+            # END OF CONTROLS ROW
+            ], justify='evenly'),
 
-        #     # END OF CONTROLS ROW
-        #     ], justify='evenly'),
-
-        # ### END OF CASE STUDY TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-        #### Option 2 - Species tabs
-        # #### SWINE TAB
-        # dcc.Tab(label="Swine", children =[
-        #     html.H3("Denmark Swine Case Study",
-        #             style={"margin-bottom": ".07rem !important",
-        #                    'font-style':'italic'}),
-        # ### END OF SWINE TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-        # #### CATTLE TAB
-        # dcc.Tab(label="Cattle", children =[
-        #     html.H3("Ethiopia Cattle Case Study",
-        #             style={"margin-bottom": ".07rem !important",
-        #                    'font-style':'italic'}),
-        # ### END OF CATTLE TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-        #### Option 3 - Countries tabs
-        # #### DENMARK CASE STUDY TAB
-        # dcc.Tab(label="Denmark Case Study", children =[
-        #     html.H3("Denmark Swine Case Study",
-        #             style={"margin-bottom": ".07rem !important",
-        #                    'font-style':'italic'}),
-        # ### END OF DENMARK CASE STUDY TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-        # #### ETHIOPIA CASE STUDY TAB
-        # dcc.Tab(label="Ethiopia Case Study", children =[
-        #     html.H3("Ethiopia Cattle Case Study",
-        #             style={"margin-bottom": ".07rem !important",
-        #                    'font-style':'italic'}),
-        # ### END OF ETHIOPIA CASE STUDY TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
-
-        #### Option 4 - AHLE & AMU tabs with case study select
-        # #### DENMARK CASE STUDY TAB
-        # dcc.Tab(label="AHLE", children =[
-        #         #### -- COUNTRY/SPECIES SELECT
-        #         dbc.Row([
-
-        #             # Case Study Countries
-        #             dbc.Col([
-        #                 html.H6("Countries"),
-        #                 dcc.Dropdown(id='select-case-study-countries-amu',
-        #                       options=[
-        #                           'Denmark'
-        #                           ,'Ethiopia'
-        #                           ],
-        #                       value='Denmark',
-        #                       clearable=True,
-        #                       ),
-        #                 ]),
-
-        #             # Case Study Species
-        #             dbc.Col([
-        #                 html.H6("Species"),
-        #                 dcc.Dropdown(id='select-case-study-species-amu',
-        #                       options=[
-        #                           'Cattle'
-        #                           ,'Swine'
-        #                           ],
-        #                       value='Swine',
-        #                       clearable=True,
-        #                       ),
-        #                 ]),
-
-        #         # END OF CONTROLS ROW
-        #         ], justify='evenly'),
-        # ### END OF DENMARK CASE STUDY TAB
-        #     ], style=user_guide_tab_style, selected_style=user_guide_tab_selected_style),
+        ### END OF CASE STUDY TAB
+            ]),
 
 
         ### END OF TABS ###
@@ -2191,6 +2151,24 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
 
         # Use create map defined above
         amu_map_fig = create_tree_map_amu(input_df, value, categories)
+
+        # treemap_hierarchy = ['region_with_countries_reporting', categories, 'antimicrobial_class']
+        # if quantity == 'Antimicrobial usage: tonnes':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_tonnes'
+        #         )
+        # elif quantity == 'Antimicrobial usage: mg per kg biomass':
+        #     amu_map_fig = create_treemap_withagg(
+        #         input_df
+        #         ,HIERARCHY=treemap_hierarchy
+        #         ,COLOR_BY='region_with_countries_reporting'
+        #         ,VALUE_VAR='amu_mg_perkgbiomass'
+        #         ,AGGREGATION='mean'
+        #         ,WEIGHT_VAR='biomass_total_kg_reporting'
+        #         )
 
         # Add title
         amu_map_fig.update_layout(title_text=f'{quantity} drill down by region and {category_title} | Countries reporting to WOAH',
