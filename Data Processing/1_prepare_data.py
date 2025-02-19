@@ -239,12 +239,15 @@ den_amr_ahle = pd.merge(
 
 # Add calcs
 den_amr_ahle = den_amr_ahle.eval(
+    # Farm level
+    '''
+    ahle_at_farm_level_median_withoutamr = ahle_at_farm_level_median - burden_of_amr_at_farm_level_median
+    '''
+    # Population level
     '''
     burden_of_amr_at_pop_level_median_pctofahle = burden_of_amr_at_pop_level_median / ahle_at_pop_level_median
     burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
     burden_of_amr_at_pop_level_95pctile_pctofahle = burden_of_amr_at_pop_level_95pctile / ahle_at_pop_level_95pctile
-
-    ahle_at_farm_level_median_withoutamr = ahle_at_farm_level_median - burden_of_amr_at_farm_level_median
 
     ahle_at_pop_level_median_withoutamr = ahle_at_pop_level_median - burden_of_amr_at_pop_level_median
     '''
@@ -253,15 +256,25 @@ datainfo(den_amr_ahle)
 export_dataframe(den_amr_ahle, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 
-# Reshape for plotting
-den_amr_ahle_tall = den_amr_ahle.melt(
+# Reshape for plotting - farm level
+den_amr_ahle_farmlvl = den_amr_ahle.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
 	,value_vars=['burden_of_amr_at_farm_level_median', 'ahle_at_farm_level_median_withoutamr']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
-	,var_name='orig_col'             # Name for new "variable" column
+	,var_name='metric'             # Name for new "variable" column
 	,value_name='value'              # Name for new "value" column
 )
-export_dataframe(den_amr_ahle_tall, PRODATA_FOLDER)
-export_dataframe(den_amr_ahle_tall, DASHDATA_FOLDER)
+export_dataframe(den_amr_ahle_farmlvl, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
+
+# Reshape for plotting - farm level
+den_amr_ahle_poplvl = den_amr_ahle.melt(
+	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
+	,value_vars=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
+	,var_name='metric'             # Name for new "variable" column
+	,value_name='value'              # Name for new "value" column
+)
+export_dataframe(den_amr_ahle_poplvl, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
 
 # =============================================================================
 #### AHLE details from Bern

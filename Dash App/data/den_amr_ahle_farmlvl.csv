@@ -1,4 +1,4 @@
-scenario,farm_type,number_of_farms,orig_col,value
+scenario,farm_type,number_of_farms,metric,value
 Average,Breed,760,burden_of_amr_at_farm_level_median,8548.68013903083
 Average,Nurse,483,burden_of_amr_at_farm_level_median,42376.531629593155
 Average,Fat,1116,burden_of_amr_at_farm_level_median,0.0
