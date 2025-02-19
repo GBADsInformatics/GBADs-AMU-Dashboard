@@ -239,6 +239,7 @@ def create_tree_map_den(input_df, value, path, colorby):
                               values=value,
                               maxdepth=3,
                               color=colorby,
+                              color_discrete_map={'(?)':'lightgrey'}
                               )
 
     # # Add value to bottom leaf node labels
@@ -1151,11 +1152,37 @@ gbadsDash.layout = html.Div([
             # END OF CONTROLS ROW
             ], justify='evenly'),
 
-            #### -- MOSAIC PLOT (TREEMAP)
+            #### -- FIRST GRAPHICS ROW
+            html.Hr(style={'margin-right':'10px',}),
             dbc.Row([
+                #### -- MOSAIC PLOT (TREEMAP)
                 dbc.Col([
                     dbc.Spinner(children=[
                         dcc.Graph(id='den-amr-treemap',
+                                  style = {"height":"650px"},
+                                  config = {
+                                      "displayModeBar" : True,
+                                      "displaylogo": False,
+                                      'toImageButtonOptions': {
+                                          'format': 'png', # one of png, svg, jpeg, webp
+                                          'filename': 'GBADs_AMU_Stacked_Bar'
+                                          },
+                                      'modeBarButtonsToRemove': ['zoom',
+                                                                  'zoomIn',
+                                                                  'zoomOut',
+                                                                  'autoScale',
+                                                                  #'resetScale',  # Removes home button
+                                                                  'pan',
+                                                                  'select2d',
+                                                                  'lasso2d']
+                                      })
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                    ]),
+                #### -- BAR CHART
+                dbc.Col([
+                    dbc.Spinner(children=[
+                        dcc.Graph(id='den-amr-barchart',
                                   style = {"height":"650px"},
                                   config = {
                                       "displayModeBar" : True,
@@ -2730,22 +2757,6 @@ def update_expenditure_amu(input_json, expenditure_units):
 
     return bar_fig
 
-# Denmark AMR treemap
-@gbadsDash.callback(
-    Output('den-amr-treemap', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_den_amr_treemap(dummy_input):
-    input_df = den_amr_ahle_tall.query("scenario == 'Average'").query("farm_type != 'Total'")
-    treemap_fig = create_tree_map_den(
-        input_df
-        ,value='value'
-        ,path=[px.Constant('Denmark'), 'farm_type', 'orig_col']
-        ,colorby='farm_type'
-        )
-    return treemap_fig
-
 # AMU for terrestrial animals, with uncertainty
 # @gbadsDash.callback(
 #     Output('amu-terr-error-usage','figure'),
@@ -2861,6 +2872,62 @@ def update_den_amr_treemap(dummy_input):
 #                       )
 
 #     return fig
+
+# Denmark AMR treemap
+@gbadsDash.callback(
+    Output('den-amr-treemap', 'figure'),
+    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    )
+def update_den_amr_treemap(dummy_input):
+    input_df = den_amr_ahle_tall.query("scenario == 'Average'").query("farm_type != 'Total'")
+    treemap_fig = create_tree_map_den(
+        input_df
+        ,value='value'
+        ,path=[px.Constant('All'), 'farm_type', 'orig_col']
+        ,colorby='farm_type'
+        )
+    treemap_fig.update_layout(
+        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Farm Level<br>By Farm Type',
+        font_size=15,
+        )
+    return treemap_fig
+
+# Denmark AMR bar chart
+@gbadsDash.callback(
+    Output('den-amr-barchart', 'figure'),
+    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    )
+def update_den_amr_barchart(dummy_input):
+    input_df = den_amr_ahle_tall.query("scenario == 'Average'").query("farm_type != 'Total'")
+
+    # Replace column values to show in legend
+    legend_text = {
+        "burden_of_amr_at_farm_level_median":"AMR"
+        ,"ahle_at_farm_level_median_withoutamr":"Non-AMR AHLE"
+        }
+    input_df['orig_col'] = input_df['orig_col'].replace(legend_text)
+
+    # Create figure
+    barchart_fig = px.bar(
+    	input_df
+    	,x='farm_type'
+    	,y='value'
+    	,color='orig_col'
+    	,barmode='relative'
+        ,log_y=True
+    	,labels={
+            "orig_col":"Source of Burden"
+            ,"farm_type":"Farm Type"
+    		,"value":"Burden (DKK)"
+       }
+    )
+    barchart_fig.update_layout(
+        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Farm Level<br>By Farm Type',
+        font_size=15,
+        )
+    return barchart_fig
 
 #%% 6. RUN APP
 #############################################################################################################

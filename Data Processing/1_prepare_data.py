@@ -192,6 +192,11 @@ rename_cols = {
 }
 den_amr = den_amr.rename(columns=rename_cols)
 
+# Make AMR numbers positive for graphing
+numeric_cols = list(den_amr.select_dtypes('number'))
+for COL in numeric_cols:
+    den_amr[COL] = abs(den_amr[COL])
+
 datainfo(den_amr)
 export_dataframe(den_amr, PRODATA_FOLDER)
 
@@ -214,6 +219,11 @@ rename_cols = {
 }
 den_ahle = den_ahle.rename(columns=rename_cols)
 
+# Make AHLE numbers positive for graphing
+numeric_cols = list(den_ahle.select_dtypes('number'))
+for COL in numeric_cols:
+    den_ahle[COL] = abs(den_ahle[COL])
+
 datainfo(den_ahle)
 export_dataframe(den_ahle, PRODATA_FOLDER)
 
@@ -233,6 +243,10 @@ den_amr_ahle = den_amr_ahle.eval(
     burden_of_amr_at_pop_level_median_pctofahle = burden_of_amr_at_pop_level_median / ahle_at_pop_level_median
     burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
     burden_of_amr_at_pop_level_95pctile_pctofahle = burden_of_amr_at_pop_level_95pctile / ahle_at_pop_level_95pctile
+
+    ahle_at_farm_level_median_withoutamr = ahle_at_farm_level_median - burden_of_amr_at_farm_level_median
+
+    ahle_at_pop_level_median_withoutamr = ahle_at_pop_level_median - burden_of_amr_at_pop_level_median
     '''
 )
 datainfo(den_amr_ahle)
@@ -242,7 +256,7 @@ export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 # Reshape for plotting
 den_amr_ahle_tall = den_amr_ahle.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
-	,value_vars=['burden_of_amr_at_farm_level_median', 'ahle_at_farm_level_median']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
+	,value_vars=['burden_of_amr_at_farm_level_median', 'ahle_at_farm_level_median_withoutamr']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
 	,var_name='orig_col'             # Name for new "variable" column
 	,value_name='value'              # Name for new "value" column
 )
