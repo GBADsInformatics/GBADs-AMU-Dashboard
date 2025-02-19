@@ -184,6 +184,36 @@ for i in np.sort(amr_withsmry['pathogen'].unique()):
     str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
 # =============================================================================
+#### Layout helper functions
+# =============================================================================
+def dcc_graph_element(
+        ID:str              # Element ID. Use in callbacks.
+        ,DL_FILENAME:str    # Filename to create if "download plot" button is clicked
+        ,HEIGHT:int         # Height in pixels. Set to the same value for every element in a row.
+    ):
+    element = dcc.Graph(
+        id=ID,
+        style = {"height":f"{HEIGHT}px"},
+        config = {
+            "displayModeBar" : True,
+            "displaylogo": False,
+            'toImageButtonOptions': {
+                'format': 'png', # one of png, svg, jpeg, webp
+                'filename': DL_FILENAME
+                },
+            'modeBarButtonsToRemove': [
+                'zoom',
+                'zoomIn',
+                'zoomOut',
+                'autoScale',
+                'pan',
+                'select2d',
+                'lasso2d']
+            }
+        )
+    return element
+
+# =============================================================================
 #### Define the figures
 # =============================================================================
 def create_map_display_amu(input_df, value):
@@ -558,30 +588,10 @@ gbadsDash.layout = html.Div([
            #### -- GRAPHICS PT.1
             dbc.Row([
                      dbc.Col([ # AMU Stacked Bar
-                     dbc.Spinner(children=[
-                     dcc.Graph(id='amu-stacked-bar',
-                               style = {"height":"650px"},
-                               config = {
-                                   "displayModeBar" : True,
-                                   "displaylogo": False,
-                                   'toImageButtonOptions': {
-                                       'format': 'png', # one of png, svg, jpeg, webp
-                                       'filename': 'GBADs_AMU_Stacked_Bar'
-                                       },
-                                   'modeBarButtonsToRemove': ['zoom',
-                                                               'zoomIn',
-                                                               'zoomOut',
-                                                               'autoScale',
-                                                               #'resetScale',  # Removes home button
-                                                               'pan',
-                                                               'select2d',
-                                                               'lasso2d']
-                                   })
-                         # End of Spinner
-                         ],size="md", color="#393375", fullscreen=False),
-
-                         # End of Stacked Bar
-                         ]),
+                         dbc.Spinner(children=[
+                             dcc_graph_element(ID='amu-stacked-bar', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
+                             ], size="md", color="#393375", fullscreen=False),   # End of Spinner
+                         ]),    # End of Stacked Bar
 
                          dbc.Col([ # AMU Donut Chart
                          dbc.Spinner(children=[
