@@ -17,6 +17,7 @@ from pathlib import Path
 import inspect
 import requests
 import io
+from io import StringIO
 
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] Starting {__name__}")
 print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] cwd = {os.getcwd()}")
@@ -1285,7 +1286,6 @@ gbadsDash.layout = html.Div([
                         ],size="md", color="#393375", fullscreen=False),
                     ]),
                 ]),
-
         ### END OF CASE STUDY TAB
             ]),
 
@@ -1697,22 +1697,22 @@ def update_table_display_amu(dummy_input):
     display_data.update(display_data[[
         'biomass_total_kg_reporting'
         ,'biomass_total_kg_region'
-    ]].applymap('{:,.0f}'.format))
+    ]].map('{:,.0f}'.format))
 
     # One decimal place
     display_data.update(display_data[[
         'amu_tonnes'
-    ]].applymap('{:,.1f}'.format))
+    ]].map('{:,.1f}'.format))
 
     # Percent
     display_data.update(display_data[[
         'biomass_prpn_reporting'
-    ]].applymap('{:,.1%}'.format))
+    ]].map('{:,.1%}'.format))
 
     # Two decimal places
     display_data.update(display_data[[
         'amu_mg_perkgbiomass'
-    ]].applymap('{:,.2f}'.format))
+    ]].map('{:,.2f}'.format))
 
     return [
             html.H4("WOAH Antimicrobial Data 2018"),
@@ -1753,7 +1753,7 @@ def update_table_display_amu(dummy_input):
     Input('amu-regional-data', 'data'),
     )
 def update_regional_display_amu(input_json):
-    display_data = pd.read_json(input_json, orient='split')
+    display_data = pd.read_json(StringIO(input_json), orient='split')
 
     columns_to_display_with_labels = {
         'region':'Region'
@@ -1794,35 +1794,41 @@ def update_regional_display_amu(input_json):
     # ------------------------------------------------------------------------------
     # Order does not matter in these lists
     # Zero decimal places
-    display_data.update(display_data[[
-        'number_of_countries'
-        ,'biomass_total_kg_reporting'
-        ,'biomass_total_kg_region'
-        ,'biomass_terr_kg_reporting'
-        ,'biomass_terr_kg_region'
-        ,'total_antimicrobials_tonnes'
-        ,'terr_amu_tonnes_reporting'
-        ,'terr_amu_tonnes_reporting_2020'
-        ,'terr_amu_tonnes_region_2020'
-        ,'terr_amu_tonnes_mulch_2020'
-    ]].applymap('{:,.0f}'.format))
+    columns_to_format = [
+    'number_of_countries',
+    'biomass_total_kg_reporting',
+    'biomass_total_kg_region',
+    'biomass_terr_kg_reporting',
+    'biomass_terr_kg_region',
+    'total_antimicrobials_tonnes',
+    'terr_amu_tonnes_reporting',
+    'terr_amu_tonnes_reporting_2020',
+    'terr_amu_tonnes_region_2020',
+    'terr_amu_tonnes_mulch_2020'
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
 
     # One decimal place
     # display_data.update(display_data[[
-    # ]].applymap('{:,.1f}'.format))
+    # ]].map('{:,.1f}'.format))
 
     # Two decimal places
-    display_data.update(display_data[[
-        'drug_resistance_index'
-        ,'biomass_terr_prpn_reporting'
-        ,'biomass_terr_reporting_prpnofregion'
-    ]].applymap('{:,.2f}'.format))
+    columns_to_format = [
+    'drug_resistance_index',
+    'biomass_terr_prpn_reporting',
+    'biomass_terr_reporting_prpnofregion'
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.2f}')
 
     # Percent
-    display_data.update(display_data[[
-        'prpn_change_2018to2020'
-        ,'resistance_rate_wtavg'
-    ]].applymap('{:,.0%}'.format))
+    columns_to_format = [
+    'prpn_change_2018to2020',
+    'resistance_rate_wtavg',
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0%}')
 
     # Euro currency
     # display_data.update(display_data[[
@@ -1830,15 +1836,17 @@ def update_regional_display_amu(input_json):
     #     ,'am_price_eurospertonne_mid'
     #     ,'am_price_eurospertonne_high'
     #     ,'am_expenditure_euros_selected'
-    # ]].applymap('€ {:,.0f}'.format))
+    # ]].map('€ {:,.0f}'.format))
 
     # USD currency
-    display_data.update(display_data[[
-        'am_price_usdpertonne_low'
-        ,'am_price_usdpertonne_mid'
-        ,'am_price_usdpertonne_high'
-        ,'am_expenditure_usd_selected'
-    ]].applymap('$ {:,.0f}'.format))
+    columns_to_format = [
+    'am_price_usdpertonne_low',
+    'am_price_usdpertonne_mid',
+    'am_price_usdpertonne_high',
+    'am_expenditure_usd_selected'
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
 
     return [
             html.H4("Extended Regional Data"),
@@ -1904,22 +1912,26 @@ def update_amr_display_amu(dummy_input):
     # ------------------------------------------------------------------------------
     # Order does not matter in these lists
     # Zero decimal places
-    display_data.update(display_data[[
-        'sum_isolates'
-    ]].applymap('{:,.0f}'.format))
+    columns_to_format = [
+    'sum_isolates',
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
 
     # One decimal place
     # display_data.update(display_data[[
-    # ]].applymap('{:,.1f}'.format))
+    # ]].map('{:,.1f}'.format))
 
     # Two decimal places
     # display_data.update(display_data[[
-    # ]].applymap('{:,.2f}'.format))
+    # ]].map('{:,.2f}'.format))
 
     # Percent
-    display_data.update(display_data[[
-        'overall_prev'
-    ]].applymap('{:,.1%}'.format))
+    columns_to_format = [
+    'overall_prev',
+    ]
+    for column in columns_to_format:
+        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.1%}')
 
     return [
             html.H4("Antimicrobial Resistance Data"),
@@ -1998,11 +2010,11 @@ def update_amr_display_amu(dummy_input):
 #         ,'amu_terrestrial_tonnes_max'
 #         ,'tonnes_ci95_low'
 #         ,'tonnes_ci95_high'
-#     ]].applymap('{:,.0f}'.format))
+#     ]].map('{:,.0f}'.format))
 
 #     # One decimal place
 #     display_data.update(display_data[[
-#     ]].applymap('{:,.1f}'.format))
+#     ]].map('{:,.1f}'.format))
 
 #     # Two decimal places
 #     display_data.update(display_data[[
@@ -2013,7 +2025,7 @@ def update_amr_display_amu(dummy_input):
 #        ,'price_ci95_high'
 #        ,'expenditure_ci95_low'
 #        ,'expenditure_ci95_high'
-#     ]].applymap('€ {:,.2f}'.format))
+#     ]].map('€ {:,.2f}'.format))
 
 #     # ------------------------------------------------------------------------------
 #     # Hover-over text
@@ -2076,7 +2088,7 @@ def update_amr_display_amu(dummy_input):
 def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_json):
     input_df = amu2018_combined_tall.copy()
     input_df_amr = amr_withsmry.copy()
-    input_df_am_expend = pd.read_json(input_json, orient='split')
+    input_df_am_expend = pd.read_json(StringIO(input_json), orient='split')
 
     # Filter scope to All and remove nulls from importance category
     input_df = input_df.query("scope == 'All'")
@@ -2672,7 +2684,7 @@ def update_donut_chart_amu (quantity, region, classification):
     Input('select-usage-units-amu' ,'value'),
     )
 def update_am_usage_comparison(input_json, units):
-    input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_json(StringIO(input_json), orient='split')
 
     # Recalculate units if needed
     if units == 'mg per kg biomass':
@@ -2744,7 +2756,7 @@ def update_am_usage_comparison(input_json, units):
     Input('amu-regional-data', 'data'),
     )
 def update_am_price_comparison(input_json):
-    input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_json(StringIO(input_json), orient='split')
 
     # Set custom colors to sync across all visuals
     colors = {"Asia, Far East and Oceania": 'rgb(102,197,204)',
@@ -2798,7 +2810,7 @@ def update_am_price_comparison(input_json):
     Input('select-expenditure-units-amu', 'value'),
     )
 def update_expenditure_amu(input_json, expenditure_units):
-    input_df = pd.read_json(input_json, orient='split')
+    input_df = pd.read_json(StringIO(input_json), orient='split')
 
     # Set the units based on the expenditure selected
     if expenditure_units == 'per kg biomass':

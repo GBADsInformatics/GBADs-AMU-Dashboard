@@ -24,6 +24,14 @@ parts:
     #- file: Analysis/amu_details
     #  sections:
     #  - file: Analysis/amu_dri
+  - caption: Case Studies
+    chapters:
+    - file: Tool/amu_case_studies_countries
+    - file: Tool/amu_case_studies_readingthecharts
+      sections:
+      - file: Tool/amu_case_studies_controls
+      - file: Tool/amu_case_studies_1_mosaic_chat
+    - file: Tool/amu_case_studies_readingthedata
   - caption: References
     chapters:
     - file: References/General
