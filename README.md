@@ -20,6 +20,10 @@ Built upon the AHLE Dashboard framework.
 │   ├── lib/			     	# Directory for python libraries used within dashboard
 │   ├── AMU_Dash_UI.py  		# Python script for Dash dashborad Excel data to YAML
 │   ├── Dockerfile		     	# Dockerfile used to created webpage for dash dashboard
+├── Data Processing/          	# Directory for Data Processing files
+│   ├── processed_data/			# Directory for data files that have been processed
+│   ├── raw_data/			    # Directory for raw data files
+│   ├── 1_prepare_data.py  		# Python script for processing data
 ├── requirements.txt        	# Python dependencies
 ├── LICENSE		            	# License
 ├── README.md               	# Project documentation
