@@ -942,7 +942,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Price"),
+                                   html.H6("Price", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-price-slider-africa',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
@@ -1151,37 +1151,28 @@ gbadsDash.layout = html.Div([
                          },
                 children =[
 
-            #### -- COUNTRY/SPECIES SELECT
+            #### -- COUNTRY SELECT
             dbc.Row([
-
                 # Case Study Countries
                 dbc.Col([
-                    html.H6("Countries"),
+                    html.H6("Countries", style={'text-align':'center'}),
                     dcc.Dropdown(id='select-case-study-countries-amu',
                           options=[
                               'Denmark'
                               ,'Ethiopia'
                               ],
                           value='Denmark',
-                          clearable=True,
                           ),
-                    ]),
+                    ],width={"size": 3}),
+            # END OF COUNTRY SELECT ROW
+            ], justify="end"),
 
-                # Case Study Species
-                dbc.Col([
-                    html.H6("Species"),
-                    dcc.Dropdown(id='select-case-study-species-amu',
-                          options=[
-                              'Cattle'
-                              ,'Swine'
-                              ],
-                          value='Swine',
-                          clearable=True,
-                          ),
-                    ]),
-
-            # END OF CONTROLS ROW
-            ], justify='evenly'),
+            #### -- COUNTRY/SPECIES TITLE
+            dbc.Row([
+                # Case Study Countries
+                html.H3("Denmark Swine", id='case-study-amu-title', style={'text-align':'center'}),
+            # END OF COUNTRY/SPECIES TITLE ROW
+            ], justify="end"),
 
             #### -- FIRST GRAPHICS ROW
             html.Hr(style={'margin-right':'10px',}),
@@ -1609,6 +1600,18 @@ def update_usage_price_sliders(reset_button):
 
 #     return options
 
+# Update Case Study Title
+@gbadsDash.callback(
+    Output('case-study-amu-title','children'),
+    Input('select-case-study-countries-amu','value'),
+    )
+def update_case_study_title(country_select):
+    if country_select.upper() == 'DENMARK':
+        title = f'{country_select} Swine'
+    elif country_select.upper() == 'ETHIOPIA':
+        title = f'{country_select} Cattle'
+
+    return title
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -2978,6 +2981,7 @@ def update_den_amr_treemap_farmlvl(dummy_input):
     treemap_fig.update_layout(
         title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Farm Level<br>By Farm Type',
         font_size=15,
+        margin=dict(l=10, r=10, b=10),
         )
     return treemap_fig
 
@@ -2992,6 +2996,7 @@ def update_den_amr_treemap_poplvl(dummy_input):
     treemap_fig.update_layout(
         title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Population Level<br>By Farm Type',
         font_size=15,
+        margin=dict(l=10, r=10, b=10),
         )
     return treemap_fig
 
