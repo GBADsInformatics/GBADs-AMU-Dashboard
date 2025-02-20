@@ -294,16 +294,16 @@ def create_tree_map_den(input_df):
 
 def create_barchart_den(input_df):
     barchart_fig = px.bar(
-    	input_df
-    	,x='farm_type'
-    	,y='value'
-    	,color='metric'
-    	,barmode='relative'
+        input_df
+        ,x='farm_type'
+        ,y='value'
+        ,color='metric'
+        ,barmode='relative'
         ,log_y=True
-    	,labels={
+        ,labels={
             "metric":"Source of Burden"
             ,"farm_type":"Farm Type"
-    		,"value":"Burden (DKK)"
+            ,"value":"Burden (DKK)"
        }
     )
     return barchart_fig
@@ -313,7 +313,6 @@ def create_barchart_den(input_df):
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.
 ##################################################################################################
 gbadsDash.layout = html.Div([
-
     #### BRANDING & HEADING
     dbc.Row([
         # GBADs Branding
@@ -322,22 +321,22 @@ gbadsDash.layout = html.Div([
                 html.A(href="https://animalhealthmetrics.org/",
                        target='_blank',
                        children=[
-                       html.Img(title="Link to GBADs site",
-                                src=os.environ.get("BASE_URL", "") + '/assets/GBADs-LOGO-Black-sm.png')
-
-                       ]
+                           html.Img(title="Link to GBADs site",
+                                    src=os.environ.get("BASE_URL", "") + '/assets/GBADs-LOGO-Black-sm.png')
+                           ]
                        ),
                 # html.H5("Inclusiveness Challenge Delivery Rigour Transparency",
                 html.H5("Global Burden of Animal Diseases",
                         style={"font-style": "italic",
                                "padding": "0",
-                               "margin-bottom":"0rem !important"}),
-                ], style = {'margin-left':"10px",
+                               "margin-bottom":"0rem !important"
+                               }
+                        ),
+                ], style={'margin-left':"10px",
                             # "margin-bottom":"10px",
                             'margin-right':"10px",},
                 )
             ),
-
         ### END OF BRANDING & HEADING
         ]),
 
@@ -363,30 +362,29 @@ gbadsDash.layout = html.Div([
         #### USER GUIDE TAB
         dbc.Tab(label="User Guide & References",
                 tabClassName="flex-grow-1 text-center",
-                    tab_style = tab_style,
-                    style = {"height":"100vh",
-                        },
-                children =[
-            html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
-                        style={"width":"100%",
-                                "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
-                                },)
-        ### END OF USER GUIDE TAB
-            ]),
+                tab_style = tab_style,
+                style = {"height":"100vh"},
+                children=[
+                    html.Iframe(src="assets/GBADs_Documentation/_build/html/index.html", # this is for the jupyter books
+                                style={"width":"100%",
+                                       "height":"3600px",   # Set large enough for your largest page and guide will use browser scroll bar. Otherwise, longer pages will get their own scroll bars.
+                                       },
+                                )
+                    ]
+                ),  ### END OF USER GUIDE TAB
 
         #### ANTIMICROBIAL USAGE TAB
-       dbc.Tab(label="Antimicrobial Usage (AMU)",
-               id='AMU-tab',
-               tabClassName="flex-grow-1 text-center",
-               tab_style = tab_style,
-               style = {"height":"100vh",
-                        },
-               children =[
-            #### -- NAVIGATION BUTTONS
-            dbc.Row([
-                # Regional & Global AMU
-                dbc.Col([
-                    dbc.NavbarBrand(dcc.Link(
+        dbc.Tab(label="Antimicrobial Usage (AMU)",
+                id='AMU-tab',
+                tabClassName="flex-grow-1 text-center",
+                tab_style = tab_style,
+                style = {"height":"100vh"},
+                children=[
+                    #### -- NAVIGATION BUTTONS
+                    dbc.Row([
+                        # Regional & Global AMU
+                        dbc.Col([
+                            dbc.NavbarBrand(dcc.Link(
                                 dbc.Button(children='AMU by Region & Importance',
                                             # style={
                                             #     'display': 'inline-block',
@@ -401,910 +399,707 @@ gbadsDash.layout = html.Div([
                                             # }
                                             ),
 
-                                href='#AMU-Regional-Global', refresh=True)),
-                    ]),
+                                href='#AMU-Regional-Global',
+                                refresh=True
+                                )),
+                            ]),
 
-                # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
-                dbc.Col([
-                    dbc.NavbarBrand(dcc.Link(
-                        dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
-                                    # style={'color': 'white',
-                                    #        'backgroundColor': '#101820',
-                                    #        'fontSize': '15px ',
-                                    #        'width': '150px',
-                                    #        'height': '50px',
-                                    #        'marginLeft': '10px',
-                                    #        'marginRight': '100px',
-                                    #        }
-                                    ),
-                        href='#AMU-Biomass-AMR-Costs-Viz', refresh=True),
-                        style={'justify-content':'center',
-                               'display':'flex'}),
-                    ],width="auto"),
+                        # Treemap & Map (Visualization of AMU, Biomass, AMR & AM Costs)
+                        dbc.Col([
+                            dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Visualization of AMU, Biomass, AMR & AM Costs',
+                                            # style={'color': 'white',
+                                            #        'backgroundColor': '#101820',
+                                            #        'fontSize': '15px ',
+                                            #        'width': '150px',
+                                            #        'height': '50px',
+                                            #        'marginLeft': '10px',
+                                            #        'marginRight': '100px',
+                                            #        }
+                                            ),
+                                href='#AMU-Biomass-AMR-Costs-Viz',
+                                refresh=True),
+                                style={'justify-content':'center',
+                                       'display':'flex'}
+                                ),
+                            ],width="auto"),
 
-                # Exploring AMU/price Variability
-                dbc.Col([
-                    dbc.NavbarBrand(dcc.Link(
-                        dbc.Button(children='Exploring AMU/price Variability',
-                                    # style={'color': 'white',
-                                    #        'backgroundColor': '#101820',
-                                    #        'fontSize': '15px ',
-                                    #        'width': '150px',
-                                    #        'height': '50px',
-                                    #        'marginLeft': '10px',
-                                    #        'marginRight': '100px',
-                                    #        }
-                                    ),
-                        href='#AMU-exploring-variability', refresh=True),
-                        style={'justify-content':'center',
-                               'display':'flex'}),
-                    ]),
+                        # Exploring AMU/price Variability
+                        dbc.Col([
+                            dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Exploring AMU/price Variability',
+                                            # style={'color': 'white',
+                                            #        'backgroundColor': '#101820',
+                                            #        'fontSize': '15px ',
+                                            #        'width': '150px',
+                                            #        'height': '50px',
+                                            #        'marginLeft': '10px',
+                                            #        'marginRight': '100px',
+                                            #        }
+                                            ),
+                                href='#AMU-exploring-variability',
+                                refresh=True),
+                                style={'justify-content':'center',
+                                       'display':'flex'}
+                                ),
+                            ]),
 
-                # Regional AM Expenditure Estimator
-                dbc.Col([
-                    dbc.NavbarBrand(dcc.Link(
-                        dbc.Button(children='Regional AM Expenditure Estimator',
-                                    # style={'color': 'white',
-                                    #        'backgroundColor': '#101820',
-                                    #        'fontSize': '15px ',
-                                    #        'width': '150px',
-                                    #        'height': '50px',
-                                    #        'marginLeft': '10px',
-                                    #        'marginRight': '100px',
-                                    #        }
-                                    ),
-                        href='#AMU-regional-expenditure', refresh=True),
-                        style={'justify-content':'center',
-                               'display':'flex'}),
-                    ]),
+                        # Regional AM Expenditure Estimator
+                        dbc.Col([
+                            dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Regional AM Expenditure Estimator',
+                                            # style={'color': 'white',
+                                            #        'backgroundColor': '#101820',
+                                            #        'fontSize': '15px ',
+                                            #        'width': '150px',
+                                            #        'height': '50px',
+                                            #        'marginLeft': '10px',
+                                            #        'marginRight': '100px',
+                                            #        }
+                                            ),
+                                href='#AMU-regional-expenditure',
+                                refresh=True),
+                                style={'justify-content':'center',
+                                       'display':'flex'}
+                                ),
+                            ]),
 
-                # Data Export
-                dbc.Col([
-                    dbc.NavbarBrand(dcc.Link(
-                        dbc.Button(children='Data Export',
-                                    # style=nav_btn_style,
-                                    ),
-                        href='#AMU-data-export', refresh=True),
-                        style={'justify-content':'center',
-                               'display':'flex'}),
-                    ],
-                    style={
-                            # TODO: Change colors in CSS
-                              # "border":"2px #C5DAB8 solid",
-                              }
-                    ),
+                        # Data Export
+                        dbc.Col([
+                            dbc.NavbarBrand(dcc.Link(
+                                dbc.Button(children='Data Export',
+                                           # style=nav_btn_style,
+                                           ),
+                                href='#AMU-data-export', refresh=True),
+                                style={'justify-content':'center',
+                                       'display':'flex'}
+                                ),
+                            ],
+                            style={
+                                # TODO: Change colors in CSS
+                                # "border":"2px #C5DAB8 solid",
+                                }
+                            ),
 
-            #     dbc.NavbarSimple(
-            #     children=[
-            #         dbc.NavItem(dbc.NavLink("Regional & Global AMU", href="#AMU-Regional-Global",)),
-            #         dbc.DropdownMenu(
-            #             children=[
-            #                 dbc.DropdownMenuItem("More pages", header=True),
-            #                 dbc.DropdownMenuItem("Exploring AMU/price Variability", href="#AMU-exploring-variability",),
-            #                 dbc.DropdownMenuItem("Regional AM Expenditure Estimator", href="#AMU-regional-expenditure",),
-            #             ],
-            #             nav=True,
-            #             in_navbar=True,
-            #             label="More",
-            #         ),
-            #     ],
-            #     brand="NavbarSimple",
-            #     # brand_href="#",
-            #     color="secondary",
-            #     dark=True,
-            # ),
+                        # dbc.NavbarSimple(
+                        #     children=[
+                        #         dbc.NavItem(dbc.NavLink("Regional & Global AMU", href="#AMU-Regional-Global",)),
+                        #         dbc.DropdownMenu(
+                        #             children=[
+                        #                 dbc.DropdownMenuItem("More pages", header=True),
+                        #                 dbc.DropdownMenuItem("Exploring AMU/price Variability", href="#AMU-exploring-variability",),
+                        #                 dbc.DropdownMenuItem("Regional AM Expenditure Estimator", href="#AMU-regional-expenditure",),
+                        #                 ],
+                        #             nav=True,
+                        #             in_navbar=True,
+                        #             label="More",
+                        #             ),
+                        #         ],
+                        #     brand="NavbarSimple",
+                        #     # brand_href="#",
+                        #     color="secondary",
+                        #     dark=True,
+                        #     ),
 
-                # END OF NAVIGATION BUTTONS ROW
-                ], justify='evenly',
-                    style={
-                            # 'position': 'fixed',
-                            # 'z-index': '999', # Bring to front
-                        },
-                    ),
+                        ],
+                        justify='evenly',
+                        style={
+                             # 'position': 'fixed',
+                             # 'z-index': '999', # Bring to front
+                               },
+                        ),  # END OF NAVIGATION BUTTONS ROW
+                    html.Br(),
 
-               html.Br(),
+                    #### -- DROPDOWN CONTROLS
+                    html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes",
+                            id="AMU-Regional-Global",
+                            style={"margin-bottom": ".07rem !important",
+                                   'font-style':'italic'
+                                   }
+                            ),
+                    html.Label(['Displaying antimicrobial usage as reported to ',
+                                html.A('WOAH (2018)', href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')
+                                ],
+                               style={'font-style':'italic'}
+                               ),
+                    html.Br(),
+                    dbc.Row([
 
-           #### -- DROPDOWN CONTROLS
-           html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes", id="AMU-Regional-Global",
-                   style={"margin-bottom": ".07rem !important",
-                          'font-style':'italic'}),
-            # html.P("Displaying antimicrobial usage as reported to WOAH" ,style={'font-style':'italic'}),
-            # html.A("Source: WOAH 2018"
-            #        ,href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf'
-            #        ,style={'font-style':'italic'}
-            #        ),
-            html.Label(['Displaying antimicrobial usage as reported to ',
-                        html.A('WOAH (2018)', href='https://www.woah.org/app/uploads/2022/06/a-sixth-annual-report-amu-final.pdf')
-                        ], style={'font-style':'italic'}),
-           html.Br(),
-           dbc.Row([
+                        # Bar Chart selection
+                        dbc.Col([
+                            html.H6("Regional AMU Bar Display"),
+                            dcc.RadioItems(id='select-amu-graph',
+                                           options=['Total', 'Percent'],
+                                           value='Total',
+                                           labelStyle={'display': 'block'},
+                                           inputStyle={"margin-right": "10px"},
+                                           ),
+                            ]),
 
-               # Bar Chart selection
-               dbc.Col([
-                   html.H6("Regional AMU Bar Display"),
-                   dcc.RadioItems(id='select-amu-graph',
-                         options=['Total', 'Percent'],
-                         value='Total',
-                         labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "10px"},
-                         ),
-                   ]),
+                        # Display quantity
+                        dbc.Col([
+                            html.H6("AMU Units"),
+                            dcc.RadioItems(id='select-quantity-amu-tonnes',
+                                           options=['Tonnes', 'mg per kg biomass'],
+                                           value='Tonnes',
+                                           labelStyle={'display': 'block'},
+                                           inputStyle={"margin-right": "10px"},
+                                           ),
+                            ]),
 
-               # Display quantity
-               dbc.Col([
-                   html.H6("AMU Units"),
-                   dcc.RadioItems(id='select-quantity-amu-tonnes',
-                         options=['Tonnes', 'mg per kg biomass'],
-                         value='Tonnes',
-                         labelStyle={'display': 'block'},
-                         inputStyle={"margin-right": "10px"},
-                         ),
-                   ]),
+                        # AMU classification
+                        dbc.Col([
+                            html.H6("Antimicrobial Grouping"),
+                            dcc.Dropdown(id='select-classification-amu',
+                                         options=[
+                                             'Top Global Classes'
+                                             ,'WHO Importance Categories'
+                                             ,'WOAH Importance Categories'
+                                             ,'OneHealth Importance Categories'
+                                             ,'Individual Classes'
+                                             ],
+                                         value='Top Global Classes',
+                                         clearable=False,
+                                         ),
+                            # Text underneath
+                            html.P("See user guide for descriptions of importance categories" ,style={'font-style':'italic'}),
+                            ]),
 
-               # AMU classification
-               dbc.Col([
-                   html.H6("Antimicrobial Grouping"),
-                   dcc.Dropdown(id='select-classification-amu',
-                         options=[
-                             'Top Global Classes'
-                             ,'WHO Importance Categories'
-                             ,'WOAH Importance Categories'
-                             ,'OneHealth Importance Categories'
-                             ,'Individual Classes'
-                             ],
-                         value='Top Global Classes',
-                         clearable=False,
-                         ),
-                   # Text underneath
-                   html.P("See user guide for descriptions of importance categories" ,style={'font-style':'italic'}),
-                   ]),
+                        # Region-country alignment
+                        # dbc.Col([
+                        #     html.H6('Region-country alignment'),
+                        #     dcc.RadioItems(id='Region-country-alignment-amu',
+                        #                     options=region_structure_options,
+                        #                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
+                        #                                 "margin-left":"20px"},
+                        #                     value="WOAH",
+                        #                     style={"margin-left":'-20px'}
+                        #                     )
+                        #         ]),
 
-               # Region-country alignment
-                # dbc.Col([
-                #     html.H6('Region-country alignment'),
-                #     dcc.RadioItems(id='Region-country-alignment-amu',
-                #                     options=region_structure_options,
-                #                     inputStyle={"margin-right": "10px", # This pulls the words off of the button
-                #                                 "margin-left":"20px"},
-                #                     value="WOAH",
-                #                     style={"margin-left":'-20px'})
-                #     ]),
+                        # Region
+                        dbc.Col([
+                            html.H6("Region"),
+                            dcc.Dropdown(id='select-region-amu',
+                                         options=WOAH_region_options_ga,
+                                         value='All',
+                                         clearable = False,
+                                         ),
+                            ]),
 
-               # Region
-               dbc.Col([
-                   html.H6("Region"),
-                   dcc.Dropdown(id='select-region-amu',
-                                 options=WOAH_region_options_ga,
-                                 value='All',
-                                 clearable = False,
-                                 ),
-                   ]),
+                        ], justify='evenly'),   # END OF CONTROLS ROW
+                    html.Hr(style={'margin-right':'10px',}),
 
+                    #### -- GRAPHICS PT.1
+                    dbc.Row([
+                        dbc.Col([ # AMU Stacked Bar
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='amu-stacked-bar', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
+                                ], size="md", color="#393375", fullscreen=False),   # End of Spinner
+                            ]),
 
-        # END OF CONTROLS ROW
-        ], justify='evenly'),
+                        dbc.Col([ # AMU Donut Chart
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='amu-donut-chart', DL_FILENAME='GBADs_AMU_Donut', HEIGHT=650)
+                                ],size="md", color="#393375", fullscreen=False),    # End of Spinner
+                            ]),
+                        ]),     # END OF FIRST GRAPHICS ROW
 
-        html.Hr(style={'margin-right':'10px',}),
-
-           #### -- GRAPHICS PT.1
-            dbc.Row([
-                     dbc.Col([ # AMU Stacked Bar
-                         dbc.Spinner(children=[
-                             dcc_graph_element(ID='amu-stacked-bar', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
-                             ], size="md", color="#393375", fullscreen=False),   # End of Spinner
-                         ]),    # End of Stacked Bar
-
-                         dbc.Col([ # AMU Donut Chart
-                         dbc.Spinner(children=[
-                         dcc.Graph(id='amu-donut-chart',
-                                   style = {"height":"650px"},
-                                   config = {
-                                       "displayModeBar" : True,
-                                       "displaylogo": False,
-                                       'toImageButtonOptions': {
-                                           'format': 'png', # one of png, svg, jpeg, webp
-                                           'filename': 'GBADs_AMU_Donut'
-                                           },
-                                       'modeBarButtonsToRemove': ['zoom',
-                                                                   'zoomIn',
-                                                                   'zoomOut',
-                                                                   'autoScale',
-                                                                   #'resetScale',  # Removes home button
-                                                                   'pan',
-                                                                   'select2d',
-                                                                   'lasso2d']
-                                       }
-                                   )
-                         # End of Spinner
-                         ],size="md", color="#393375", fullscreen=False),
-                         # End of Donut Chart
-                         ]),
-
-                 # END OF FIRST GRAPHICS ROW
-                 ],),
-
-           #### -- FOOTNOTES PT.1
-            dbc.Row([
-                dbc.Col([
-                    html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent.",
-                           style={'margin-bottom':0,}),
-                    ]),
-                dbc.Col([   # Empty column so footnotes line up with charts
-                      html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
-                      ]),
-                ], style={'margin-left':"10px",
-                          'font-style': 'italic',}
-                ),
-
-            html.Br(),
-
-            #### -- MAP/DRILLDOWN CONTROLS
-            dbc.Card([
-                dbc.CardBody([
-                    html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
-                            className="card-title"),
-
-            dbc.Row([
-                # Visualization Switch
-                dbc.Col([
-                    html.H6("Global Visualization"),
-                    dcc.RadioItems(id='select-viz-switch-amu',
-                                  options=['Drill Down', 'Map'],
-                                  value='Drill Down',
-                                  labelStyle={'display': 'block'},
-                                  inputStyle={"margin-right": "10px"},
-                                  ),
-                    ],  width=1),
-
-                # Map Display/Drill Down switch
-                dbc.Col([
-                    html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
-                    dcc.Dropdown(id='select-map-display-drilldown-amu',
-                          clearable=False,
-                          ),
-                    ]),
-
-
-            # Antimicrobial Class
-            dbc.Col([
-                html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
-                dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
-                      value='Aminoglycosides',
-                      clearable=False,
-                      ),
-                ]),
-
-                # Pathogens
-                dbc.Col([
-                    html.H6("Pathogen", id='select-pathogens-amu-title'),
-                    dcc.Dropdown(id='select-pathogens-amu',
-                          options=amu_pathogen_options,
-                          value='All',
-                          clearable=False,
-                          ),
-                    ]),
-
-            # END OF CARD OPTIONS ROW
-            ]),
-            dbc.Row([
-                html.P("Drill Down: show antimicrobial usage by region and importance category",
-                       style={'font-style': 'italic',
-                              'margin-bottom':0,}),
-                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map",
-                       style={'font-style': 'italic',
-                              'margin-bottom':0,}),
-                ]),
-
-            # END OF CARD BODY
-            ]),
-
-            ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
-
-            html.Hr(style={'margin-right':'10px',}),
-
-            # Map viz
-            dbc.Row([
-                dbc.Col([ # Global Aggregation Visual
-                    dbc.Spinner(children=[
-                    dcc.Graph(id='amu-map',
-                                style = {"height":"650px"},
-                              config = {
-                                  "displayModeBar" : True,
-                                  "displaylogo": False,
-                                  'toImageButtonOptions': {
-                                      'format': 'png', # one of png, svg, jpeg, webp
-                                      'filename': 'GBADs_Global_AMU_Viz'
-                                      },
-                                  }
-                              )
-                # End of Spinner
-                ],size="md", color="#393375", fullscreen=False),
-                # End of Map
-                ]),
-
-             # END OF SECOND GRAPHICS ROW
-            ]),
-
-            #### -- MAP/DRILLDOWN FOOTNOTES
-            dbc.Row([
-                dbc.Col([
-                    html.P("Data sources for drill down and map are as follows:"),
-                    html.P("Antimicrobial usage in tonnes or mg per kg bimoass: countries reporting total usage to WOAH (WOAH 2018)."),
-                    html.P("Biomass: total biomass for countries reporting to WOAH (WOAH 2018)."),
-                    html.P("Antimicrobial Resistance (country level): percent of pathogen positive samples for the selected pathogen that are resistant to the selected antimicrobial class (source: Venkateswaran et al., 2023)."),
-                    html.P("Drug Resistance Index (region level): drug resistance index based on the average resistance rate across all antimicrobials tested in the region, weighted by the frequency of use of those antimicrobials. Using data from (Venkateswaran et al., 2023) and methods from (Laxminarayan 2011) and (EFSA AMR Indicators 2017). See the user guide for more details."),
-                    html.P("Antimicrobial Expenditure in total USD or USD per kg biomass: calculated from antimicrobial usage and price selected below."),
-                    ]),
-                ], style={'margin-left':"10px", 'font-style': 'italic'}
-                ),
-
-           #### -- GRAPHICS PT.2
-           # Separator for WOAH data above, estimates/variations below
-           html.Hr(style={'margin-right':'10px',}),
-           dbc.Row([
-               html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
-               html.P("Use the charts and sliders below to compare illustrative antimicrobial usage and price variations. To facilitate comparison with other sources, antimicrobial usage reported to WOAH is extended to 2020 and extrapolated to cover whole regions. See the user guide for full descriptions of these estimates."),
-               ]),
-           # dbc.Row([
-           #     dbc.Col([
-           #         dbc.Card([
-           #             dbc.CardBody([html.H5("Antimicrobial usage estimates are produced for terrestrial livestock as follows:", className="card-title"),
-           #                           html.P("A*: Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues."),
-           #                           html.P("B*: Estimate A* extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
-           #                           html.P("C*: Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
-           #                           ]),
-           #             ]),
-           #         ]),
-           #     dbc.Col([
-           #         dbc.Card([
-           #             dbc.CardBody([html.H5("Price estimates are from the following sources:", className="card-title"),
-           #                           html.P("A*: For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en). For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)). For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/."),
-           #                           html.P("B*: For Africa: 22% increase from price in Europe. For the Americas: midpoint between high and low estimates. For Asia, Far East and Oceania: . For Europe: . For the Middle East: 25% decrease from price in Europe."),
-           #                           html.P("C*: For Africa: 42% increase from price in Europe. For the Americas and Asia, Far East and Oceania: the average price reported in Europe. For Europe: . For the Middle East: 15% decrease from price in Europe."),
-           #                           ]),
-           #             ]),
-           #         ]),
-           #     ]),
-           # html.Br(),
-
-           # Control and note for usage and price charts
-           dbc.Row([
-               # Usage units
-               dbc.Col([
-                   html.H6("Display antimicrobial usage as:"),
-                   dcc.RadioItems(id='select-usage-units-amu',
-                         options=['total tonnes', 'mg per kg biomass'],
-                         value='total tonnes',
-                         labelStyle={'display': 'inline-block'},
-                         inputStyle={"margin": "0 5px 0 15px",},
-                         ),
-                   ]),
-               # Note for prices
-               # dbc.Col([
-               #       html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
-               #              style={'font-weight': '600', 'font-style': 'italic'}),
-               #       ],
-               #     style={'margin-top': '30px',}, width=7,),
-
-               ]), #END OF ROW
-
-           # Plots comparing different estimates of usage and price
-           dbc.Row([
-               dbc.Col([    # Side-by-side bars comparing usage estimates for each region
-                   dbc.Spinner(children=[
-                       dcc.Graph(id='am-usage-comparison',
-                          style = {"height":"400px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AM_usage_comparison'
-                                  },
-                              'modeBarButtonsToRemove': [
-                                  'zoom',
-                                  'zoomIn',
-                                  'zoomOut',
-                                  'autoScale',
-                                  #'resetScale',  # Removes home button
-                                  'pan',
-                                  'select2d',
-                                  'lasso2d'
-                                  ]
-                              }
-                          )
-                       # End of Spinner
-                       ],size="md", color="#393375", fullscreen=False),
-                   ]),
-               dbc.Col([    # Dots and error bars comparing price estimates for each region
-                   dbc.Spinner(children=[
-                       dcc.Graph(id='am-price-comparison',
-                          style = {"height":"400px"},
-                          config = {
-                              "displayModeBar" : True,
-                              "displaylogo": False,
-                              'toImageButtonOptions': {
-                                  'format': 'png', # one of png, svg, jpeg, webp
-                                  'filename': 'GBADs_AM_price_comparison'
-                                  },
-                              'modeBarButtonsToRemove': [
-                                  'zoom',
-                                  'zoomIn',
-                                  'zoomOut',
-                                  'autoScale',
-                                  #'resetScale',  # Removes home button
-                                  'pan',
-                                  'select2d',
-                                  'lasso2d'
-                                  ]
-                              }
-                          )
-                       # End of Spinner
-                       ],size="md", color="#393375", fullscreen=False),
-                   ]),
-               ]),
-           #### -- FOOTNOTES PT.2
-           dbc.Row([
-               dbc.Col([
-                   html.P("Bars represent usage from the following sources. Please refer to the user guide for details.",),
-                   html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018).",
-                          style={'margin-bottom':0,}),
-                   html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018).",
-                          style={'margin-bottom':0,}),
-                   html.P("C*: Region-total estimate from (Mulchandani et al., 2023).",
-                          style={'margin-bottom':0,}),
-                   ]),
-               dbc.Col([
-                   html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),
-                   ]),
-               ], style={'margin-left':"10px",
-                         'font-style': 'italic',}
-               ),
-
-
-           html.Br(),
-
-           #### -- GRAPHICS PT.3
-           # Usage and Price Sliders with Expenditure chart
-           html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
-
-           # Control and note for sliders and expenditure chart
-           dbc.Row([
-               # Expenditure units
-               dbc.Col([
-                   html.H6("Display antimicrobial expenditure as:"),
-                   dcc.RadioItems(id='select-expenditure-units-amu',
-                         options=['total', 'per kg biomass'],
-                         value='total',
-                         labelStyle={'display': 'inline-block'},
-                         inputStyle={"margin": "0 5px 0 15px",},
-                         ),
-                   ]),
-               # Note for sliders
-               dbc.Col([
-                     html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
-                            style={'font-weight': '600', 'font-style': 'italic'}),
-                     ],
-                   style={'margin-top': '30px',}, width=7,),
-
-               ]), #END OF ROW
-
-           # Gaphics Row
-           dbc.Row([
-               dbc.Col([
-                   dbc.Spinner(children=[
-                   dcc.Graph(id='amu-expenditure',
-                             config = {
-                                 "displayModeBar" : True,
-                                 "displaylogo": False,
-                                 'toImageButtonOptions': {
-                                     'format': 'png', # one of png, svg, jpeg, webp
-                                     'filename': 'GBADs_AMU_Expenditure'
-                                     },
-                                 'modeBarButtonsToRemove': ['zoom',
-                                                          'zoomIn',
-                                                          'zoomOut',
-                                                          'autoScale',
-                                                          #'resetScale',  # Removes home button
-                                                          'pan',
-                                                          'select2d',
-                                                          'lasso2d']
-                             })
-                   # End of Spinner
-                   ],size="md", color="#393375", fullscreen=False),
-                   ]),
-
-               # Price and Usage Sliders
-               dbc.Col([
-                   dbc.Card([
-                       dbc.CardBody([
-                           html.H5("Estimated Antimicrobial Usage and Price for Terrestrial Livestock",
-                                   className="card-title",
-                                   style={"font-weight": "bold"}
+                    #### -- FOOTNOTES PT.1
+                    dbc.Row([
+                        dbc.Col([
+                            html.P("Numbers in parenthesis show the number of countries in each region reporting to WOAH and the percent of region total biomass they represent.",
+                                   style={'margin-bottom':0,}
                                    ),
+                            ]),
+                        dbc.Col([   # Empty column so footnotes line up with charts
+                                 html.P("Click on an antimicrobial name/importance category in the legend to remove it from the visual"),
+                            ]),
+                        ],
+                        style={'margin-left':"10px",
+                               'font-style': 'italic',}
+                        ),
 
-                           # Reset to midpoint button
-                           dbc.Col([
-                               html.Button('Reset to midpoint (B*)', id='reset-sliders-amu', n_clicks=0),
-                           ],style={'width': "auto",
-                                     'textAlign':'center',
-                                     'margin':'auto',}
-                           ),
+                    html.Br(),
 
-                           dbc.Row([    # Region names
-                               dbc.Col([html.H5("Africa")]),
-                               dbc.Col([html.H5("Americas")]),
-                               dbc.Col([html.H5("Asia, Far East and Oceania")]),
-                               dbc.Col([html.H5("Europe")]),
-                               dbc.Col([html.H5("Middle East")]),
-                               ]),
-                           dbc.Spinner(children=[
-                           dbc.Row([
-                               dbc.Col([
-                                   html.H6("Usage"),
-                                   daq.Slider(
-                                       id='am-usage-slider-africa',
-                                       handleLabel={"showCurrentValue":
-                                                    True ,"label":"Tonnes",
-                                                    'style':{'fontSize':'1'}},
-                                       vertical=True,
-                                       color= 'rgb(135,197,95)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Price"),
-                                   daq.Slider(
-                                       id='am-price-slider-africa',
-                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
-                                       vertical=True,
-                                       color= 'rgb(135,197,95)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Usage"),
-                                   daq.Slider(
-                                       id='am-usage-slider-americas',
-                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
-                                       vertical=True,
-                                       color='rgb(248,156,116)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Price"),
-                                   daq.Slider(
-                                       id='am-price-slider-americas',
-                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
-                                       vertical=True,
-                                       color='rgb(248,156,116)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Usage"),
-                                   daq.Slider(
-                                       id='am-usage-slider-asia',
-                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
-                                       vertical=True,
-                                       color='rgb(102,197,204)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Price"),
-                                   daq.Slider(
-                                       id='am-price-slider-asia',
-                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
-                                       vertical=True,
-                                       color='rgb(102,197,204)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Usage"),
-                                   daq.Slider(
-                                       id='am-usage-slider-europe',
-                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
-                                       vertical=True,
-                                       color='rgb(220,176,242)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Price"),
-                                   daq.Slider(
-                                       id='am-price-slider-europe',
-                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
-                                       vertical=True,
-                                       color='rgb(220,176,242)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Usage"),
-                                   daq.Slider(
-                                       id='am-usage-slider-mideast',
-                                       handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
-                                       vertical=True,
-                                       color='rgb(254,136,177)',
-                                       ),
-                                   ]),
-                               dbc.Col([
-                                   html.H6("Price"),
-                                   daq.Slider(
-                                       id='am-price-slider-mideast',
-                                       handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
-                                       vertical=True,
-                                       color='rgb(254,136,177)',
-                                       ),
-                                   ]),
-                               ]),
-                           ],size="md", color="#393375", fullscreen=False),     # End of spinner
-                           ]),
-                       ]),
-                   ]
-                   ,width=7
-                   ),
-               ]),
+                    #### -- MAP/DRILLDOWN CONTROLS
+                    dbc.Card([
+                        dbc.CardBody([
+                            html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
+                                    className="card-title"
+                                    ),
+                            dbc.Row([
+                                # Visualization Switch
+                                dbc.Col([
+                                    html.H6("Global Visualization"),
+                                    dcc.RadioItems(id='select-viz-switch-amu',
+                                                   options=['Drill Down', 'Map'],
+                                                   value='Drill Down',
+                                                   labelStyle={'display': 'block'},
+                                                   inputStyle={"margin-right": "10px"},
+                                                   ),
+                                    ], width=1),
 
-           # AMU for terrestrial animals, with uncertainty
-           # dbc.Row([
-           #     dbc.Col([
-           #         dbc.Spinner(children=[
-           #         dcc.Graph(id='amu-terr-error-usage',
-           #                   style = {"height":"650px"},
-           #                   config = {
-           #                       "displayModeBar" : True,
-           #                       "displaylogo": False,
-           #                       'toImageButtonOptions': {
-           #                           'format': 'png', # one of png, svg, jpeg, webp
-           #                           'filename': 'GBADs_AMU_Terrestrial_Usage'
-           #                           },
-           #                       'modeBarButtonsToRemove': ['zoom',
-           #                                                'zoomIn',
-           #                                                'zoomOut',
-           #                                                'autoScale',
-           #                                                #'resetScale',  # Removes home button
-           #                                                'pan',
-           #                                                'select2d',
-           #                                                'lasso2d']
-           #                   })
-           #         # End of Spinner
-           #         ],size="md", color="#393375", fullscreen=False),
-           #         ]),
-           #     dbc.Col([
-           #         dbc.Spinner(children=[
-           #         dcc.Graph(id='amu-terr-error-expenditure',
-           #                   style = {"height":"650px"},
-           #                   config = {
-           #                       "displayModeBar" : True,
-           #                       "displaylogo": False,
-           #                       'toImageButtonOptions': {
-           #                           'format': 'png', # one of png, svg, jpeg, webp
-           #                           'filename': 'GBADs_AMU_Terrestrial_Expenditure'
-           #                           },
-           #                       'modeBarButtonsToRemove': ['zoom',
-           #                                                'zoomIn',
-           #                                                'zoomOut',
-           #                                                'autoScale',
-           #                                                #'resetScale',  # Removes home button
-           #                                                'pan',
-           #                                                'select2d',
-           #                                                'lasso2d']
-           #                   })
-           #         # End of Spinner
-           #         ],size="md", color="#393375", fullscreen=False),
-           #         ]),
-           #     ]),
+                                # Map Display/Drill Down switch
+                                dbc.Col([
+                                    html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
+                                    dcc.Dropdown(id='select-map-display-drilldown-amu',
+                                                 clearable=False,
+                                                 ),
+                                    ]),
 
-           #### -- DATATABLES
-           html.Hr(style={'margin-right':'10px',}),
-           html.H3("Data Export", id="AMU-data-export"),
-           dbc.Row([
-               dbc.Spinner(children=[
-               dbc.Col([
-                   html.Div([
-                         html.Div( id='amu-2018-combined-tall-todisplay'),
-                   ], style={'margin-left':"20px"}),
+                                # Antimicrobial Class
+                                dbc.Col([
+                                    html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
+                                    dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
+                                                 value='Aminoglycosides',
+                                                 clearable=False,
+                                                 ),
+                                    ]),
 
-               html.Br() # Space in between tables
+                                # Pathogens
+                                dbc.Col([
+                                    html.H6("Pathogen", id='select-pathogens-amu-title'),
+                                    dcc.Dropdown(id='select-pathogens-amu',
+                                                 options=amu_pathogen_options,
+                                                 value='All',
+                                                 clearable=False,
+                                                 ),
+                                    ]),
+                                ]),     # END OF CARD OPTIONS ROW
+                            dbc.Row([
+                                html.P("Drill Down: show antimicrobial usage by region and importance category",
+                                       style={'font-style': 'italic',
+                                              'margin-bottom':0,
+                                              }
+                                       ),
+                                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map",
+                                       style={'font-style': 'italic',
+                                              'margin-bottom':0,
+                                              }
+                                       ),
+                                ]),
+                            ]),     # END OF CARD BODY
+                        ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
 
-               ]),# END OF COL
-               # End of Spinner
-               ],size="md", color="#393375", fullscreen=False),
+                    html.Hr(style={'margin-right':'10px',}),
 
-           ]),
+                    #### -- MAP / MOSAIC VIZ
+                    dbc.Row([
+                        dbc.Col([ # Global Aggregation Visual
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='amu-map', DL_FILENAME='GBADs_Global_AMU_Viz', HEIGHT=650)
+                                ],size="md", color="#393375", fullscreen=False),    # End of Spinner
+                            ]),
+                        ]),     # END OF SECOND GRAPHICS ROW
 
-           dbc.Row([
-               dbc.Spinner(children=[
-               dbc.Col([
-                   html.Div([
-                         html.Div(id='amu-regional-todisplay'),
-                   ], style={'margin-left':"20px"}),
-               html.Br() # Spacer for bottom of page
-               ]),# END OF COL
-               # End of Spinner
-               ],size="md", color="#393375", fullscreen=False),
-           ]),
+                    #### -- MAP/DRILLDOWN FOOTNOTES
+                    dbc.Row([
+                        dbc.Col([
+                            html.P("Data sources for drill down and map are as follows:"),
+                            html.P("Antimicrobial usage in tonnes or mg per kg bimoass: countries reporting total usage to WOAH (WOAH 2018)."),
+                            html.P("Biomass: total biomass for countries reporting to WOAH (WOAH 2018)."),
+                            html.P("Antimicrobial Resistance (country level): percent of pathogen positive samples for the selected pathogen that are resistant to the selected antimicrobial class (source: Venkateswaran et al., 2023)."),
+                            html.P("Drug Resistance Index (region level): drug resistance index based on the average resistance rate across all antimicrobials tested in the region, weighted by the frequency of use of those antimicrobials. Using data from (Venkateswaran et al., 2023) and methods from (Laxminarayan 2011) and (EFSA AMR Indicators 2017). See the user guide for more details."),
+                            html.P("Antimicrobial Expenditure in total USD or USD per kg biomass: calculated from antimicrobial usage and price selected below."),
+                            ]),
+                        ], style={'margin-left':"10px", 'font-style': 'italic'}
+                        ),
 
-           dbc.Row([
-               dbc.Spinner(children=[
-               dbc.Col([
-                   html.Div([
-                         html.Div(id='amr-todisplay'),
-                   ], style={'margin-left':"20px"}),
-               html.Br() # Spacer for bottom of page
-               ]),# END OF COL
-               # End of Spinner
-               ],size="md", color="#393375", fullscreen=False),
-           ]),
+                    #### -- GRAPHICS PT.2
+                    # Separator for WOAH data above, estimates/variations below
+                    html.Hr(style={'margin-right':'10px',}),
+                    dbc.Row([
+                        html.H3("Exploring Variability of Veterinary Antimicrobial Usage and Price by Data Source", id="AMU-exploring-variability"),
+                        html.P("Use the charts and sliders below to compare illustrative antimicrobial usage and price variations. To facilitate comparison with other sources, antimicrobial usage reported to WOAH is extended to 2020 and extrapolated to cover whole regions. See the user guide for full descriptions of these estimates."),
+                        ]),
+                    # dbc.Row([
+                    #     dbc.Col([
+                    #         dbc.Card([
+                    #             dbc.CardBody([html.H5("Antimicrobial usage estimates are produced for terrestrial livestock as follows:", className="card-title"),
+                    #                           html.P("A*: Limited to countries reporting total antimicrobial usage to WOAH. Estimate for terrestrial livestock based on terrestrial biomass as a proportion of total biomass. Extended to 2020 by assuming the trend from 2016-2018 continues."),
+                    #                           html.P("B*: Estimate A* extrapolated to whole region based on the proportion of terrestrial biomass for the region represented in the countries reporting."),
+                    #                           html.P("C*: Whole-region estimate for terrestrial livestock from Mulchandani et. al. (https://journals.plos.org/globalpublichealth/article?id=10.1371/journal.pgph.0001305)."),
+                    #                           ]),
+                    #             ]),
+                    #         ]),
+                    #     dbc.Col([
+                    #         dbc.Card([
+                    #             dbc.CardBody([html.H5("Price estimates are from the following sources:", className="card-title"),
+                    #                           html.P("A*: For Africa, the Americas, and the Middle East: the average price in Brazil (https://www.oecd-ilibrary.org/agriculture-and-food/antimicrobial-use-resistance-and-economic-benefits-and-costs-to-livestock-producers-in-brazil_27137b1e-en). For Asia, Far East and Oceania: the price of Tetracyclin in China (https://one.oecd.org/document/TAD/CA/APM/WP(2018)19/FINAL/En/pdf (page 25)). For Europe: https://animalhealtheurope.eu/about-us/annual-reports/2020-2/key-figures/."),
+                    #                           html.P("B*: For Africa: 22% increase from price in Europe. For the Americas: midpoint between high and low estimates. For Asia, Far East and Oceania: . For Europe: . For the Middle East: 25% decrease from price in Europe."),
+                    #                           html.P("C*: For Africa: 42% increase from price in Europe. For the Americas and Asia, Far East and Oceania: the average price reported in Europe. For Europe: . For the Middle East: 15% decrease from price in Europe."),
+                    #                           ]),
+                    #             ]),
+                    #         ]),
+                    #     ]),
+                    # html.Br(),
 
-           # Add naviagation button to top of page
-           dbc.Row([
-               dbc.Col(html.Div([
-                   html.A(href="#AMU-tab",
-                   children=[
-                       html.Img(title="Back to top",src=os.environ.get("BASE_URL", "") + '/assets/up_arrow_icon_black-modified.png')
-                   ], style={'width':'80px'},
-                   ),
-                       ], style = {'margin-left':"10px",
+                    #### Control and note for usage and price charts
+                    dbc.Row([
+                        # Usage units
+                        dbc.Col([
+                            html.H6("Display antimicrobial usage as:"),
+                            dcc.RadioItems(id='select-usage-units-amu',
+                                           options=['total tonnes', 'mg per kg biomass'],
+                                           value='total tonnes',
+                                           labelStyle={'display': 'inline-block'},
+                                           inputStyle={"margin": "0 5px 0 15px",},
+                                           ),
+                            ]),
+                        # # Note for prices
+                        # dbc.Col([
+                        #     html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
+                        #            style={'font-weight': '600', 'font-style': 'italic'}),
+                        #     ],
+                        #     style={'margin-top': '30px',}, width=7,
+                        #     ),
+                        ]),
+
+                    #### -- USAGE AND PRICE COMPARISON PLOTS
+                    dbc.Row([
+                        dbc.Col([    # Side-by-side bars comparing usage estimates for each region
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='am-usage-comparison', DL_FILENAME='GBADs_AM_usage_comparison', HEIGHT=400)
+                                 ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                            ]),
+                        dbc.Col([    # Dots and error bars comparing price estimates for each region
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='am-price-comparison', DL_FILENAME='GBADs_AM_price_comparison', HEIGHT=400)
+                                ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                            ]),
+                        ]),     # END OF USAGE AND PRICE PLOTS
+
+                    #### -- FOOTNOTES PT.2
+                    dbc.Row([
+                        dbc.Col([
+                            html.P("Bars represent usage from the following sources. Please refer to the user guide for details.",),
+                            html.P("A*: Countries reporting 2018 data to WOAH, extended to 2020 by assuming the trend from 2016-2018 continues (source: WOAH 2018).",
+                                   style={'margin-bottom':0,}
+                                   ),
+                            html.P("B*: Estimate A extended to whole region based on the proportion of region total biomass represented in the countries reporting (source: WOAH 2018).",
+                                   style={'margin-bottom':0,}
+                                   ),
+                            html.P("C*: Region-total estimate from (Mulchandani et al., 2023).",
+                                   style={'margin-bottom':0,}
+                                   ),
+                            ]),
+                        dbc.Col([
+                            html.P("Price points for antimicrobials were extracted from a range of sources. Extrapolations were made for regions where price data was not available. Please refer to the user guide for details."),
+                            ]),
+                        ], style={'margin-left':"10px",
+                                  'font-style': 'italic',
+                                  },
+                        ),
+                    html.Br(),
+
+                    #### -- GRAPHICS PT.3
+                    # Usage and Price Sliders with Expenditure chart
+                    html.H3("Regional Veterinary Antimicrobial Expenditure Estimator", id="AMU-regional-expenditure"),
+
+                    # Control and note for sliders and expenditure chart
+                    dbc.Row([
+                        # Expenditure units
+                        dbc.Col([
+                            html.H6("Display antimicrobial expenditure as:"),
+                            dcc.RadioItems(id='select-expenditure-units-amu',
+                                           options=['total', 'per kg biomass'],
+                                           value='total',
+                                           labelStyle={'display': 'inline-block'},
+                                           inputStyle={"margin": "0 5px 0 15px",},
+                                           ),
+                            ]),
+                        # Note for sliders
+                        dbc.Col([
+                            html.P("*Click on 'A*', 'B*', or 'C*' to jump to those values.",
+                                   style={'font-weight': '600', 'font-style': 'italic'}
+                                   ),
+                            ], style={'margin-top': '30px',}, width=7,
+                            ),
+                        ]), # END OF ROW
+
+                    # Gaphics Row
+                    dbc.Row([
+                        dbc.Col([
+                            dbc.Spinner(children=[
+                                dcc_graph_element(ID='amu-expenditure', DL_FILENAME='GBADs_AMU_Expenditure', HEIGHT=400)
+                                ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                            ]),
+
+                        # Price and Usage Sliders
+                        dbc.Col([
+                            dbc.Card([
+                                dbc.CardBody([
+                                    html.H5("Estimated Antimicrobial Usage and Price for Terrestrial Livestock",
+                                            className="card-title",
+                                            style={"font-weight": "bold"}
+                                            ),
+
+                                    # Reset to midpoint button
+                                    dbc.Col([
+                                        html.Button('Reset to midpoint (B*)', id='reset-sliders-amu', n_clicks=0),
+                                        ], style={'width': "auto",
+                                                  'textAlign':'center',
+                                                  'margin':'auto',
+                                                  }
+                                        ),
+
+                                    dbc.Row([    # Region names
+                                        dbc.Col([html.H5("Africa")]),
+                                        dbc.Col([html.H5("Americas")]),
+                                        dbc.Col([html.H5("Asia, Far East and Oceania")]),
+                                        dbc.Col([html.H5("Europe")]),
+                                        dbc.Col([html.H5("Middle East")]),
+                                        ]),
+                                    dbc.Spinner(children=[
+                                        dbc.Row([
+                                            dbc.Col([
+                                                html.H6("Usage"),
+                                                daq.Slider(
+                                                    id='am-usage-slider-africa',
+                                                    handleLabel={"showCurrentValue":
+                                                                 True ,"label":"Tonnes",
+                                                                 'style':{'fontSize':'1'}
+                                                                 },
+                                                    vertical=True,
+                                                    color='rgb(135,197,95)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Price"),
+                                                daq.Slider(
+                                                    id='am-price-slider-africa',
+                                                    handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                                    vertical=True,
+                                                    color='rgb(135,197,95)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Usage"),
+                                                daq.Slider(
+                                                    id='am-usage-slider-americas',
+                                                    handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                                    vertical=True,
+                                                    color='rgb(248,156,116)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Price"),
+                                                daq.Slider(
+                                                    id='am-price-slider-americas',
+                                                    handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                                    vertical=True,
+                                                    color='rgb(248,156,116)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Usage"),
+                                                daq.Slider(
+                                                    id='am-usage-slider-asia',
+                                                    handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                                    vertical=True,
+                                                    color='rgb(102,197,204)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Price"),
+                                                daq.Slider(
+                                                    id='am-price-slider-asia',
+                                                    handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                                    vertical=True,
+                                                    color='rgb(102,197,204)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Usage"),
+                                                daq.Slider(
+                                                    id='am-usage-slider-europe',
+                                                    handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                                    vertical=True,
+                                                    color='rgb(220,176,242)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Price"),
+                                                daq.Slider(
+                                                    id='am-price-slider-europe',
+                                                    handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                                    vertical=True,
+                                                    color='rgb(220,176,242)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Usage"),
+                                                daq.Slider(
+                                                    id='am-usage-slider-mideast',
+                                                    handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
+                                                    vertical=True,
+                                                    color='rgb(254,136,177)',
+                                                    ),
+                                                ]),
+                                            dbc.Col([
+                                                html.H6("Price"),
+                                                daq.Slider(
+                                                    id='am-price-slider-mideast',
+                                                    handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
+                                                    vertical=True,
+                                                    color='rgb(254,136,177)',
+                                                    ),
+                                                ]),
+                                            ]),
+                                        ],size="md", color="#393375", fullscreen=False),     # End of spinner
+                                    ]),     # End of card body
+                                ]),     # End of card
+                            ], width=7
+                            ),  # End of col
+                        ]),     # End of row
+
+                        # # AMU for terrestrial animals, with uncertainty
+                        # dbc.Row([
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='amu-terr-error-usage', DL_FILENAME='GBADs_AMU_Terrestrial_Usage', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                        #         ]),
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='amu-terr-error-expenditure', DL_FILENAME='GBADs_AMU_Terrestrial_Expenditure', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                        #         ]),
+                        #     ]),
+
+                #### -- DATATABLES
+                html.Hr(style={'margin-right':'10px',}),
+                html.H3("Data Export", id="AMU-data-export"),
+                dbc.Row([
+                    dbc.Spinner(children=[
+                        dbc.Col([
+                            html.Div([
+                                html.Div(id='amu-2018-combined-tall-todisplay'),
+                                ], style={'margin-left':"20px"}
+                                ),
+                            html.Br() # Space in between tables
+                            ]), # END OF COL
+                        ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                    ]),
+
+                dbc.Row([
+                    dbc.Spinner(children=[
+                        dbc.Col([
+                            html.Div([
+                                html.Div(id='amu-regional-todisplay'),
+                                ], style={'margin-left':"20px"}
+                                ),
+                            html.Br() # Spacer for bottom of page
+                            ]),# END OF COL
+                        ],size="md", color="#393375", fullscreen=False),     # End of Spinner
+                    ]),
+
+                dbc.Row([
+                    dbc.Spinner(children=[
+                        dbc.Col([
+                            html.Div([
+                                html.Div(id='amr-todisplay'),
+                                ], style={'margin-left':"20px"}
+                                ),
+                            html.Br() # Spacer for bottom of page
+                            ]),# END OF COL
+                        ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                    ]),
+
+                # Add naviagation button to top of page
+                dbc.Row([
+                    dbc.Col(html.Div([
+                        html.A(href="#AMU-tab",
+                               children=[
+                                   html.Img(title="Back to top",src=os.environ.get("BASE_URL", "") + '/assets/up_arrow_icon_black-modified.png')
+                                   ], style={'width':'80px'},
+                               ),
+                        ], style = {'margin-left':"10px",
                                    "margin-bottom":"10px",
                                    'margin-right':"10px",
                                    'position': 'fixed',
                                    'bottom':0,
                                    },
-               )),
-           ]),
-
-            ]),
-
-
-        #### CASE STUDY TAB
-        dbc.Tab(label="Case Studies",
-                tabClassName="flex-grow-1 text-center",
-                tab_style = tab_style,
-                style = {"height":"100vh",
-                         },
-                children =[
-
-            #### -- COUNTRY/SPECIES SELECT
-            dbc.Row([
-
-                # Case Study Countries
-                dbc.Col([
-                    html.H6("Countries"),
-                    dcc.Dropdown(id='select-case-study-countries-amu',
-                          options=[
-                              'Denmark'
-                              ,'Ethiopia'
-                              ],
-                          value='Denmark',
-                          clearable=True,
-                          ),
+                        )),
                     ]),
+                ]),     # END OF ANTIMICROBIAL USAGE TAB
 
-                # Case Study Species
-                dbc.Col([
-                    html.H6("Species"),
-                    dcc.Dropdown(id='select-case-study-species-amu',
-                          options=[
-                              'Cattle'
-                              ,'Swine'
-                              ],
-                          value='Swine',
-                          clearable=True,
-                          ),
-                    ]),
+            #### CASE STUDY TAB
+            dbc.Tab(label="Case Studies",
+                    tabClassName="flex-grow-1 text-center",
+                    tab_style=tab_style,
+                    style={"height":"100vh"},
+                    children=[
+                        #### -- COUNTRY/SPECIES SELECT
+                        dbc.Row([
+                            # Case Study Countries
+                            dbc.Col([
+                                html.H6("Countries"),
+                                dcc.Dropdown(id='select-case-study-countries-amu',
+                                             options=[
+                                                 'Denmark'
+                                                 ,'Ethiopia'
+                                                 ],
+                                             value='Denmark',
+                                             clearable=True,
+                                             ),
+                                ]),
 
-            # END OF CONTROLS ROW
-            ], justify='evenly'),
+                            # Case Study Species
+                            dbc.Col([
+                                html.H6("Species"),
+                                dcc.Dropdown(id='select-case-study-species-amu',
+                                             options=[
+                                                 'Cattle'
+                                                 ,'Swine'
+                                                 ],
+                                             value='Swine',
+                                             clearable=True,
+                                             ),
+                                ]),
+                            ], justify='evenly'), # END OF CONTROLS ROW
 
-            #### -- FIRST GRAPHICS ROW
-            html.Hr(style={'margin-right':'10px',}),
-            dbc.Row([
-                #### -- MOSAIC PLOT (TREEMAP) AT FARM LEVEL
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='den-amr-treemap-farmlvl',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_AMR_Den_Treemap_Farmlevel'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      })
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                #### -- BAR CHART AT FARM LEVEL
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='den-amr-barchart-farmlvl',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_AMR_Den_Barchart_FarmLevel'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      })
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                ]),
-            html.Hr(style={'margin-right':'10px',}),
-            dbc.Row([
-                #### -- MOSAIC PLOT (TREEMAP) AT POP LEVEL
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='den-amr-treemap-poplvl',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_AMR_Den_Treemap_Poplevel'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      })
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                #### -- BAR CHART AT POP LEVEL
-                dbc.Col([
-                    dbc.Spinner(children=[
-                        dcc.Graph(id='den-amr-barchart-poplvl',
-                                  style = {"height":"650px"},
-                                  config = {
-                                      "displayModeBar" : True,
-                                      "displaylogo": False,
-                                      'toImageButtonOptions': {
-                                          'format': 'png', # one of png, svg, jpeg, webp
-                                          'filename': 'GBADs_AMR_Den_Barchart_PopLevel'
-                                          },
-                                      'modeBarButtonsToRemove': ['zoom',
-                                                                  'zoomIn',
-                                                                  'zoomOut',
-                                                                  'autoScale',
-                                                                  #'resetScale',  # Removes home button
-                                                                  'pan',
-                                                                  'select2d',
-                                                                  'lasso2d']
-                                      })
-                        # End of Spinner
-                        ],size="md", color="#393375", fullscreen=False),
-                    ]),
-                ]),
-        ### END OF CASE STUDY TAB
-            ]),
+                        #### -- FIRST GRAPHICS ROW
+                        html.Hr(style={'margin-right':'10px',}),
+                        dbc.Row([
+                            # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                ]),
+                            # BAR CHART AT FARM LEVEL
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                ]),
+                            ]),
+                        html.Hr(style={'margin-right':'10px',}),
 
+                        #### -- SECOND GRAPHICS ROW
+                        dbc.Row([
+                            # mosaic plot (treemap) at pop level
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-treemap-poplvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Poplevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                ]),
+                            # bar chart at pop level
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                ]),
+                            ]),
+                    ]),     ### END OF CASE STUDY TAB
 
         ### END OF TABS ###
         ],style={'margin-right':'10px',
-                 'margin-left': '10px'}, )
-
-        ])
+                 'margin-left': '10px'},
+        )
+    ])
 
 #%% 5. CALLBACKS
 # This section does the interactivity work with the web page
