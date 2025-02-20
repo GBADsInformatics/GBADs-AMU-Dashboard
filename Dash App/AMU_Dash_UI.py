@@ -931,7 +931,7 @@ gbadsDash.layout = html.Div([
                            dbc.Spinner(children=[
                            dbc.Row([
                                dbc.Col([
-                                   html.H6("Usage"),
+                                   html.H6("Usage", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-usage-slider-africa',
                                        handleLabel={"showCurrentValue":
@@ -951,7 +951,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Usage"),
+                                   html.H6("Usage", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-usage-slider-americas',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
@@ -960,7 +960,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Price"),
+                                   html.H6("Price", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-price-slider-americas',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
@@ -969,7 +969,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Usage"),
+                                   html.H6("Usage", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-usage-slider-asia',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
@@ -978,7 +978,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Price"),
+                                   html.H6("Price", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-price-slider-asia',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
@@ -987,7 +987,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Usage"),
+                                   html.H6("Usage", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-usage-slider-europe',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
@@ -996,7 +996,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Price"),
+                                   html.H6("Price", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-price-slider-europe',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
@@ -1005,7 +1005,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Usage"),
+                                   html.H6("Usage", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-usage-slider-mideast',
                                        handleLabel={"showCurrentValue":True ,"label":"Tonnes"},
@@ -1014,7 +1014,7 @@ gbadsDash.layout = html.Div([
                                        ),
                                    ]),
                                dbc.Col([
-                                   html.H6("Price"),
+                                   html.H6("Price", style={'padding-bottom': '10px'}),
                                    daq.Slider(
                                        id='am-price-slider-mideast',
                                        handleLabel={"showCurrentValue":True ,"label":"USD per tonne"},
