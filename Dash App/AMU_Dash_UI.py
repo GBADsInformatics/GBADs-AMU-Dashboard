@@ -134,13 +134,13 @@ den_amr_ahle_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahl
 # Replace column values to show in legend
 legend_text_farmlvl = {
     "burden_of_amr_at_farm_level_median":"AMR"
-    ,"ahle_at_farm_level_median_withoutamr":"Non-AMR AHLE"
+    ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
     }
 den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
 
 legend_text_poplvl = {
     "burden_of_amr_at_pop_level_median":"AMR"
-    ,"ahle_at_pop_level_median_withoutamr":"Non-AMR AHLE"
+    ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
     }
 den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
 
@@ -1061,21 +1061,22 @@ gbadsDash.layout = html.Div([
                             ], justify='evenly'), # END OF CONTROLS ROW
 
                         #### -- FIRST GRAPHICS ROW
-                        html.Hr(style={'margin-right':'10px',}),
-                        dbc.Row([
-                            # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                ]),
-                            # BAR CHART AT FARM LEVEL
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                ]),
-                            ]),
+                        ## JR: Hiding farm-level results to focus on population-level
+                        # html.Hr(style={'margin-right':'10px',}),
+                        # dbc.Row([
+                        #     # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         ]),
+                        #     # BAR CHART AT FARM LEVEL
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         ]),
+                        #     ]),
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- SECOND GRAPHICS ROW
@@ -1087,9 +1088,16 @@ gbadsDash.layout = html.Div([
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             # bar chart at pop level
+                            # dbc.Col([
+                            #     dbc.Spinner(children=[
+                            #         dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
+                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            #     ]),
+                            # ]),
+                            # bar chart at pop level (100% stacked)
                             dbc.Col([
                                 dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
+                                    dcc_graph_element(ID='den-amr-barchart-pct-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_Pct_PopLevel', HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             ]),
@@ -2003,24 +2011,24 @@ def update_map_amu (viz_switch, quantity, antimicrobial_class, pathogens, input_
         # Add title
         if quantity == 'Antimicrobial Resistance (country level)':
             amu_map_fig.update_layout(title_text=f'Global {quantity}<br><sup>{pathogens} pathogen(s) resistance to {antimicrobial_class} antimicrobials</sup>',
-                                          font_size=15,
-                                          plot_bgcolor="#ededed",)
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
         elif quantity == 'Drug Resistance Index (region level)':
             amu_map_fig.update_layout(title_text=f'{quantity}',
-                                          font_size=15,
-                                          plot_bgcolor="#ededed",)
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
         elif quantity == 'Antimicrobial expenditure: total':
             amu_map_fig.update_layout(title_text='Total Antimicrobial Expenditure by Region',
-                                          font_size=15,
-                                          plot_bgcolor="#ededed",)
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
         elif quantity == 'Antimicrobial expenditure: per kg biomass':
             amu_map_fig.update_layout(title_text= 'Antimicrobial Expenditure per kg Biomass by Region',
-                                          font_size=15,
-                                          plot_bgcolor="#ededed",)
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
         else:
             amu_map_fig.update_layout(title_text=f'Global {quantity}',
-                                          font_size=15,
-                                          plot_bgcolor="#ededed",)
+                                      font_size=15,
+                                      plot_bgcolor="#ededed",)
 
         # Update legend title and location
         amu_map_fig.update_layout(legend=dict(
@@ -2772,19 +2780,21 @@ def update_expenditure_amu(input_json, expenditure_units):
 #     return fig
 
 # Denmark AMR treemap
-@gbadsDash.callback(
-    Output('den-amr-treemap-farmlvl', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_den_amr_treemap_farmlvl(dummy_input):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    treemap_fig = create_tree_map_den(input_df)
-    treemap_fig.update_layout(
-        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Farm Level<br>By Farm Type',
-        font_size=15,
-        )
-    return treemap_fig
+## JR: Hiding farm-level results to focus on population-level
+# @gbadsDash.callback(
+#     Output('den-amr-treemap-farmlvl', 'figure'),
+#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_den_amr_treemap_farmlvl(dummy_input):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     treemap_fig = create_tree_map_den(input_df)
+#     treemap_fig.update_layout(
+#         title_text=f'Farm-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+#         font_size=15,
+#         margin=dict(l=10, r=10, b=10),
+#         )
+#     return treemap_fig
 
 @gbadsDash.callback(
     Output('den-amr-treemap-poplvl', 'figure'),
@@ -2795,25 +2805,28 @@ def update_den_amr_treemap_poplvl(dummy_input):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     treemap_fig = create_tree_map_den(input_df)
     treemap_fig.update_layout(
-        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Population Level<br>By Farm Type',
+        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
         font_size=15,
+        # title={'yanchor':'top'},  # Does nothing
+        margin=dict(l=10, r=10, b=10),
         )
     return treemap_fig
 
 # Denmark AMR bar chart
-@gbadsDash.callback(
-    Output('den-amr-barchart-farmlvl', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_den_amr_barchart_farmlvl(dummy_input):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    barchart_fig = create_barchart_den(input_df)
-    barchart_fig.update_layout(
-        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Farm Level<br>By Farm Type',
-        font_size=15,
-        )
-    return barchart_fig
+## JR: Hiding farm-level results to focus on population-level
+# @gbadsDash.callback(
+#     Output('den-amr-barchart-farmlvl', 'figure'),
+#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_den_amr_barchart_farmlvl(dummy_input):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     barchart_fig = create_barchart_den(input_df)
+#     barchart_fig.update_layout(
+#         title_text=f'Farm-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+#         font_size=15,
+#         )
+#     return barchart_fig
 
 @gbadsDash.callback(
     Output('den-amr-barchart-poplvl', 'figure'),
@@ -2824,10 +2837,35 @@ def update_den_amr_barchart_poplvl(dummy_input):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     barchart_fig = create_barchart_den(input_df)
     barchart_fig.update_layout(
-        title_text=f'AHLE and the Burden of Antimicrobial Resistance (AMR) at the Population Level<br>By Farm Type',
+        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
         font_size=15,
         )
     return barchart_fig
+
+@gbadsDash.callback(
+    Output('den-amr-barchart-pct-poplvl', 'figure'),
+    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    )
+def update_den_amr_barchart_pct_poplvl(dummy_input):
+    input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+    barchart_pct_fig = px.histogram(
+        input_df,
+        x='farm_type',
+        y='value',
+        # log_y=True,
+        color='metric',
+        barnorm='percent',
+        text_auto='.1f',
+        )
+    barchart_pct_fig.update_layout(
+        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+        font_size=15,
+        xaxis_title='Farm Type',
+    	yaxis_title='% of AHLE',
+    	legend_title_text='Source of Burden',
+        )
+    return barchart_pct_fig
 
 #%% 6. RUN APP
 #############################################################################################################
