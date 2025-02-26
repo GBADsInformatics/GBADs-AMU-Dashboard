@@ -1,7 +1,8 @@
 #%% ABOUT
 '''
 This code reads data files provided by the University of Liverpool and the
-University of Bern and creates structured data tables for use in the dashboard.
+University of Bern and creates structured data tables for use in the
+Antimicrobial Usage and Resistance (AMU/AMR) dashboard.
 
 Contributors:
     Justin Replogle, First Analytics
@@ -154,7 +155,7 @@ DASHDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Dash App', 'data')
 #%% DENMARK
 # *****************************************************************************
 # =============================================================================
-#### Farm summary
+#### Farm summary from UoL
 # =============================================================================
 den_farmsmry = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -164,7 +165,7 @@ datainfo(den_farmsmry)
 export_dataframe(den_farmsmry, PRODATA_FOLDER)
 
 # =============================================================================
-#### AMR
+#### AMR from UoL
 # =============================================================================
 den_amr = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -201,7 +202,7 @@ datainfo(den_amr)
 export_dataframe(den_amr, PRODATA_FOLDER)
 
 # =============================================================================
-#### AHLE
+#### AHLE from UoL
 # =============================================================================
 den_ahle = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -228,7 +229,7 @@ datainfo(den_ahle)
 export_dataframe(den_ahle, PRODATA_FOLDER)
 
 # =============================================================================
-#### AMR and AHLE combo
+#### AMR and AHLE combo from UoL
 # =============================================================================
 den_amr_ahle = pd.merge(
     left=den_amr
@@ -244,6 +245,9 @@ den_amr_ahle = den_amr_ahle.eval(
     ahle_at_farm_level_median_withoutamr = ahle_at_farm_level_median - burden_of_amr_at_farm_level_median
     '''
     # Population level
+    #!!! When calculating AMR as a proportion of AHLE, Joao's spreadsheet varies the denominator (AHLE) in addition to the numerator.
+    # I would have kept the median AHLE as the denominator and just varied the numerator (AMR).
+    # This represents the uncertainty in AMR without conflating it with uncertainty in the AHLE.
     '''
     burden_of_amr_at_pop_level_median_pctofahle = burden_of_amr_at_pop_level_median / ahle_at_pop_level_median
     burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
@@ -256,23 +260,44 @@ datainfo(den_amr_ahle)
 export_dataframe(den_amr_ahle, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 
+# -----------------------------------------------------------------------------
 # Reshape for plotting - farm level
+# -----------------------------------------------------------------------------
 den_amr_ahle_farmlvl = den_amr_ahle.melt(
-	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
-	,value_vars=['burden_of_amr_at_farm_level_median', 'ahle_at_farm_level_median_withoutamr']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
-	,var_name='metric'             # Name for new "variable" column
-	,value_name='value'              # Name for new "value" column
+	id_vars=['scenario', 'farm_type', 'number_of_farms']
+	,value_vars=[
+        'burden_of_amr_at_farm_level_median'
+        # ,'burden_of_amr_at_farm_level_5pctile'
+        # ,'burden_of_amr_at_farm_level_95pctile'
+        ,'ahle_at_farm_level_median_withoutamr'
+    ]
+	,var_name='metric'
+	,value_name='value'
 )
 export_dataframe(den_amr_ahle_farmlvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
 
-# Reshape for plotting - farm level
+# -----------------------------------------------------------------------------
+# Reshape for plotting - population level
+# -----------------------------------------------------------------------------
+# Point estimates
 den_amr_ahle_poplvl = den_amr_ahle.melt(
-	id_vars=['scenario', 'farm_type', 'number_of_farms']         # Column(s) to use as ID variables
-	,value_vars=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']     # Columns to "unpivot" to rows. If blank, will use all columns not listed in id_vars.
-	,var_name='metric'             # Name for new "variable" column
-	,value_name='value'              # Name for new "value" column
+	id_vars=['scenario', 'farm_type', 'number_of_farms']
+	,value_vars=[
+        'burden_of_amr_at_pop_level_median'
+        # ,'burden_of_amr_at_pop_level_5pctile'
+        # ,'burden_of_amr_at_pop_level_95pctile'
+        ,'ahle_at_pop_level_median_withoutamr'
+    ]
+	,var_name='metric'
+	,value_name='value'
 )
+
+# Upper and lower error
+
+# Merge
+
+# Export
 export_dataframe(den_amr_ahle_poplvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
 

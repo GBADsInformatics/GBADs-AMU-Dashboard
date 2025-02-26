@@ -292,22 +292,6 @@ def create_tree_map_den(input_df):
 
     return tree_map_fig
 
-def create_barchart_den(input_df):
-    barchart_fig = px.bar(
-        input_df
-        ,x='farm_type'
-        ,y='value'
-        ,color='metric'
-        ,barmode='relative'
-        ,log_y=True
-        ,labels={
-            "metric":"Source of Burden"
-            ,"farm_type":"Farm Type"
-            ,"value":"Burden (DKK)"
-       }
-    )
-    return barchart_fig
-
 #%% 4. LAYOUT
 ##################################################################################################
 # Here we layout the webpage, including dcc (Dash Core Component) controls we want to use, such as dropdowns.
@@ -735,7 +719,7 @@ gbadsDash.layout = html.Div([
                     #     ]),
                     # html.Br(),
 
-                    #### Control and note for usage and price charts
+                    #### -- CONTROL AND NOTE FOR USAGE AND PRICE CHARTS
                     dbc.Row([
                         # Usage units
                         dbc.Col([
@@ -1058,9 +1042,34 @@ gbadsDash.layout = html.Div([
                                              clearable=True,
                                              ),
                                 ]),
-                            ], justify='evenly'), # END OF CONTROLS ROW
+                            ], justify='evenly'),
+                        html.Hr(style={'margin-right':'10px',}),
 
-                        #### -- FIRST GRAPHICS ROW
+                        #### -- FIRST ROW GRAPHICS CONTROLS
+                        dbc.Row([
+                            dbc.Col([]),    # Placeholder for treemap controls 1
+                            dbc.Col([]),    # Placeholder for treemap controls 2
+                            dbc.Col([       # Bar chart controls 1
+                                html.H6("AMR Bar Display"),
+                                dcc.RadioItems(id='select-den-amu-bar-display',
+                                               options=['Total', 'Percent'],
+                                               value='Total',
+                                               labelStyle={'display': 'block'},
+                                               inputStyle={"margin-right": "10px"},
+                                               ),
+                                ]),
+                            dbc.Col([       # Bar chart controls 2
+                                html.H6("Axis scale"),
+                                dcc.RadioItems(id='select-den-amu-bar-scale',
+                                               options=['Unit', 'Log'],
+                                               value='Unit',
+                                               labelStyle={'display': 'block'},
+                                               inputStyle={"margin-right": "10px"},
+                                               ),
+                                ]),
+                            ], justify='evenly'),
+
+                        #### -- FARM LEVEL RESULTS
                         ## JR: Hiding farm-level results to focus on population-level
                         # html.Hr(style={'margin-right':'10px',}),
                         # dbc.Row([
@@ -1079,7 +1088,7 @@ gbadsDash.layout = html.Div([
                         #     ]),
                         html.Hr(style={'margin-right':'10px',}),
 
-                        #### -- SECOND GRAPHICS ROW
+                        #### -- POPULATION LEVEL RESULTS
                         dbc.Row([
                             # mosaic plot (treemap) at pop level
                             dbc.Col([
@@ -1088,16 +1097,9 @@ gbadsDash.layout = html.Div([
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             # bar chart at pop level
-                            # dbc.Col([
-                            #     dbc.Spinner(children=[
-                            #         dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
-                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                            #     ]),
-                            # ]),
-                            # bar chart at pop level (100% stacked)
                             dbc.Col([
                                 dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-pct-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_Pct_PopLevel', HEIGHT=650)
+                                    dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             ]),
@@ -2812,7 +2814,7 @@ def update_den_amr_treemap_poplvl(dummy_input):
         )
     return treemap_fig
 
-# Denmark AMR bar chart
+# Denmark AMR bar chart - farm level
 ## JR: Hiding farm-level results to focus on population-level
 # @gbadsDash.callback(
 #     Output('den-amr-barchart-farmlvl', 'figure'),
@@ -2821,51 +2823,76 @@ def update_den_amr_treemap_poplvl(dummy_input):
 #     )
 # def update_den_amr_barchart_farmlvl(dummy_input):
 #     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-#     barchart_fig = create_barchart_den(input_df)
+#     barchart_fig = px.bar(
+#         input_df
+#         ,x='farm_type'
+#         ,y='value'
+#         ,color='metric'
+#         ,barmode='relative'
+#         ,log_y=True
+#         ,labels={
+#             "metric":"Source of Burden"
+#             ,"farm_type":"Farm Type"
+#             ,"value":"Burden (DKK)"
+#             }
+#         )
 #     barchart_fig.update_layout(
 #         title_text=f'Farm-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
 #         font_size=15,
 #         )
 #     return barchart_fig
 
+# Denmark AMR bar chart - population level
 @gbadsDash.callback(
     Output('den-amr-barchart-poplvl', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    Input('select-den-amu-bar-display', 'value'),
+    Input('select-den-amu-bar-scale', 'value'),
+    # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
-def update_den_amr_barchart_poplvl(dummy_input):
+def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    barchart_fig = create_barchart_den(input_df)
-    barchart_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
-        font_size=15,
-        )
-    return barchart_fig
 
-@gbadsDash.callback(
-    Output('den-amr-barchart-pct-poplvl', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_den_amr_barchart_pct_poplvl(dummy_input):
-    input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    barchart_pct_fig = px.histogram(
-        input_df,
-        x='farm_type',
-        y='value',
-        # log_y=True,
-        color='metric',
-        barnorm='percent',
-        text_auto='.1f',
-        )
-    barchart_pct_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
-        font_size=15,
-        xaxis_title='Farm Type',
-    	yaxis_title='% of AHLE',
-    	legend_title_text='Source of Burden',
-        )
-    return barchart_pct_fig
+    if option_axis_scale == 'Unit':
+        set_log_y = False
+    elif option_axis_scale == 'Log':
+        set_log_y = True
+
+    if option_tot_pct == 'Total':
+        barchart_fig = px.bar(
+            input_df
+            ,x='farm_type'
+            ,y='value'
+            ,color='metric'
+            ,barmode='relative'
+            ,log_y=set_log_y
+            ,labels={
+                "metric":"Source of Burden"
+                ,"farm_type":"Farm Type"
+                ,"value":"Burden (DKK)"
+                }
+            )
+        barchart_fig.update_layout(
+            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+            font_size=15,
+            )
+    elif option_tot_pct == 'Percent':
+        barchart_fig = px.histogram(
+            input_df,
+            x='farm_type',
+            y='value',
+            log_y=set_log_y,
+            color='metric',
+            barnorm='percent',
+            text_auto='.1f',
+            )
+        barchart_fig.update_layout(
+            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+            font_size=15,
+            xaxis_title='Farm Type',
+        	yaxis_title='% of AHLE',
+        	legend_title_text='Source of Burden',
+            )
+    return barchart_fig
 
 #%% 6. RUN APP
 #############################################################################################################
