@@ -39,6 +39,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import geopandas as gpd
 from flask import Flask, redirect
+
 # private (fa) libraries
 import lib.fa_dash_utils as fa
 
@@ -134,13 +135,13 @@ den_amr_ahle_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahl
 # Replace column values to show in legend
 legend_text_farmlvl = {
     "burden_of_amr_at_farm_level_median":"AMR"
-    ,"ahle_at_farm_level_median_withoutamr":"Non-AMR AHLE"
+    ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
     }
 den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
 
 legend_text_poplvl = {
     "burden_of_amr_at_pop_level_median":"AMR"
-    ,"ahle_at_pop_level_median_withoutamr":"Non-AMR AHLE"
+    ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
     }
 den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
 
@@ -1275,11 +1276,12 @@ gbadsDash.layout = html.Div([
                                       })
                         # End of Spinner
                         ],size="md", color="#393375", fullscreen=False),
+                    # END OF BAR CHART COL
                     ]),
+                # END OF ROW
                 ]),
         ### END OF CASE STUDY TAB
             ]),
-
 
         ### END OF TABS ###
         ],style={'margin-right':'10px',
