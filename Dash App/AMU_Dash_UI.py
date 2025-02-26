@@ -39,6 +39,7 @@ from plotly.subplots import make_subplots
 import pandas as pd
 import geopandas as gpd
 from flask import Flask, redirect
+
 # private (fa) libraries
 import lib.fa_dash_utils as fa
 
@@ -278,19 +279,66 @@ def create_tree_map_amu(input_df, value, categories):
 
     return tree_map_fig
 
-def create_tree_map_den(input_df):
-    tree_map_fig = px.treemap(input_df,
-                              path=[px.Constant('All'), 'farm_type', 'metric'],
-                              values='value',
-                              maxdepth=3,
-                              color='farm_type',
-                              color_discrete_map={'(?)':'lightgrey'}
-                              )
+# def create_tree_map_den(input_df):
+#     tree_map_fig = px.treemap(input_df,
+#                               path=[px.Constant('All'), 'farm_type', 'metric'],
+#                               values='value',
+#                               maxdepth=3,
+#                               color='farm_type',
+#                               color_discrete_map={'(?)':'lightgrey'}
+#                               )
 
-    # # Add value to bottom leaf node labels
-    # tree_map_fig.data[0].textinfo = 'label+text+value'
+#     # # Add value to bottom leaf node labels
+#     # tree_map_fig.data[0].textinfo = 'label+text+value'
 
-    return tree_map_fig
+#     return tree_map_fig
+
+def create_sunburst_den(input_df):
+    sunburst_fig_px = px.sunburst(
+        input_df,
+        path=[px.Constant('All'), 'farm_type', 'metric'],
+        values='value',
+        color='metric',
+        )
+
+    labels = sunburst_fig_px['data'][0]['labels'].tolist()
+    colors = []
+    patterns = []
+    for p in labels:
+
+        # Colors based on metrics
+        if p in ["Unattributed AHLE"]:
+            colors.append("#fbc98e")
+        elif p in ["AMR"]:
+            colors.append("#31BFF3")
+        else:
+            colors.append("lightgrey")
+
+        # Patterns based on farm_type
+        if p == "Breed":
+            patterns.append(".")
+        elif p == "Nurse":
+            patterns.append("\\")
+        elif p == "Fat":
+            patterns.append("|")
+
+    sunburst_fig_go = go.Figure(go.Sunburst(
+        labels=labels,
+        parents=sunburst_fig_px['data'][0]['parents'].tolist(),
+        values=sunburst_fig_px['data'][0]['values'].tolist(),
+        ids=sunburst_fig_px['data'][0]['ids'].tolist(),
+        domain={'x': [0.0, 1.0], 'y': [0.0, 1.0]},
+        branchvalues="total",
+        marker=dict(
+            colors=colors,
+            pattern=dict(
+                shape=patterns,
+                solidity=0.7),
+            line=dict(color='darkgrey', width=2)
+            )
+        ))
+
+    return sunburst_fig_go
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -328,7 +376,7 @@ gbadsDash.layout = html.Div([
     dbc.Row([
         dbc.Col([
             # Dashboard title
-            html.H1('Antimicrobial Usage',
+            html.H1('Antimicrobial Usage & Resistance',
                     style={'color': '#F7931D',
                            "font-weight": "bold",
                            "justify-self": "center"}
@@ -610,61 +658,63 @@ gbadsDash.layout = html.Div([
                     dbc.Card([
                         dbc.CardBody([
                             html.H3("Visualization of Antimicrobial Usage, Resistance and Expenditure in Livestock by Region", id="AMU-Biomass-AMR-Costs-Viz",
-                                    className="card-title"
-                                    ),
-                            dbc.Row([
-                                # Visualization Switch
-                                dbc.Col([
-                                    html.H6("Global Visualization"),
-                                    dcc.RadioItems(id='select-viz-switch-amu',
-                                                   options=['Drill Down', 'Map'],
-                                                   value='Drill Down',
-                                                   labelStyle={'display': 'block'},
-                                                   inputStyle={"margin-right": "10px"},
-                                                   ),
-                                    ], width=1),
+                                    className="card-title"),
 
-                                # Map Display/Drill Down switch
-                                dbc.Col([
-                                    html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
-                                    dcc.Dropdown(id='select-map-display-drilldown-amu',
-                                                 clearable=False,
-                                                 ),
-                                    ]),
+                    dbc.Row([
+                        # Visualization Switch
+                        dbc.Col([
+                            html.H6("Global Visualization"),
+                            dcc.RadioItems(id='select-viz-switch-amu',
+                                          options=['Drill Down', 'Map'],
+                                          value='Drill Down',
+                                          labelStyle={'display': 'block'},
+                                          inputStyle={"margin-right": "10px"},
+                                          ),
+                            ],  width=1),
 
-                                # Antimicrobial Class
-                                dbc.Col([
-                                    html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
-                                    dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
-                                                 value='Aminoglycosides',
-                                                 clearable=False,
-                                                 ),
-                                    ]),
+                        # Map Display/Drill Down switch
+                        dbc.Col([
+                            html.H6("Map Display", id='select-map-display-drilldown-amu-title'),
+                            dcc.Dropdown(id='select-map-display-drilldown-amu',
+                                  clearable=False,
+                                  ),
+                            ]),
 
-                                # Pathogens
-                                dbc.Col([
-                                    html.H6("Pathogen", id='select-pathogens-amu-title'),
-                                    dcc.Dropdown(id='select-pathogens-amu',
-                                                 options=amu_pathogen_options,
-                                                 value='All',
-                                                 clearable=False,
-                                                 ),
-                                    ]),
-                                ]),     # END OF CARD OPTIONS ROW
-                            dbc.Row([
-                                html.P("Drill Down: show antimicrobial usage by region and importance category",
-                                       style={'font-style': 'italic',
-                                              'margin-bottom':0,
-                                              }
-                                       ),
-                                html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map",
-                                       style={'font-style': 'italic',
-                                              'margin-bottom':0,
-                                              }
-                                       ),
-                                ]),
-                            ]),     # END OF CARD BODY
-                        ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
+
+                    # Antimicrobial Class
+                    dbc.Col([
+                        html.H6("Antimicrobials", id='select-antimicrobial-importance-class-amu-title'),
+                        dcc.Dropdown(id='select-antimicrobial-importance-class-amu',
+                              value='Aminoglycosides',
+                              clearable=False,
+                              ),
+                        ]),
+
+                        # Pathogens
+                        dbc.Col([
+                            html.H6("Pathogen", id='select-pathogens-amu-title'),
+                            dcc.Dropdown(id='select-pathogens-amu',
+                                  options=amu_pathogen_options,
+                                  value='All',
+                                  clearable=False,
+                                  ),
+                            ]),
+
+                    # END OF CARD OPTIONS ROW
+                    ]),
+                    dbc.Row([
+                        html.P("Drill Down: show antimicrobial usage by region and importance category",
+                               style={'font-style': 'italic',
+                                      'margin-bottom':0,}),
+                        html.P("Map: show antimicrobial usage, antimicrobial resistance, or antimicrobial expenditure on a world map",
+                               style={'font-style': 'italic',
+                                      'margin-bottom':0,}),
+                        ]),
+
+                    # END OF CARD BODY
+                    ]),
+
+                    ], color='#F2F2F2', style={"margin-right": "10px"}), # END OF CARD
 
                     html.Hr(style={'margin-right':'10px',}),
 
@@ -672,11 +722,24 @@ gbadsDash.layout = html.Div([
                     dbc.Row([
                         dbc.Col([ # Global Aggregation Visual
                             dbc.Spinner(children=[
-                                dcc_graph_element(ID='amu-map', DL_FILENAME='GBADs_Global_AMU_Viz', HEIGHT=650)
-                                ],size="md", color="#393375", fullscreen=False),    # End of Spinner
-                            ]),
-                        ]),     # END OF SECOND GRAPHICS ROW
+                            dcc.Graph(id='amu-map',
+                                        style = {"height":"650px"},
+                                      config = {
+                                          "displayModeBar" : True,
+                                          "displaylogo": False,
+                                          'toImageButtonOptions': {
+                                              'format': 'png', # one of png, svg, jpeg, webp
+                                              'filename': 'GBADs_Global_AMU_Viz'
+                                              },
+                                          }
+                                      )
+                        # End of Spinner
+                        ],size="md", color="#393375", fullscreen=False),
+                        # End of Map
+                        ]),
 
+                     # END OF MAP/MOSAIC ROW
+                    ]),
                     #### -- MAP/DRILLDOWN FOOTNOTES
                     dbc.Row([
                         dbc.Col([
@@ -1015,34 +1078,28 @@ gbadsDash.layout = html.Div([
                     tab_style=tab_style,
                     style={"height":"100vh"},
                     children=[
-                        #### -- COUNTRY/SPECIES SELECT
+                       #### -- COUNTRY SELECT
                         dbc.Row([
                             # Case Study Countries
                             dbc.Col([
-                                html.H6("Countries"),
+                                html.H6("Countries", style={'text-align':'center'}),
                                 dcc.Dropdown(id='select-case-study-countries-amu',
-                                             options=[
-                                                 'Denmark'
-                                                 ,'Ethiopia'
-                                                 ],
-                                             value='Denmark',
-                                             clearable=True,
-                                             ),
-                                ]),
+                                      options=[
+                                          'Denmark'
+                                          ,'Ethiopia'
+                                          ],
+                                      value='Denmark',
+                                      ),
+                                ],width={"size": 3}),
+                        # END OF COUNTRY SELECT ROW
+                        ], justify="end"),
 
-                            # Case Study Species
-                            dbc.Col([
-                                html.H6("Species"),
-                                dcc.Dropdown(id='select-case-study-species-amu',
-                                             options=[
-                                                 'Cattle'
-                                                 ,'Swine'
-                                                 ],
-                                             value='Swine',
-                                             clearable=True,
-                                             ),
-                                ]),
-                            ], justify='evenly'),
+                        #### -- COUNTRY/SPECIES TITLE
+                        dbc.Row([
+                            # Case Study Countries
+                            html.H3("Denmark Swine", id='case-study-amu-title', style={'text-align':'center'}),
+                        # END OF COUNTRY/SPECIES TITLE ROW
+                        ], justify="end"),
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- FIRST ROW GRAPHICS CONTROLS
@@ -1090,10 +1147,16 @@ gbadsDash.layout = html.Div([
 
                         #### -- POPULATION LEVEL RESULTS
                         dbc.Row([
-                            # mosaic plot (treemap) at pop level
+                            # # mosaic plot (treemap) at pop level
+                            # dbc.Col([
+                            #     dbc.Spinner(children=[
+                            #         dcc_graph_element(ID='den-amr-treemap-poplvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Poplevel', HEIGHT=650)
+                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            #     ]),
+                            # sunburst chart at pop level
                             dbc.Col([
                                 dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-treemap-poplvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Poplevel', HEIGHT=650)
+                                    dcc_graph_element(ID='den-amr-sunburst-poplvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             # bar chart at pop level
@@ -1104,7 +1167,6 @@ gbadsDash.layout = html.Div([
                                 ]),
                             ]),
                     ]),     ### END OF CASE STUDY TAB
-
         ### END OF TABS ###
         ],style={'margin-right':'10px',
                  'margin-left': '10px'},
@@ -1424,6 +1486,18 @@ def update_usage_price_sliders(reset_button):
 
 #     return options
 
+# Update Case Study Title
+@gbadsDash.callback(
+    Output('case-study-amu-title','children'),
+    Input('select-case-study-countries-amu','value'),
+    )
+def update_case_study_title(country_select):
+    if country_select.upper() == 'DENMARK':
+        title = f'{country_select} Swine'
+    elif country_select.upper() == 'ETHIOPIA':
+        title = f'{country_select} Cattle'
+
+    return title
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -2798,18 +2872,32 @@ def update_expenditure_amu(input_json, expenditure_units):
 #         )
 #     return treemap_fig
 
+# @gbadsDash.callback(
+#     Output('den-amr-treemap-poplvl', 'figure'),
+#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_den_amr_treemap_poplvl(dummy_input):
+#     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     treemap_fig = create_tree_map_den(input_df)
+#     treemap_fig.update_layout(
+#         title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+#         font_size=15,
+#         margin=dict(l=10, r=10, b=10),
+#         )
+#     return treemap_fig
+
 @gbadsDash.callback(
-    Output('den-amr-treemap-poplvl', 'figure'),
+    Output('den-amr-sunburst-poplvl', 'figure'),
     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
     )
-def update_den_amr_treemap_poplvl(dummy_input):
+def update_den_amr_sunburst_poplvl(dummy_input):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    treemap_fig = create_tree_map_den(input_df)
+    treemap_fig = create_sunburst_den(input_df)
     treemap_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+        title_text=f'Population-level AHLE and the Burden of AMR <br>by Farm Type',
         font_size=15,
-        # title={'yanchor':'top'},  # Does nothing
         margin=dict(l=10, r=10, b=10),
         )
     return treemap_fig
@@ -2863,6 +2951,9 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
             ,x='farm_type'
             ,y='value'
             ,color='metric'
+            ,color_discrete_map={
+                'Unattributed AHLE':'#fbc98e',
+                'AMR':'#31BFF3'}
             ,barmode='relative'
             ,log_y=set_log_y
             ,labels={
@@ -2882,6 +2973,9 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
             y='value',
             log_y=set_log_y,
             color='metric',
+            color_discrete_map={
+                'Unattributed AHLE':'#fbc98e',
+                'AMR':'#31BFF3'},
             barnorm='percent',
             text_auto='.1f',
             )
