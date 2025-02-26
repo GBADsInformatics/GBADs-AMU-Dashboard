@@ -294,32 +294,44 @@ def create_tree_map_amu(input_df, value, categories):
 #     return tree_map_fig
 
 def create_sunburst_den(input_df):
+    # Group by farm_type to get parent totals
+    farm_type_totals = input_df.groupby('farm_type')['value'].sum()
+
+    # Create a new column for labels with percentages for metrics
+    def add_percent_to_label(row):
+        if row['farm_type'] != 'All':
+            parent_total = farm_type_totals[row['farm_type']]
+            percent = (row['value'] / parent_total) * 100
+            return f"{row['metric']} | {percent:.1f}%"
+        return row['metric']
+
+    input_df['label_with_percent'] = input_df.apply(add_percent_to_label, axis=1)
+
     sunburst_fig_px = px.sunburst(
         input_df,
-        path=[px.Constant('All'), 'farm_type', 'metric'],
+        path=[px.Constant('All'), 'farm_type', 'label_with_percent'],
         values='value',
         color='metric',
-        )
+    )
 
     labels = sunburst_fig_px['data'][0]['labels'].tolist()
     colors = []
     patterns = []
     for p in labels:
-
         # Colors based on metrics
-        if p in ["Unattributed AHLE"]:
+        if "Unattributed AHLE" in p:
             colors.append("#fbc98e")
-        elif p in ["AMR"]:
+        elif "AMR" in p:
             colors.append("#31BFF3")
         else:
             colors.append("lightgrey")
 
         # Patterns based on farm_type
-        if p == "Breed":
+        if "Breed" in p:
             patterns.append(".")
-        elif p == "Nurse":
+        elif "Nurse" in p:
             patterns.append("\\")
-        elif p == "Fat":
+        elif "Fat" in p:
             patterns.append("|")
 
     sunburst_fig_go = go.Figure(go.Sunburst(
@@ -335,10 +347,11 @@ def create_sunburst_den(input_df):
                 shape=patterns,
                 solidity=0.7),
             line=dict(color='darkgrey', width=2)
-            )
-        ))
+        ),
+    ))
 
     return sunburst_fig_go
+
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -2961,11 +2974,14 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
                 ,"farm_type":"Farm Type"
                 ,"value":"Burden (DKK)"
                 }
+            ,pattern_shape='farm_type'
+            ,pattern_shape_sequence=[".", "\\", "|"]
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+            title_text=f'Population-level AHLE and the Burden of AMR<br>by Farm Type',
             font_size=15,
             )
+
     elif option_tot_pct == 'Percent':
         barchart_fig = px.histogram(
             input_df,
@@ -2977,15 +2993,18 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
                 'Unattributed AHLE':'#fbc98e',
                 'AMR':'#31BFF3'},
             barnorm='percent',
+            pattern_shape='farm_type',
+            pattern_shape_sequence=[".", "\\", "|"],
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
+            title_text=f'Population-level AHLE and the Burden of AMR<br>by Farm Type',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
         	legend_title_text='Source of Burden',
             )
+
     return barchart_fig
 
 #%% 6. RUN APP
