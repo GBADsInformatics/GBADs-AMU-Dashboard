@@ -7,6 +7,10 @@ Worse,Breed,760,burden_of_amr_at_farm_level_median,192320.20092740544
 Worse,Nurse,483,burden_of_amr_at_farm_level_median,583624.7694883592
 Worse,Fat,1116,burden_of_amr_at_farm_level_median,0.0
 Worse,Total,2359,burden_of_amr_at_farm_level_median,
+Best,Breed,760,burden_of_amr_at_farm_level_median,4274.340069515415
+Best,Nurse,483,burden_of_amr_at_farm_level_median,21188.265814796578
+Best,Fat,1116,burden_of_amr_at_farm_level_median,0.0
+Best,Total,2359,burden_of_amr_at_farm_level_median,
 Average,Breed,760,ahle_at_farm_level_median_withoutamr,4200137.614091036
 Average,Nurse,483,ahle_at_farm_level_median_withoutamr,651046.8735927896
 Average,Fat,1116,ahle_at_farm_level_median_withoutamr,1076592.5643644766
@@ -15,3 +19,7 @@ Worse,Breed,760,ahle_at_farm_level_median_withoutamr,4016366.0933026616
 Worse,Nurse,483,ahle_at_farm_level_median_withoutamr,109798.63573402353
 Worse,Fat,1116,ahle_at_farm_level_median_withoutamr,1076592.5643644766
 Worse,Total,2359,ahle_at_farm_level_median_withoutamr,
+Best,Breed,760,ahle_at_farm_level_median_withoutamr,4204411.954160552
+Best,Nurse,483,ahle_at_farm_level_median_withoutamr,672235.1394075862
+Best,Fat,1116,ahle_at_farm_level_median_withoutamr,1076592.5643644766
+Best,Total,2359,ahle_at_farm_level_median_withoutamr,

@@ -7,6 +7,10 @@ Worse,Breed,760,burden_of_amr_at_pop_level_median,146163352.70482814
 Worse,Nurse,483,burden_of_amr_at_pop_level_median,281890763.6628775
 Worse,Fat,1116,burden_of_amr_at_pop_level_median,0.0
 Worse,Total,2359,burden_of_amr_at_pop_level_median,428054116.36770564
+Best,Breed,760,burden_of_amr_at_pop_level_median,3248498.4528317153
+Best,Nurse,483,burden_of_amr_at_pop_level_median,10233932.388546746
+Best,Fat,1116,burden_of_amr_at_pop_level_median,0.0
+Best,Total,2359,burden_of_amr_at_pop_level_median,13482430.841378462
 Average,Breed,760,ahle_at_pop_level_median_withoutamr,3192104586.7091875
 Average,Nurse,483,ahle_at_pop_level_median_withoutamr,314455639.9453174
 Average,Fat,1116,ahle_at_pop_level_median_withoutamr,1201477301.830756
@@ -15,3 +19,7 @@ Worse,Breed,760,ahle_at_pop_level_median_withoutamr,3052438230.9100227
 Worse,Nurse,483,ahle_at_pop_level_median_withoutamr,53032741.05953336
 Worse,Fat,1116,ahle_at_pop_level_median_withoutamr,1201477301.830756
 Worse,Total,2359,ahle_at_pop_level_median_withoutamr,4306948273.800312
+Best,Breed,760,ahle_at_pop_level_median_withoutamr,3195353085.1620193
+Best,Nurse,483,ahle_at_pop_level_median_withoutamr,324689572.3338641
+Best,Fat,1116,ahle_at_pop_level_median_withoutamr,1201477301.830756
+Best,Total,2359,ahle_at_pop_level_median_withoutamr,4721519959.326639
