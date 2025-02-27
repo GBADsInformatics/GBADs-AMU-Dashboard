@@ -2958,6 +2958,8 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
     elif option_axis_scale == 'Log':
         set_log_y = True
 
+    #!!! Error bars on lower segments are covered up by upper segments.
+    # Here's a fix: https://community.plotly.com/t/stacked-bar-chart-with-calculated-mean-and-sem/47672/6
     if option_tot_pct == 'Total':
         barchart_fig = px.bar(
             input_df
@@ -2968,18 +2970,18 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
                 'Unattributed AHLE':'#fbc98e',
                 'AMR':'#31BFF3'}
             ,barmode='relative'
+            ,error_y='error_high'
+            ,error_y_minus='error_low'
             ,log_y=set_log_y
-            ,labels={
-                "metric":"Source of Burden"
-                ,"farm_type":"Farm Type"
-                ,"value":"Burden (DKK)"
-                }
             ,pattern_shape='farm_type'
             ,pattern_shape_sequence=[".", "\\", "|"]
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR<br>by Farm Type',
-            font_size=15,
+            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+            ,font_size=15
+            ,xaxis_title='Farm Type'
+        	,yaxis_title='Burden (DKK)'
+        	,legend_title_text='Source of Burden'
             )
 
     elif option_tot_pct == 'Percent':

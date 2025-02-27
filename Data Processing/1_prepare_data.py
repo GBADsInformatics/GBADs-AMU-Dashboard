@@ -13,6 +13,10 @@ Contributors:
 import os, inspect
 import pandas as pd
 import numpy as np
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.io as pio
+pio.renderers.default='browser' 		# Plotly figures display best in browser
 
 # To clean up column names in a dataframe
 # Usage: mydata = clean_colnames(mydata)
@@ -253,7 +257,12 @@ den_amr_ahle = den_amr_ahle.eval(
     burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
     burden_of_amr_at_pop_level_95pctile_pctofahle = burden_of_amr_at_pop_level_95pctile / ahle_at_pop_level_95pctile
 
+    burden_of_amr_at_pop_level_errhigh = burden_of_amr_at_pop_level_5pctile - burden_of_amr_at_pop_level_median
+    burden_of_amr_at_pop_level_errlow = burden_of_amr_at_pop_level_median - burden_of_amr_at_pop_level_95pctile
+
     ahle_at_pop_level_median_withoutamr = ahle_at_pop_level_median - burden_of_amr_at_pop_level_median
+    ahle_at_pop_level_median_errhigh = ahle_at_pop_level_5pctile - ahle_at_pop_level_median
+    ahle_at_pop_level_median_errlow = ahle_at_pop_level_median - ahle_at_pop_level_95pctile
     '''
 )
 datainfo(den_amr_ahle)
@@ -263,12 +272,11 @@ export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 # -----------------------------------------------------------------------------
 # Reshape for plotting - farm level
 # -----------------------------------------------------------------------------
+# Median estimates
 den_amr_ahle_farmlvl = den_amr_ahle.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']
 	,value_vars=[
         'burden_of_amr_at_farm_level_median'
-        # ,'burden_of_amr_at_farm_level_5pctile'
-        # ,'burden_of_amr_at_farm_level_95pctile'
         ,'ahle_at_farm_level_median_withoutamr'
     ]
 	,var_name='metric'
@@ -280,26 +288,110 @@ export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
 # -----------------------------------------------------------------------------
 # Reshape for plotting - population level
 # -----------------------------------------------------------------------------
-# Point estimates
+# Median estimates
 den_amr_ahle_poplvl = den_amr_ahle.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']
+    #!!! Ordering matters for plotting with log scale. Want smaller value first (AMR).
 	,value_vars=[
         'burden_of_amr_at_pop_level_median'
-        # ,'burden_of_amr_at_pop_level_5pctile'
-        # ,'burden_of_amr_at_pop_level_95pctile'
         ,'ahle_at_pop_level_median_withoutamr'
     ]
 	,var_name='metric'
 	,value_name='value'
 )
 
-# Upper and lower error
+# Errors
+den_amr_ahle_poplvl["error_high"] = den_amr_ahle[["burden_of_amr_at_pop_level_errhigh", "ahle_at_pop_level_median_errhigh"]].unstack().values
+den_amr_ahle_poplvl["error_low"] = den_amr_ahle[["burden_of_amr_at_pop_level_errlow", "ahle_at_pop_level_median_errlow"]].unstack().values
 
-# Merge
-
-# Export
 export_dataframe(den_amr_ahle_poplvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
+
+# -----------------------------------------------------------------------------
+# Test plot
+# -----------------------------------------------------------------------------
+set_log_y = True
+
+# Bar with melted data same as Dash
+#!!! This is the only way to show separate error bars for AMR and AHLE
+input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+barchart_fig = px.bar(
+    input_df
+    ,x='farm_type'
+    ,y='value'
+    ,color='metric'
+    ,barmode='relative'
+    ,error_y='error_high'
+    ,error_y_minus='error_low'
+    ,log_y=set_log_y
+    )
+barchart_fig.update_layout(
+    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+    ,font_size=15
+    ,xaxis_title='Farm Type'
+	,yaxis_title='Burden (DKK)'
+	,legend_title_text='Source of Burden'
+    )
+barchart_fig.show()
+
+# Bar with unmelted data
+input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
+barchart_fig = px.bar(
+    input_df
+    ,x='farm_type'
+    ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
+    ,barmode='relative'
+    ,log_y=set_log_y
+    ,error_y='burden_of_amr_at_pop_level_errhigh'
+    ,error_y_minus='burden_of_amr_at_pop_level_errlow'
+    )
+barchart_fig.update_layout(
+    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+    ,font_size=15
+    ,xaxis_title='Farm Type'
+	,yaxis_title='Burden (DKK)'
+	,legend_title_text='Source of Burden'
+    )
+barchart_fig.show()
+
+# Histogram with melted data same as Dash
+input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+barchart_fig = px.histogram(
+    input_df
+    ,x='farm_type'
+    ,y='value'
+    ,color='metric'
+    ,log_y=set_log_y
+    ,barnorm='percent'
+    ,text_auto='.1f'
+    )
+barchart_fig.update_layout(
+    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+    ,font_size=15
+    ,xaxis_title='Farm Type'
+	,yaxis_title='% of AHLE'
+	,legend_title_text='Source of Burden'
+    )
+barchart_fig.show()
+
+# Histogram with unmelted data
+input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
+barchart_fig = px.histogram(
+    input_df
+    ,x='farm_type'
+    ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
+    ,log_y=set_log_y
+    ,barnorm='percent'
+    ,text_auto='.1f'
+    )
+barchart_fig.update_layout(
+    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+    ,font_size=15
+    ,xaxis_title='Farm Type'
+	,yaxis_title='% of AHLE'
+	,legend_title_text='Source of Burden'
+    )
+barchart_fig.show()
 
 # =============================================================================
 #### AHLE details from Bern
