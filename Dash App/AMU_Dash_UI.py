@@ -419,7 +419,7 @@ gbadsDash.layout = html.Div([
                 ),  ### END OF USER GUIDE TAB
 
         #### ANTIMICROBIAL USAGE TAB
-        dbc.Tab(label="Antimicrobial Usage (AMU)",
+        dbc.Tab(label="Global Antimicrobial Usage (AMU)",
                 id='AMU-tab',
                 tabClassName="flex-grow-1 text-center",
                 tab_style = tab_style,
@@ -1086,7 +1086,7 @@ gbadsDash.layout = html.Div([
                 ]),     # END OF ANTIMICROBIAL USAGE TAB
 
             #### CASE STUDY TAB
-            dbc.Tab(label="Case Studies",
+            dbc.Tab(label="Country Case Studies",
                     tabClassName="flex-grow-1 text-center",
                     tab_style=tab_style,
                     style={"height":"100vh"},
@@ -1138,24 +1138,6 @@ gbadsDash.layout = html.Div([
                                                ),
                                 ]),
                             ], justify='evenly'),
-
-                        #### -- FARM LEVEL RESULTS
-                        ## JR: Hiding farm-level results to focus on population-level
-                        # html.Hr(style={'margin-right':'10px',}),
-                        # dbc.Row([
-                        #     # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
-                        #     dbc.Col([
-                        #         dbc.Spinner(children=[
-                        #             dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
-                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                        #         ]),
-                        #     # BAR CHART AT FARM LEVEL
-                        #     dbc.Col([
-                        #         dbc.Spinner(children=[
-                        #             dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
-                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                        #         ]),
-                        #     ]),
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- POPULATION LEVEL RESULTS
@@ -1179,6 +1161,24 @@ gbadsDash.layout = html.Div([
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 ]),
                             ]),
+                        html.Hr(style={'margin-right':'10px',}),
+
+                        #### -- FARM LEVEL RESULTS
+                        ## JR: Hiding farm-level results to focus on population-level
+                        # dbc.Row([
+                        #     # mosaic plot (treemap) at farm level
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         ]),
+                        #     # bar chart at farm level
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         ]),
+                        #     ]),
                     ]),     ### END OF CASE STUDY TAB
         ### END OF TABS ###
         ],style={'margin-right':'10px',
@@ -2970,12 +2970,17 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
                 'Unattributed AHLE':'#fbc98e',
                 'AMR':'#31BFF3'}
             ,barmode='relative'
-            ,error_y='error_high'
-            ,error_y_minus='error_low'
+            # ,error_y='error_high'
+            # ,error_y_minus='error_low'
             ,log_y=set_log_y
             ,pattern_shape='farm_type'
             ,pattern_shape_sequence=[".", "\\", "|"]
             )
+        #TODO Add error bars separately so they aren't covered up
+        # barchart_fig.add_trace(
+        #     go.Scatter(
+        #         )
+        #     )
         barchart_fig.update_layout(
             title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
             ,font_size=15

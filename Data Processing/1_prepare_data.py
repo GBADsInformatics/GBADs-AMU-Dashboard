@@ -243,26 +243,36 @@ den_amr_ahle = pd.merge(
 )
 
 # Add calcs
+#!!! When calculating AMR as a proportion of AHLE for the 5th and 95th percentiles, Joao's
+# spreadsheet varies the denominator (AHLE) in addition to the numerator. I'm doing the same here.
+# An alternative would be to keep the median AHLE as the denominator and just vary the numerator (AMR).
+# This represents the uncertainty in AMR without conflating it with uncertainty in the AHLE.
 den_amr_ahle = den_amr_ahle.eval(
     # Farm level
     '''
     ahle_at_farm_level_median_withoutamr = ahle_at_farm_level_median - burden_of_amr_at_farm_level_median
+    ahle_at_farm_level_median_errhigh = ahle_at_farm_level_5pctile - ahle_at_farm_level_median
+    ahle_at_farm_level_median_errlow = ahle_at_farm_level_median - ahle_at_farm_level_95pctile
+
+    burden_of_amr_at_farm_level_median_pctofahle = burden_of_amr_at_farm_level_median / ahle_at_farm_level_median
+    burden_of_amr_at_farm_level_5pctile_pctofahle = burden_of_amr_at_farm_level_5pctile / ahle_at_farm_level_5pctile
+    burden_of_amr_at_farm_level_95pctile_pctofahle = burden_of_amr_at_farm_level_95pctile / ahle_at_farm_level_95pctile
+
+    burden_of_amr_at_farm_level_errhigh = burden_of_amr_at_farm_level_5pctile - burden_of_amr_at_farm_level_median
+    burden_of_amr_at_farm_level_errlow = burden_of_amr_at_farm_level_median - burden_of_amr_at_farm_level_95pctile
     '''
     # Population level
-    #!!! When calculating AMR as a proportion of AHLE, Joao's spreadsheet varies the denominator (AHLE) in addition to the numerator.
-    # I would have kept the median AHLE as the denominator and just varied the numerator (AMR).
-    # This represents the uncertainty in AMR without conflating it with uncertainty in the AHLE.
     '''
+    ahle_at_pop_level_median_withoutamr = ahle_at_pop_level_median - burden_of_amr_at_pop_level_median
+    ahle_at_pop_level_median_errhigh = ahle_at_pop_level_5pctile - ahle_at_pop_level_median
+    ahle_at_pop_level_median_errlow = ahle_at_pop_level_median - ahle_at_pop_level_95pctile
+
     burden_of_amr_at_pop_level_median_pctofahle = burden_of_amr_at_pop_level_median / ahle_at_pop_level_median
     burden_of_amr_at_pop_level_5pctile_pctofahle = burden_of_amr_at_pop_level_5pctile / ahle_at_pop_level_5pctile
     burden_of_amr_at_pop_level_95pctile_pctofahle = burden_of_amr_at_pop_level_95pctile / ahle_at_pop_level_95pctile
 
     burden_of_amr_at_pop_level_errhigh = burden_of_amr_at_pop_level_5pctile - burden_of_amr_at_pop_level_median
     burden_of_amr_at_pop_level_errlow = burden_of_amr_at_pop_level_median - burden_of_amr_at_pop_level_95pctile
-
-    ahle_at_pop_level_median_withoutamr = ahle_at_pop_level_median - burden_of_amr_at_pop_level_median
-    ahle_at_pop_level_median_errhigh = ahle_at_pop_level_5pctile - ahle_at_pop_level_median
-    ahle_at_pop_level_median_errlow = ahle_at_pop_level_median - ahle_at_pop_level_95pctile
     '''
 )
 datainfo(den_amr_ahle)
@@ -282,6 +292,11 @@ den_amr_ahle_farmlvl = den_amr_ahle.melt(
 	,var_name='metric'
 	,value_name='value'
 )
+
+# Errors
+den_amr_ahle_farmlvl["error_high"] = den_amr_ahle[["burden_of_amr_at_farm_level_errhigh", "ahle_at_farm_level_median_errhigh"]].unstack().values
+den_amr_ahle_farmlvl["error_low"] = den_amr_ahle[["burden_of_amr_at_farm_level_errlow", "ahle_at_farm_level_median_errlow"]].unstack().values
+
 export_dataframe(den_amr_ahle_farmlvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
 
@@ -393,6 +408,74 @@ barchart_fig.update_layout(
     )
 barchart_fig.show()
 
+# -----------------------------------------------------------------------------
+# Fixing hidden error bars for stacked bar chart
+# from https://community.plotly.com/t/stacked-bar-chart-with-calculated-mean-and-sem/47672/6
+# -----------------------------------------------------------------------------
+'''
+df = pd.read_csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/tips.csv')
+
+days=['day1 and day 2', 'day 3 and day 4']
+
+# Group and calculate the mean and sem
+mean = df.groupby('day').mean()
+sem = df.groupby('day').sem()
+
+# Extract mean from days for input
+mean_thur=df.query("day=='Thur'")['total_bill'].mean()
+mean_fri=df.query("day=='Fri'")['total_bill'].mean()
+mean_sat=df.query("day=='Sat'")['total_bill'].mean()
+mean_sun=df.query("day=='Sun'")['total_bill'].mean()
+
+# Extract sem from days for input
+sem_thur=df.query("day=='Thur'")['total_bill'].sem()
+sem_fri=df.query("day=='Fri'")['total_bill'].sem()
+sem_sat=df.query("day=='Sat'")['total_bill'].sem()
+sem_sun=df.query("day=='Sun'")['total_bill'].sem()
+
+# Bar graphs and error bars for top stack only
+fig = go.Figure(data=[
+    go.Bar(name='Thursday and Saturday', x=days, y=[mean_thur, mean_sat], opacity=0.8),
+
+    go.Bar(name='Friday and Sunday', x=days, y=[mean_fri, mean_sun], opacity=0.8,
+           error_y=dict(
+               type='data', # value of error bar given in data coordinates
+               array=[sem_fri, sem_sun], color='rgba(0,0,0,1)', thickness=2, width=10,
+               visible=True)
+          )
+])
+
+# Error bars for bottom stack
+fig.add_trace(go.Scatter(
+    x=['day1 and day 2'], y=[mean_thur, sem_thur],
+    mode='markers',
+    name='error_bars_thursday',
+    error_y=dict(
+        type='constant',
+        value=sem_thur,
+        color='magenta',
+        thickness=2,
+        width=30
+    ),
+    marker=dict(color='rgba(0,0,0,0)', size=10, opacity=0),
+    showlegend=False
+))
+
+fig.add_trace(go.Scatter(
+    x=['day 3 and day 4'], y=[mean_sat, sem_sat],
+    mode='markers',
+    name='error_bars_thursday',
+    error_y=dict(
+        type='constant',
+        value=sem_thur,
+        color='green',
+        thickness=2,
+        width=30,
+    ),
+    marker=dict(color='rgba(0,0,0,0)', size=10, opacity=0),
+    showlegend=False
+))
+'''
 # =============================================================================
 #### AHLE details from Bern
 # =============================================================================
