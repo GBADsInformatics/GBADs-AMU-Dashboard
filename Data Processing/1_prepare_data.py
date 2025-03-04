@@ -15,6 +15,7 @@ import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objects as go
+import plotly.subplots as psub
 import plotly.io as pio
 pio.renderers.default='browser' 		# Plotly figures display best in browser
 
@@ -71,7 +72,6 @@ def colnames_from_index(INPUT_DF):
 # To get the name of an object, as a string
 # Usage: object_name = getobjectname(my_object)
 def getobjectname(OBJECT):
-    #!!! This does not work when getobjectname() is defined in a separate module, as it doesn't have access to globals() from the main module.
     try:
         objectname = [x for x in globals() if globals()[x] is OBJECT][0]
     except:
@@ -156,7 +156,7 @@ RAWDATA_FOLDER = os.path.join(CURRENT_FOLDER, 'raw_data')
 PRODATA_FOLDER = os.path.join(CURRENT_FOLDER, 'processed_data')
 DASHDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Dash App', 'data')
 
-#%% DENMARK
+#%% DENMARK INITIAL PREVIEW DATA
 # *****************************************************************************
 # =============================================================================
 #### Farm summary from UoL
@@ -325,157 +325,158 @@ export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
 # -----------------------------------------------------------------------------
 # Test plot
 # -----------------------------------------------------------------------------
-set_log_y = True
+# set_log_y = True
 
-# Bar with melted data same as Dash
-#!!! This is the only way to show separate error bars for AMR and AHLE
-input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-barchart_fig = px.bar(
-    input_df
-    ,x='farm_type'
-    ,y='value'
-    ,color='metric'
-    ,barmode='relative'
-    ,error_y='error_high'
-    ,error_y_minus='error_low'
-    ,log_y=set_log_y
-    )
-barchart_fig.update_layout(
-    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-    ,font_size=15
-    ,xaxis_title='Farm Type'
-	,yaxis_title='Burden (DKK)'
-	,legend_title_text='Source of Burden'
-    )
-barchart_fig.show()
+# # Bar with melted data same as Dash
+# #!!! This is the only way to show separate error bars for AMR and AHLE
+# input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+# barchart_fig = px.bar(
+#     input_df
+#     ,x='farm_type'
+#     ,y='value'
+#     ,color='metric'
+#     ,barmode='relative'
+#     ,error_y='error_high'
+#     ,error_y_minus='error_low'
+#     ,log_y=set_log_y
+#     )
+# barchart_fig.update_layout(
+#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+#     ,font_size=15
+#     ,xaxis_title='Farm Type'
+# 	,yaxis_title='Burden (DKK)'
+# 	,legend_title_text='Source of Burden'
+#     )
+# barchart_fig.show()
 
-# Bar with unmelted data
-input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
-barchart_fig = px.bar(
-    input_df
-    ,x='farm_type'
-    ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
-    ,barmode='relative'
-    ,log_y=set_log_y
-    ,error_y='burden_of_amr_at_pop_level_errhigh'
-    ,error_y_minus='burden_of_amr_at_pop_level_errlow'
-    )
-barchart_fig.update_layout(
-    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-    ,font_size=15
-    ,xaxis_title='Farm Type'
-	,yaxis_title='Burden (DKK)'
-	,legend_title_text='Source of Burden'
-    )
-barchart_fig.show()
+# # Bar with unmelted data
+# input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
+# barchart_fig = px.bar(
+#     input_df
+#     ,x='farm_type'
+#     ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
+#     ,barmode='relative'
+#     ,log_y=set_log_y
+#     ,error_y='burden_of_amr_at_pop_level_errhigh'
+#     ,error_y_minus='burden_of_amr_at_pop_level_errlow'
+#     )
+# barchart_fig.update_layout(
+#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+#     ,font_size=15
+#     ,xaxis_title='Farm Type'
+# 	,yaxis_title='Burden (DKK)'
+# 	,legend_title_text='Source of Burden'
+#     )
+# barchart_fig.show()
 
-# Histogram with melted data same as Dash
-input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-barchart_fig = px.histogram(
-    input_df
-    ,x='farm_type'
-    ,y='value'
-    ,color='metric'
-    ,log_y=set_log_y
-    ,barnorm='percent'
-    ,text_auto='.1f'
-    )
-barchart_fig.update_layout(
-    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-    ,font_size=15
-    ,xaxis_title='Farm Type'
-	,yaxis_title='% of AHLE'
-	,legend_title_text='Source of Burden'
-    )
-barchart_fig.show()
+# # Histogram with melted data same as Dash
+# input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+# barchart_fig = px.histogram(
+#     input_df
+#     ,x='farm_type'
+#     ,y='value'
+#     ,color='metric'
+#     ,log_y=set_log_y
+#     ,barnorm='percent'
+#     ,text_auto='.1f'
+#     )
+# barchart_fig.update_layout(
+#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+#     ,font_size=15
+#     ,xaxis_title='Farm Type'
+# 	,yaxis_title='% of AHLE'
+# 	,legend_title_text='Source of Burden'
+#     )
+# barchart_fig.show()
 
-# Histogram with unmelted data
-input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
-barchart_fig = px.histogram(
-    input_df
-    ,x='farm_type'
-    ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
-    ,log_y=set_log_y
-    ,barnorm='percent'
-    ,text_auto='.1f'
-    )
-barchart_fig.update_layout(
-    title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-    ,font_size=15
-    ,xaxis_title='Farm Type'
-	,yaxis_title='% of AHLE'
-	,legend_title_text='Source of Burden'
-    )
-barchart_fig.show()
+# # Histogram with unmelted data
+# input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
+# barchart_fig = px.histogram(
+#     input_df
+#     ,x='farm_type'
+#     ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
+#     ,log_y=set_log_y
+#     ,barnorm='percent'
+#     ,text_auto='.1f'
+#     )
+# barchart_fig.update_layout(
+#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+#     ,font_size=15
+#     ,xaxis_title='Farm Type'
+# 	,yaxis_title='% of AHLE'
+# 	,legend_title_text='Source of Burden'
+#     )
+# barchart_fig.show()
 
-# -----------------------------------------------------------------------------
-# Fixing hidden error bars for stacked bar chart
-# from https://community.plotly.com/t/stacked-bar-chart-with-calculated-mean-and-sem/47672/6
-# -----------------------------------------------------------------------------
-'''
-df = pd.read_csv('https://raw.githubusercontent.com/mwaskom/seaborn-data/master/tips.csv')
+# =============================================================================
+#### Fixing hidden error bars for stacked bar chart
+# =============================================================================
+input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'").copy()
 
-days=['day1 and day 2', 'day 3 and day 4']
+# Define custom sort order for columns
+scenario_order = ['Average', 'Worse', 'Best']
+farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
+metric_order = ['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
 
-# Group and calculate the mean and sem
-mean = df.groupby('day').mean()
-sem = df.groupby('day').sem()
+input_df['scenario'] = pd.Categorical(input_df['scenario'], categories=scenario_order, ordered=True)
+input_df['farm_type'] = pd.Categorical(input_df['farm_type'], categories=farm_type_order, ordered=True)
+input_df['metric'] = pd.Categorical(input_df['metric'], categories=metric_order, ordered=True)
 
-# Extract mean from days for input
-mean_thur=df.query("day=='Thur'")['total_bill'].mean()
-mean_fri=df.query("day=='Fri'")['total_bill'].mean()
-mean_sat=df.query("day=='Sat'")['total_bill'].mean()
-mean_sun=df.query("day=='Sun'")['total_bill'].mean()
+# Calculate cumulative values for plotly trick to overlay error bars
+input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
+input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
 
-# Extract sem from days for input
-sem_thur=df.query("day=='Thur'")['total_bill'].sem()
-sem_fri=df.query("day=='Fri'")['total_bill'].sem()
-sem_sat=df.query("day=='Sat'")['total_bill'].sem()
-sem_sun=df.query("day=='Sun'")['total_bill'].sem()
+# Create trace for each farm type
+traces = []
+unique_metrics = input_df['metric'].unique()
 
-# Bar graphs and error bars for top stack only
-fig = go.Figure(data=[
-    go.Bar(name='Thursday and Saturday', x=days, y=[mean_thur, mean_sat], opacity=0.8),
+for i, selected_metric in enumerate(unique_metrics):
+    traces.append(go.Bar(
+        name=selected_metric,
+        x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+        y=input_df.query(f"metric == '{selected_metric}'")['value'],
+        marker_color=['#31BFF3', '#fbc98e'][i],   # Different color for each metric
+    ))
 
-    go.Bar(name='Friday and Sunday', x=days, y=[mean_fri, mean_sun], opacity=0.8,
-           error_y=dict(
-               type='data', # value of error bar given in data coordinates
-               array=[sem_fri, sem_sun], color='rgba(0,0,0,1)', thickness=2, width=10,
-               visible=True)
-          )
-])
+# Add error bars
+for i, selected_metric in enumerate(unique_metrics):
+    traces.append(go.Scatter(
+        name=f"{selected_metric}_error",
+        x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+        y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+        mode='markers',
+        marker=dict(color='gray'),
+        error_y=dict(
+            type='data',
+            array=input_df.query(f"metric == '{selected_metric}'")['error_high'],
+            arrayminus=input_df.query(f"metric == '{selected_metric}'")['error_low'],
+            visible=True,
+            color='gray',
+            thickness=2,
+            width=5
+        ),
+        showlegend=False,
+    ))
 
-# Error bars for bottom stack
-fig.add_trace(go.Scatter(
-    x=['day1 and day 2'], y=[mean_thur, sem_thur],
-    mode='markers',
-    name='error_bars_thursday',
-    error_y=dict(
-        type='constant',
-        value=sem_thur,
-        color='magenta',
-        thickness=2,
-        width=30
-    ),
-    marker=dict(color='rgba(0,0,0,0)', size=10, opacity=0),
-    showlegend=False
-))
+# Create the layout
+layout = go.Layout(
+    title='AMR in the context of AHLE',
+    barmode='stack',
+    xaxis={'title': 'Farm Type'},
+    yaxis={
+        'type':'log',
+        'title':'Burden (DKK)',
+    },
+    legend_title='Source of Burden',
+    template='plotly_white',
+    height=600,
+    width=800
+)
 
-fig.add_trace(go.Scatter(
-    x=['day 3 and day 4'], y=[mean_sat, sem_sat],
-    mode='markers',
-    name='error_bars_thursday',
-    error_y=dict(
-        type='constant',
-        value=sem_thur,
-        color='green',
-        thickness=2,
-        width=30,
-    ),
-    marker=dict(color='rgba(0,0,0,0)', size=10, opacity=0),
-    showlegend=False
-))
-'''
+# Create figure and show
+fig = go.Figure(data=traces, layout=layout)
+fig.show()
+
 # =============================================================================
 #### AHLE details from Bern
 # =============================================================================
@@ -518,3 +519,166 @@ den_ahle_comp = den_ahle_comp.rename(columns=rename_cols)
 
 datainfo(den_ahle_comp)
 export_dataframe(den_ahle_comp, PRODATA_FOLDER)
+
+#%% DENMARK DATA END OF FEBRUARY
+# *****************************************************************************
+'''
+This is the data Joao shared at the end of February which is the final result
+using their existing attribution method. We may or may not get an updated data
+set from their ongoing work to update their methods.
+'''
+# -----------------------------------------------------------------------------
+# Results from expert opinion method
+# -----------------------------------------------------------------------------
+den_amr_final_eo = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
+    ,sheet_name='Expert opinion'
+    ,header=[1, 2]
+)
+
+# Cleanup column names
+den_amr_final_eo = colnames_from_index(den_amr_final_eo)
+den_amr_final_eo = clean_colnames(den_amr_final_eo)
+rename_cols = {
+    "item_unnamed:_0_level_1":"item"
+    ,"scenario_unnamed:_1_level_1":"scenario"
+}
+den_amr_final_eo = den_amr_final_eo.rename(columns=rename_cols)
+
+# Separate AHLE and expenditure numbers
+_row_select = (den_amr_final_eo['item'].str.upper().isin(['AHLE' ,'EXPENDITURE DKK']))
+den_amr_final_eo_ahle = den_amr_final_eo.loc[_row_select]
+den_amr_final_eo_amr = den_amr_final_eo.loc[~ _row_select]
+
+# Transpose item names
+den_amr_final_eo_amr_p = den_amr_final_eo_amr.pivot(
+	index=['scenario']       # Column(s) to make new index. If blank, uses existing index.
+	,columns=['item']        # Column(s) whose values define new columns
+)
+den_amr_final_eo_amr_p = colnames_from_index(den_amr_final_eo_amr_p)
+den_amr_final_eo_amr_p = den_amr_final_eo_amr_p.reset_index()
+den_amr_final_eo_amr_p = clean_colnames(den_amr_final_eo_amr_p)
+
+datainfo(den_amr_final_eo_amr_p)
+
+# -----------------------------------------------------------------------------
+# Results from internal method
+# -----------------------------------------------------------------------------
+den_amr_final = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
+    ,sheet_name='Our method'
+    ,header=[1, 2]   # Header is split over two rows
+)
+
+#%% PLOTLY CODE FROM CLAUDE
+# *****************************************************************************
+# Create a DataFrame with the sales and error data
+df = pd.DataFrame({
+    'Quarter': ['Q1 2023', 'Q2 2023', 'Q3 2023', 'Q4 2023'] * 3,
+    'Product': np.repeat(['Electronics', 'Clothing', 'Home Goods'], 4),
+    'Sales': [
+        # Electronics
+        150, 180, 200, 220,
+        # Clothing
+        200, 220, 240, 260,
+        # Home Goods
+        100, 120, 150, 180
+    ],
+    'Error': [
+        # Electronics errors
+        15, 18, 20, 22,
+        # Clothing errors
+        20, 22, 24, 26,
+        # Home Goods errors
+        10, 12, 15, 18
+    ]
+})
+
+# Calculate cumulative sales for each product
+df = df.sort_values(['Quarter', 'Product']).reset_index(drop=True)
+df['Cumulative_Sales_Over_Products'] = df.groupby('Quarter')['Sales'].cumsum()
+
+# Create traces for each product line
+traces = []
+product_lines = df['Product'].unique()
+
+# # Group the data to create stacked bars
+# grouped = df.groupby(['Quarter', 'Product'])['Sales'].first().unstack()
+# error_grouped = df.groupby(['Quarter', 'Product'])['Error'].first().unstack()
+
+# for product in product_lines:
+#     traces.append(go.Bar(
+#         name=product,
+#         x=grouped.index,
+#         y=grouped[product],
+#         error_y=dict(
+#             type='data',
+#             array=error_grouped[product],
+#             arrayminus=error_grouped[product]*0.5,
+#             visible=True,
+#             color='black',
+#             thickness=2,
+#             width=5,
+#         ),
+#         marker_color={'Electronics': 'blue', 'Clothing': 'green', 'Home Goods': 'red'}[product]
+#     ))
+
+## JR: modifying code to use ungrouped data, draw error bars last
+for i, product in enumerate(product_lines):
+    traces.append(go.Bar(
+        name=product,
+        x=df.query(f"Product == '{product}'")['Quarter'],
+        y=df.query(f"Product == '{product}'")['Sales'],
+        # error_y=dict(
+        #     type='data',
+        #     array=df.query(f"Product == '{product}'")['Error'],
+        #     visible=True,
+        #     color='gray',
+        #     thickness=2,
+        #     width=5
+        # ),
+        marker_color=['blue', 'green', 'red'][i]  # Different color for each product line
+    ))
+
+## Add error bars
+for i, product in enumerate(product_lines):
+    traces.append(go.Scatter(
+        name=product,
+        x=df.query(f"Product == '{product}'")['Quarter'],
+        y=df.query(f"Product == '{product}'")['Cumulative_Sales_Over_Products'],
+        mode='markers',
+        marker=dict(color='gray'),
+        error_y=dict(
+            type='data',
+            array=df.query(f"Product == '{product}'")['Error'],
+            # arrayminus=,      # Use for asymmetric errors
+            visible=True,
+            color='gray',
+            thickness=2,
+            width=5
+        ),
+        showlegend=False,
+    ))
+
+# Create the layout
+layout = go.Layout(
+    title='Quarterly Sales by Product Line',
+    barmode='stack',
+    xaxis={'title': 'Quarter'},
+    yaxis={'title': 'Sales Volume'},
+    legend_title='Product Categories',
+    template='plotly_white',
+    height=600,
+    width=800
+)
+
+# Create figure and show
+fig = go.Figure(data=traces, layout=layout)
+fig.show()
+
+# Optional: Print the DataFrame to show its structure
+# print(df)
+# print("\nSales by Quarter and Product:")
+# print(grouped)
+# print("\nError by Quarter and Product:")
+# print(error_grouped)
