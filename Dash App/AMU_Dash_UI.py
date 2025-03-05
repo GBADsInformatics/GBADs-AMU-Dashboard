@@ -145,6 +145,19 @@ legend_text_poplvl = {
     }
 den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
 
+# Define custom sort order for columns
+scenario_order = ['Average', 'Worse', 'Best']
+farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
+metric_order = ['AMR', 'Unattributed AHLE']
+
+den_amr_ahle_poplvl['scenario'] = pd.Categorical(den_amr_ahle_poplvl['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_poplvl['farm_type'] = pd.Categorical(den_amr_ahle_poplvl['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_poplvl['metric'] = pd.Categorical(den_amr_ahle_poplvl['metric'], categories=metric_order, ordered=True)
+
+den_amr_ahle_farmlvl['scenario'] = pd.Categorical(den_amr_ahle_farmlvl['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_farmlvl['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_farmlvl['metric'] = pd.Categorical(den_amr_ahle_farmlvl['metric'], categories=metric_order, ordered=True)
+
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -452,7 +465,7 @@ gbadsDash.layout = html.Div([
                 ),  ### END OF USER GUIDE TAB
 
         #### ANTIMICROBIAL USAGE TAB
-        dbc.Tab(label="Antimicrobial Usage (AMU)",
+        dbc.Tab(label="Global Antimicrobial Usage (AMU)",
                 id='AMU-tab',
                 tabClassName="flex-grow-1 text-center",
                 tab_style = tab_style,
@@ -1118,7 +1131,7 @@ gbadsDash.layout = html.Div([
                 ]),     # END OF ANTIMICROBIAL USAGE TAB
 
             #### CASE STUDY TAB
-            dbc.Tab(label="Case Studies",
+            dbc.Tab(label="Country Case Studies",
                     tabClassName="flex-grow-1 text-center",
                     tab_style=tab_style,
                     style={"height":"100vh"},
@@ -1186,7 +1199,6 @@ gbadsDash.layout = html.Div([
                                                ),
                                 ]),
                             ], justify='evenly'),
-
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- POPULATION LEVEL RESULTS
@@ -3046,37 +3058,89 @@ def update_sunburst_farmlvl_den_amr(disease_select):
 def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
-    if option_axis_scale == 'Unit':
-        set_log_y = False
-    elif option_axis_scale == 'Log':
-        set_log_y = True
+    # Calculate cumulative values for plotly trick to overlay error bars
+    input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
+    input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
 
-    #!!! Error bars on lower segments are covered up by upper segments.
-    # Here's a fix: https://community.plotly.com/t/stacked-bar-chart-with-calculated-mean-and-sem/47672/6
+    if option_axis_scale == 'Log':
+        set_log_y = True
+        layout_type = 'log'
+    else:
+        set_log_y = False
+        layout_type = None
+
     if option_tot_pct == 'Total':
-        barchart_fig = px.bar(
-            input_df
-            ,x='farm_type'
-            ,y='value'
-            ,color='metric'
-            ,color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'}
-            ,barmode='relative'
-            ,error_y='error_high'
-            ,error_y_minus='error_low'
-            ,log_y=set_log_y
-            ,pattern_shape='farm_type'
-            ,pattern_shape_sequence=[".", "\\", "|"]
-            )
-        barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
-            ,font_size=15
-            ,xaxis_title='Farm Type'
-        	,yaxis_title='Burden (DKK)'
-            showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
+
+        # # Version 1: Simpler code, but error bars on lower segments are covered up by upper segments.
+        # barchart_fig = px.bar(
+        #     input_df
+        #     ,x='farm_type'
+        #     ,y='value'
+        #     ,color='metric'
+        #     ,color_discrete_map={
+        #         'Unattributed AHLE':'#fbc98e',
+        #         'AMR':'#31BFF3'}
+        #     ,barmode='relative'
+        #     ,error_y='error_high'
+        #     ,error_y_minus='error_low'
+        #     ,log_y=set_log_y
+        #     ,pattern_shape='farm_type'
+        #     ,pattern_shape_sequence=[".", "\\", "|"]
+        #     )
+        # barchart_fig.update_layout(
+        #     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+        #     ,font_size=15
+        #     ,xaxis_title='Farm Type'
+        # 	,yaxis_title='Burden (DKK)'
+        # 	,legend_title_text='Source of Burden'
+        #     )
+
+        # Version 2: Using plotly go to fix error bars
+        traces = []
+        unique_metrics = input_df['metric'].unique()
+
+        # Create data bars
+        for i, selected_metric in enumerate(unique_metrics):
+            traces.append(go.Bar(
+                name=selected_metric,
+                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+                y=input_df.query(f"metric == '{selected_metric}'")['value'],
+                marker_color=['#31BFF3', '#fbc98e'][i],   # Different color for each metric
+            ))
+
+        # Add error whiskers
+        for i, selected_metric in enumerate(unique_metrics):
+            traces.append(go.Scatter(
+                name=f"{selected_metric}_error",
+                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+                y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+                mode='markers',
+                marker=dict(color='gray'),
+                error_y=dict(
+                    type='data',
+                    array=input_df.query(f"metric == '{selected_metric}'")['error_high'],
+                    arrayminus=input_df.query(f"metric == '{selected_metric}'")['error_low'],
+                    visible=True,
+                    color='gray',
+                    thickness=2,
+                    width=5
+                ),
+                showlegend=False,
+            ))
+        layout = go.Layout(
+            title=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            barmode='stack',
+            xaxis={'title': 'Farm Type'},
+            yaxis={
+                'type': layout_type,
+                'title':'Burden (DKK)',
+            },
+            legend_title='Source of Burden',
+            template='plotly_white',
+            height=600,
+            width=800
         )
+        barchart_fig = go.Figure(data=traces, layout=layout)
 
         # Add custom legend annotations with colored squares
         legend_items = [
@@ -3125,6 +3189,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             y_pos -= 0.05  # Adjust spacing between legend items
 
     elif option_tot_pct == 'Percent':
+        # 100% stacked bars use histogram, which doesn't have error bar option
         barchart_fig = px.histogram(
             input_df,
             x='farm_type',
