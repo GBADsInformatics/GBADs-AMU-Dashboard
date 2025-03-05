@@ -3009,7 +3009,7 @@ def toggle_collapse(n, is_open):
     Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
     )
-def update_den_amr_sunburst_poplvl(disease_select):
+def update_sunburst_poplvl_den_amr(disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     sunburst_fig = create_sunburst_den(input_df)
     sunburst_fig.update_layout(
@@ -3025,7 +3025,7 @@ def update_den_amr_sunburst_poplvl(disease_select):
     Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
     )
-def update_den_amr_sunburst_farmlvl(disease_select):
+def update_sunburst_farmlvl_den_amr(disease_select):
     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     sunburst_fig = create_sunburst_den(input_df)
     sunburst_fig.update_layout(
@@ -3035,34 +3035,6 @@ def update_den_amr_sunburst_farmlvl(disease_select):
         )
     return sunburst_fig
 
-# Denmark AMR bar chart - farm level
-## JR: Hiding farm-level results to focus on population-level
-# @gbadsDash.callback(
-#     Output('den-amr-barchart-farmlvl', 'figure'),
-#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-#     )
-# def update_den_amr_barchart_farmlvl(dummy_input):
-#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-#     barchart_fig = px.bar(
-#         input_df
-#         ,x='farm_type'
-#         ,y='value'
-#         ,color='metric'
-#         ,barmode='relative'
-#         ,log_y=True
-#         ,labels={
-#             "metric":"Source of Burden"
-#             ,"farm_type":"Farm Type"
-#             ,"value":"Burden (DKK)"
-#             }
-#         )
-#     barchart_fig.update_layout(
-#         title_text=f'Farm-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
-#         font_size=15,
-#         )
-#     return barchart_fig
-
 # Denmark AMR bar chart - population level
 @gbadsDash.callback(
     Output('den-amr-barchart-poplvl', 'figure'),
@@ -3071,7 +3043,7 @@ def update_den_amr_sunburst_farmlvl(disease_select):
     Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
-def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale, disease_select):
+def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
     if option_axis_scale == 'Unit':
@@ -3125,9 +3097,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale, disease_se
             xanchor="left",
             yanchor="top"
         )
-
         y_pos -= 0.05 # Move the start of the legend down after adding the title
-
         for item in legend_items:
             barchart_fig.add_shape(
                 type="rect",
@@ -3197,9 +3167,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale, disease_se
             xanchor="left",
             yanchor="top"
         )
-
         y_pos -= 0.05 # Move the start of the legend down after adding the title
-
         for item in legend_items:
             barchart_fig.add_shape(
                 type="rect",
@@ -3225,7 +3193,6 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale, disease_se
             )
             y_pos -= 0.05  # Adjust spacing between legend items
 
-
     return barchart_fig
 
 
@@ -3237,7 +3204,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale, disease_se
     Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
-def update_den_amr_barchart_farmlvl(option_tot_pct, option_axis_scale, disease_select):
+def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
     if option_axis_scale == 'Unit':
@@ -3291,9 +3258,7 @@ def update_den_amr_barchart_farmlvl(option_tot_pct, option_axis_scale, disease_s
             xanchor="left",
             yanchor="top"
         )
-
         y_pos -= 0.05 # Move the start of the legend down after adding the title
-
         for item in legend_items:
             barchart_fig.add_shape(
                 type="rect",
@@ -3363,9 +3328,7 @@ def update_den_amr_barchart_farmlvl(option_tot_pct, option_axis_scale, disease_s
             xanchor="left",
             yanchor="top"
         )
-
         y_pos -= 0.05 # Move the start of the legend down after adding the title
-
         for item in legend_items:
             barchart_fig.add_shape(
                 type="rect",
