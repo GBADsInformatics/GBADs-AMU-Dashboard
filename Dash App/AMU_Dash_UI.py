@@ -1213,9 +1213,15 @@ gbadsDash.layout = html.Div([
                             # END OF POPULATION LEVEL RESULTS
                             ]),
 
-                        ### -- FARM LEVEL RESULTS
+                        #### -- FARM LEVEL RESULTS
                         html.Hr(style={'margin-right':'10px',}),
-                        dbc.Row([
+                        dbc.Button(
+                            "Farm Level Results",
+                            id="case-study-farm-level-collapse-button",
+                            className="mb-3",
+                            n_clicks=0,
+                            ),
+                        dbc.Collapse( dbc.Row([
                             # # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
                             # dbc.Col([
                             #     dbc.Spinner(children=[
@@ -1233,12 +1239,18 @@ gbadsDash.layout = html.Div([
                                 dbc.Spinner(children=[
                                     dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                # End pf bar chart at farm level
+                                # End of bar chart at farm level
                                 ]),
                             # END OF FARM LEVEL RESULTS
                             ]),
+                            # END OF COLLAPSE
+                            id="collapse",
+                            is_open=False,
+                            ),
 
-
+                       #### -- DATATABLES
+                        html.Hr(style={'margin-right':'10px',}),
+                        html.H3("Data Export", id="AMU-case-study-data-export"),
 
                     ]),     ### END OF CASE STUDY TAB
 
@@ -2979,6 +2991,17 @@ def update_expenditure_amu(input_json, expenditure_units):
 #         margin=dict(l=10, r=10, b=10),
 #         )
 #     return treemap_fig
+
+# Collapse Farm Level results on case study tab
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("case-study-farm-level-collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
 
 # Denmark AMR sunburst chart - population level
 @gbadsDash.callback(
