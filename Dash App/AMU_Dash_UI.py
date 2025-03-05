@@ -185,6 +185,21 @@ amu_pathogen_options = []
 for i in np.sort(amr_withsmry['pathogen'].unique()):
     str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
+
+# =============================================================================
+#### Antimicrobial Usage (AMU) options
+# =============================================================================
+# Countries
+case_study_country_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Denmark",
+                                                                                    "Ethiopia"]]
+
+# Species
+case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine",
+                                                                                    "Dairy Cattle"]]
+
+# Diseases
+case_study_disease_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)"]]
+
 # =============================================================================
 #### Layout helper functions
 # =============================================================================
@@ -310,14 +325,18 @@ def create_sunburst_den(input_df):
     sunburst_fig_px = px.sunburst(
         input_df,
         path=[px.Constant('All'), 'farm_type', 'label_with_percent'],
+        # path=[px.Constant('All'), 'farm_type', 'label_with_percent'], # removing 'all' as the center
         values='value',
         color='metric',
     )
 
     labels = sunburst_fig_px['data'][0]['labels'].tolist()
+    parents = sunburst_fig_px['data'][0]['parents'].tolist()
     colors = []
     patterns = []
-    for p in labels:
+    ids = sunburst_fig_px['data'][0]['ids'].tolist()
+
+    for i, p in enumerate(labels):
         # Colors based on metrics
         if "Unattributed AHLE" in p:
             colors.append("#fbc98e")
@@ -327,18 +346,32 @@ def create_sunburst_den(input_df):
             colors.append("lightgrey")
 
         # Patterns based on farm_type
-        if "Breed" in p:
-            patterns.append(".")
-        elif "Nurse" in p:
-            patterns.append("\\")
-        elif "Fat" in p:
-            patterns.append("|")
+        if ids[i] == 'All':  # No pattern for the top level
+            patterns.append('')
+        elif parents[i] == 'All': #pattern for farm_type level
+            if "Breed" in ids[i]:
+                patterns.append(".")
+            elif "Nurse" in ids[i]:
+                patterns.append("\\")
+            elif "Fat" in ids[i]:
+                patterns.append("|")
+            else:
+                patterns.append('') #if farm type is not found
+        else : #pattern for metric level
+            if "Breed" in parents[i]:
+                patterns.append(".")
+            elif "Nurse" in parents[i]:
+                patterns.append("\\")
+            elif "Fat" in parents[i]:
+                patterns.append("|")
+            else:
+                patterns.append('') # if parent farm type is not found.
 
     sunburst_fig_go = go.Figure(go.Sunburst(
         labels=labels,
-        parents=sunburst_fig_px['data'][0]['parents'].tolist(),
+        parents=parents,
         values=sunburst_fig_px['data'][0]['values'].tolist(),
-        ids=sunburst_fig_px['data'][0]['ids'].tolist(),
+        ids=ids,
         domain={'x': [0.0, 1.0], 'y': [0.0, 1.0]},
         branchvalues="total",
         marker=dict(
@@ -559,7 +592,6 @@ gbadsDash.layout = html.Div([
                     html.H3("Livestock Antimicrobial Usage by Region & Antimicrobial Importance/Classes",
                             id="AMU-Regional-Global",
                             style={"margin-bottom": ".07rem !important",
-                                   'font-style':'italic'
                                    }
                             ),
                     html.Label(['Displaying antimicrobial usage as reported to ',
@@ -1091,21 +1123,37 @@ gbadsDash.layout = html.Div([
                     tab_style=tab_style,
                     style={"height":"100vh"},
                     children=[
-                       #### -- COUNTRY SELECT
+                       #### -- COUNTRY/SPECIES/DISEASE SELECT
                         dbc.Row([
                             # Case Study Countries
                             dbc.Col([
                                 html.H6("Countries", style={'text-align':'center'}),
                                 dcc.Dropdown(id='select-case-study-countries-amu',
-                                      options=[
-                                          'Denmark'
-                                          ,'Ethiopia'
-                                          ],
+                                      options=case_study_country_options,
                                       value='Denmark',
+                                      clearable=False,
                                       ),
-                                ],width={"size": 3}),
+                                ],),
+                            # Case Study Species
+                            dbc.Col([
+                                html.H6("Species", style={'text-align':'center'}),
+                                dcc.Dropdown(id='select-case-study-species-amu',
+                                      options=case_study_species_options,
+                                      value='Swine',
+                                      clearable=False,
+                                      ),
+                                ],),
+                            # Case Study Diseases
+                            dbc.Col([
+                                html.H6("Diseases", style={'text-align':'center'}),
+                                dcc.Dropdown(id='select-case-study-diseases-amu',
+                                      options=case_study_disease_options,
+                                      value='Post-weaning diarrhea (PWD)',
+                                      clearable=False,
+                                      ),
+                                ],),
                         # END OF COUNTRY SELECT ROW
-                        ], justify="end"),
+                        ], justify="evenly"),
 
                         #### -- COUNTRY/SPECIES TITLE
                         dbc.Row([
@@ -1139,23 +1187,6 @@ gbadsDash.layout = html.Div([
                                 ]),
                             ], justify='evenly'),
 
-                        #### -- FARM LEVEL RESULTS
-                        ## JR: Hiding farm-level results to focus on population-level
-                        # html.Hr(style={'margin-right':'10px',}),
-                        # dbc.Row([
-                        #     # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
-                        #     dbc.Col([
-                        #         dbc.Spinner(children=[
-                        #             dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
-                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                        #         ]),
-                        #     # BAR CHART AT FARM LEVEL
-                        #     dbc.Col([
-                        #         dbc.Spinner(children=[
-                        #             dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
-                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                        #         ]),
-                        #     ]),
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- POPULATION LEVEL RESULTS
@@ -1177,9 +1208,52 @@ gbadsDash.layout = html.Div([
                                 dbc.Spinner(children=[
                                     dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                # End of Bar chart at pop level
                                 ]),
+                            # END OF POPULATION LEVEL RESULTS
                             ]),
+
+                        #### -- FARM LEVEL RESULTS
+                        html.Hr(style={'margin-right':'10px',}),
+                        dbc.Button(
+                            "Farm Level Results",
+                            id="case-study-farm-level-collapse-button",
+                            className="mb-3",
+                            n_clicks=0,
+                            ),
+                        dbc.Collapse( dbc.Row([
+                            # # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
+                            # dbc.Col([
+                            #     dbc.Spinner(children=[
+                            #         dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
+                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            #     ]),
+                            # sunburst chart at farm level
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-sunburst-farmlvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                ]),
+                            # bar chart at farm level
+                            dbc.Col([
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                # End of bar chart at farm level
+                                ]),
+                            # END OF FARM LEVEL RESULTS
+                            ]),
+                            # END OF COLLAPSE
+                            id="collapse",
+                            is_open=False,
+                            ),
+
+                       #### -- DATATABLES
+                        html.Hr(style={'margin-right':'10px',}),
+                        html.H3("Data Export", id="AMU-case-study-data-export"),
+
                     ]),     ### END OF CASE STUDY TAB
+
         ### END OF TABS ###
         ],style={'margin-right':'10px',
                  'margin-left': '10px'},
@@ -1499,16 +1573,34 @@ def update_usage_price_sliders(reset_button):
 
 #     return options
 
+# Update species options based on country selections
+@gbadsDash.callback(
+    Output('select-case-study-species-amu', 'options'),
+    Output('select-case-study-species-amu', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_species_options_case_study(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Dairy Cattle"]]
+        value = "Swine"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Dairy Cattle"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Swine"]]
+        value = "Dairy Cattle"
+
+    return case_study_species_options, value
+
 # Update Case Study Title
 @gbadsDash.callback(
     Output('case-study-amu-title','children'),
     Input('select-case-study-countries-amu','value'),
+    Input('select-case-study-species-amu','value'),
+    Input('select-case-study-diseases-amu','value'),
     )
-def update_case_study_title(country_select):
-    if country_select.upper() == 'DENMARK':
-        title = f'{country_select} Swine'
-    elif country_select.upper() == 'ETHIOPIA':
-        title = f'{country_select} Cattle'
+def update_page_title_case_study(country_select, species_select, disease_select):
+    title = f'AMR to {disease_select} in {country_select} {species_select}'
 
     return title
 
@@ -2900,57 +2992,58 @@ def update_expenditure_amu(input_json, expenditure_units):
 #         )
 #     return treemap_fig
 
+# Collapse Farm Level results on case study tab
+@app.callback(
+    Output("collapse", "is_open"),
+    [Input("case-study-farm-level-collapse-button", "n_clicks")],
+    [State("collapse", "is_open")],
+)
+def toggle_collapse(n, is_open):
+    if n:
+        return not is_open
+    return is_open
+
+# Denmark AMR sunburst chart - population level
 @gbadsDash.callback(
     Output('den-amr-sunburst-poplvl', 'figure'),
-    Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+    Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
     )
-def update_den_amr_sunburst_poplvl(dummy_input):
+def update_sunburst_poplvl_den_amr(disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    treemap_fig = create_sunburst_den(input_df)
-    treemap_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of AMR <br>by Farm Type',
+    sunburst_fig = create_sunburst_den(input_df)
+    sunburst_fig.update_layout(
+        title_text=f'Population-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
         font_size=15,
         margin=dict(l=10, r=10, b=10),
         )
-    return treemap_fig
+    return sunburst_fig
 
-# Denmark AMR bar chart - farm level
-## JR: Hiding farm-level results to focus on population-level
-# @gbadsDash.callback(
-#     Output('den-amr-barchart-farmlvl', 'figure'),
-#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
-#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-#     )
-# def update_den_amr_barchart_farmlvl(dummy_input):
-#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-#     barchart_fig = px.bar(
-#         input_df
-#         ,x='farm_type'
-#         ,y='value'
-#         ,color='metric'
-#         ,barmode='relative'
-#         ,log_y=True
-#         ,labels={
-#             "metric":"Source of Burden"
-#             ,"farm_type":"Farm Type"
-#             ,"value":"Burden (DKK)"
-#             }
-#         )
-#     barchart_fig.update_layout(
-#         title_text=f'Farm-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type',
-#         font_size=15,
-#         )
-#     return barchart_fig
+# Denmark AMR sunburst chart - farm level
+@gbadsDash.callback(
+    Output('den-amr-sunburst-farmlvl', 'figure'),
+    Input('select-case-study-diseases-amu','value'),
+    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+    )
+def update_sunburst_farmlvl_den_amr(disease_select):
+    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+    sunburst_fig = create_sunburst_den(input_df)
+    sunburst_fig.update_layout(
+        title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
+        font_size=15,
+        margin=dict(l=10, r=10, b=10),
+        )
+    return sunburst_fig
 
 # Denmark AMR bar chart - population level
 @gbadsDash.callback(
     Output('den-amr-barchart-poplvl', 'figure'),
     Input('select-den-amu-bar-display', 'value'),
     Input('select-den-amu-bar-scale', 'value'),
+    Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
-def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
+def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
     if option_axis_scale == 'Unit':
@@ -2977,12 +3070,59 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
             ,pattern_shape_sequence=[".", "\\", "|"]
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
+            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
             ,font_size=15
             ,xaxis_title='Farm Type'
         	,yaxis_title='Burden (DKK)'
-        	,legend_title_text='Source of Burden'
+            showlegend=False,  # Hide the default legend
+            margin=dict(r=200)  # Adjust right margin to account for custom legend
+        )
+
+        # Add custom legend annotations with colored squares
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'AMR', 'color': '#31BFF3'}
+        ]
+
+        y_pos = 0.95  # Starting y position for legend items
+
+        # Legend title position
+        barchart_fig.add_annotation(
+            x=1.05,
+            y=y_pos + 0.05,
+            xref="paper",
+            yref="paper",
+            text="Source of Burden",
+            showarrow=False,
+            font=dict(size=16, color="black"),
+            xanchor="left",
+            yanchor="top"
+        )
+        y_pos -= 0.05 # Move the start of the legend down after adding the title
+        for item in legend_items:
+            barchart_fig.add_shape(
+                type="rect",
+                x0=1.02,
+                y0=y_pos - 0.02,
+                x1=1.04,
+                y1=y_pos,
+                xref="paper",
+                yref="paper",
+                fillcolor=item['color'],
+                line=dict(color="black", width=1)
             )
+            barchart_fig.add_annotation(
+                x=1.05,
+                y=y_pos - 0.01,
+                xref="paper",
+                yref="paper",
+                text=item['label'],
+                showarrow=False,
+                font=dict(size=14),
+                xanchor="left",
+                yanchor="middle"
+            )
+            y_pos -= 0.05  # Adjust spacing between legend items
 
     elif option_tot_pct == 'Percent':
         barchart_fig = px.histogram(
@@ -3000,15 +3140,223 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR<br>by Farm Type',
+            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
-        	legend_title_text='Source of Burden',
+            showlegend=False,  # Hide the default legend
+            margin=dict(r=200)  # Adjust right margin to account for custom legend
+        )
+
+        # Add custom legend annotations with colored squares
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'AMR', 'color': '#31BFF3'}
+        ]
+
+        y_pos = 0.95  # Starting y position for legend items
+
+        # Legend title position
+        barchart_fig.add_annotation(
+            x=1.05,
+            y=y_pos + 0.05,
+            xref="paper",
+            yref="paper",
+            text="Source of Burden",
+            showarrow=False,
+            font=dict(size=16, color="black"),
+            xanchor="left",
+            yanchor="top"
+        )
+        y_pos -= 0.05 # Move the start of the legend down after adding the title
+        for item in legend_items:
+            barchart_fig.add_shape(
+                type="rect",
+                x0=1.02,
+                y0=y_pos - 0.02,
+                x1=1.04,
+                y1=y_pos,
+                xref="paper",
+                yref="paper",
+                fillcolor=item['color'],
+                line=dict(color="black", width=1)
             )
+            barchart_fig.add_annotation(
+                x=1.05,
+                y=y_pos - 0.01,
+                xref="paper",
+                yref="paper",
+                text=item['label'],
+                showarrow=False,
+                font=dict(size=14),
+                xanchor="left",
+                yanchor="middle"
+            )
+            y_pos -= 0.05  # Adjust spacing between legend items
 
     return barchart_fig
 
+
+# Denmark AMR bar chart - farm level
+@gbadsDash.callback(
+    Output('den-amr-barchart-farmlvl', 'figure'),
+    Input('select-den-amu-bar-display', 'value'),
+    Input('select-den-amu-bar-scale', 'value'),
+    Input('select-case-study-diseases-amu','value'),
+    # Input('select-amr-scenario', 'value'),    # Control not yet created
+    )
+def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
+    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+
+    if option_axis_scale == 'Unit':
+        set_log_y = False
+    elif option_axis_scale == 'Log':
+        set_log_y = True
+
+    if option_tot_pct == 'Total':
+        barchart_fig = px.bar(
+            input_df
+            ,x='farm_type'
+            ,y='value'
+            ,color='metric'
+            ,color_discrete_map={
+                'Unattributed AHLE':'#fbc98e',
+                'AMR':'#31BFF3'}
+            ,barmode='relative'
+            ,log_y=set_log_y
+            ,labels={
+                "metric":"Source of Burden"
+                ,"farm_type":"Farm Type"
+                ,"value":"Burden (DKK)"
+                }
+            ,pattern_shape='farm_type'
+            ,pattern_shape_sequence=[".", "\\", "|"]
+            )
+        barchart_fig.update_layout(
+            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            font_size=15,
+            showlegend=False,  # Hide the default legend
+            margin=dict(r=200)  # Adjust right margin to account for custom legend
+        )
+
+        # Add custom legend annotations with colored squares
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'AMR', 'color': '#31BFF3'}
+        ]
+
+        y_pos = 0.95  # Starting y position for legend items
+
+        # Legend title position
+        barchart_fig.add_annotation(
+            x=1.05,
+            y=y_pos + 0.05,
+            xref="paper",
+            yref="paper",
+            text="Source of Burden",
+            showarrow=False,
+            font=dict(size=16, color="black"),
+            xanchor="left",
+            yanchor="top"
+        )
+        y_pos -= 0.05 # Move the start of the legend down after adding the title
+        for item in legend_items:
+            barchart_fig.add_shape(
+                type="rect",
+                x0=1.02,
+                y0=y_pos - 0.02,
+                x1=1.04,
+                y1=y_pos,
+                xref="paper",
+                yref="paper",
+                fillcolor=item['color'],
+                line=dict(color="black", width=1)
+            )
+            barchart_fig.add_annotation(
+                x=1.05,
+                y=y_pos - 0.01,
+                xref="paper",
+                yref="paper",
+                text=item['label'],
+                showarrow=False,
+                font=dict(size=14),
+                xanchor="left",
+                yanchor="middle"
+            )
+            y_pos -= 0.05  # Adjust spacing between legend items
+
+    elif option_tot_pct == 'Percent':
+        barchart_fig = px.histogram(
+            input_df,
+            x='farm_type',
+            y='value',
+            log_y=set_log_y,
+            color='metric',
+            color_discrete_map={
+                'Unattributed AHLE':'#fbc98e',
+                'AMR':'#31BFF3'},
+            barnorm='percent',
+            pattern_shape='farm_type',
+            pattern_shape_sequence=[".", "\\", "|"],
+            text_auto='.1f',
+            )
+        barchart_fig.update_layout(
+            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            font_size=15,
+            xaxis_title='Farm Type',
+        	yaxis_title='% of AHLE',
+            showlegend=False,  # Hide the default legend
+            margin=dict(r=200)  # Adjust right margin to account for custom legend
+        )
+
+        # Add custom legend annotations with colored squares
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'AMR', 'color': '#31BFF3'}
+        ]
+
+        y_pos = 0.95  # Starting y position for legend items
+
+        # Legend title position
+        barchart_fig.add_annotation(
+            x=1.05,
+            y=y_pos + 0.05,
+            xref="paper",
+            yref="paper",
+            text="Source of Burden",
+            showarrow=False,
+            font=dict(size=16, color="black"),
+            xanchor="left",
+            yanchor="top"
+        )
+        y_pos -= 0.05 # Move the start of the legend down after adding the title
+        for item in legend_items:
+            barchart_fig.add_shape(
+                type="rect",
+                x0=1.02,
+                y0=y_pos - 0.02,
+                x1=1.04,
+                y1=y_pos,
+                xref="paper",
+                yref="paper",
+                fillcolor=item['color'],
+                line=dict(color="black", width=1)
+            )
+            barchart_fig.add_annotation(
+                x=1.05,
+                y=y_pos - 0.01,
+                xref="paper",
+                yref="paper",
+                text=item['label'],
+                showarrow=False,
+                font=dict(size=14),
+                xanchor="left",
+                yanchor="middle"
+            )
+            y_pos -= 0.05  # Adjust spacing between legend items
+
+
+    return barchart_fig
 #%% 6. RUN APP
 #############################################################################################################
 
