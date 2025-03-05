@@ -2978,7 +2978,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
         layout_type = None
 
     if option_tot_pct == 'Total':
-        # # Simpler code, but error bars on lower segments are covered up by upper segments.
+        # # Version 1: Simpler code, but error bars on lower segments are covered up by upper segments.
         # barchart_fig = px.bar(
         #     input_df
         #     ,x='farm_type'
@@ -3002,7 +3002,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
         # 	,legend_title_text='Source of Burden'
         #     )
 
-        # Using plotly go to fix error bars
+        # Version 2: Using plotly go to fix error bars
         traces = []
         unique_metrics = input_df['metric'].unique()
 
@@ -3035,7 +3035,7 @@ def update_den_amr_barchart_poplvl(option_tot_pct, option_axis_scale):
                 showlegend=False,
             ))
         layout = go.Layout(
-            title='AMR in the context of AHLE',
+            title=f'Population-level AHLE and the Burden of AMR<br>by Farm Type',
             barmode='stack',
             xaxis={'title': 'Farm Type'},
             yaxis={
