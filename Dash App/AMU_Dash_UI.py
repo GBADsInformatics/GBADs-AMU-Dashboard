@@ -43,6 +43,19 @@ from flask import Flask, redirect
 # private (fa) libraries
 import lib.fa_dash_utils as fa
 
+import pkg_resources as pkg
+get_package_versions = [
+    'plotly'
+    ,'dash'
+]
+print('> Checking package versions:')
+for PKG in get_package_versions:
+    try:
+        version = pkg.get_distribution(PKG).version
+        print(f"  {PKG} {version}")
+    except:
+        print(f"  !{PKG} not found!")
+
 #### PARAMETERS
 prod                         = False   # Use when testing/dev mode to remove auth
 
@@ -3106,6 +3119,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
                 y=input_df.query(f"metric == '{selected_metric}'")['value'],
                 marker_color=['#31BFF3', '#fbc98e'][i],   # Different color for each metric
+                showlegend=False,
             ))
 
         # Add error whiskers
@@ -3135,7 +3149,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 'type': layout_type,
                 'title':'Burden (DKK)',
             },
-            legend_title='Source of Burden',
+            # legend_title='Source of Burden',
             template='plotly_white',
             height=600,
             width=800
@@ -3147,7 +3161,6 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
             {'label': 'AMR', 'color': '#31BFF3'}
         ]
-
         y_pos = 0.95  # Starting y position for legend items
 
         # Legend title position
