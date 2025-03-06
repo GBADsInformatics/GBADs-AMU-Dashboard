@@ -163,13 +163,16 @@ scenario_order = ['Average', 'Worse', 'Best']
 farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
 metric_order = ['AMR', 'Unattributed AHLE']
 
-den_amr_ahle_poplvl['scenario'] = pd.Categorical(den_amr_ahle_poplvl['scenario'], categories=scenario_order, ordered=True)
-den_amr_ahle_poplvl['farm_type'] = pd.Categorical(den_amr_ahle_poplvl['farm_type'], categories=farm_type_order, ordered=True)
-den_amr_ahle_poplvl['metric'] = pd.Categorical(den_amr_ahle_poplvl['metric'], categories=metric_order, ordered=True)
 
-den_amr_ahle_farmlvl['scenario'] = pd.Categorical(den_amr_ahle_farmlvl['scenario'], categories=scenario_order, ordered=True)
-den_amr_ahle_farmlvl['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl['farm_type'], categories=farm_type_order, ordered=True)
-den_amr_ahle_farmlvl['metric'] = pd.Categorical(den_amr_ahle_farmlvl['metric'], categories=metric_order, ordered=True)
+den_amr_ahle_poplvl_sorted = den_amr_ahle_poplvl.copy()
+den_amr_ahle_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_poplvl_sorted['metric'], categories=metric_order, ordered=True)
+
+den_amr_ahle_farmlvl_sorted = den_amr_ahle_farmlvl.copy()
+den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
 
 # =============================================================================
 #### User options and defaults
@@ -3069,7 +3072,7 @@ def update_sunburst_farmlvl_den_amr(disease_select):
     # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
 def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
-    input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+    input_df = den_amr_ahle_poplvl_sorted.query("scenario == 'Average'").query("farm_type != 'Total'")
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
@@ -3089,32 +3092,6 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         layout_type = None
 
     if option_tot_pct == 'Total':
-
-        # # Version 1: Simpler code, but error bars on lower segments are covered up by upper segments.
-        # barchart_fig = px.bar(
-        #     input_df
-        #     ,x='farm_type'
-        #     ,y='value'
-        #     ,color='metric'
-        #     ,color_discrete_map={
-        #         'Unattributed AHLE':'#fbc98e',
-        #         'AMR':'#31BFF3'}
-        #     ,barmode='relative'
-        #     ,error_y='error_high'
-        #     ,error_y_minus='error_low'
-        #     ,log_y=set_log_y
-        #     ,pattern_shape='farm_type'
-        #     ,pattern_shape_sequence=[".", "\\", "|"]
-        #     )
-        # barchart_fig.update_layout(
-        #     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-        #     ,font_size=15
-        #     ,xaxis_title='Farm Type'
-        # 	,yaxis_title='Burden (DKK)'
-        # 	,legend_title_text='Source of Burden'
-        #     )
-
-        # Version 2: Using plotly go to fix error bars
         traces = []
         unique_metrics = input_df['metric'].unique()
 
@@ -3124,7 +3101,17 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 name=selected_metric,
                 x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
                 y=input_df.query(f"metric == '{selected_metric}'")['value'],
-                marker_color=['#31BFF3', '#fbc98e'][i],   # Different color for each metric
+                marker=dict(
+                    color=['#31BFF3', '#fbc98e'][i],  # Different color for each metric
+                    pattern=dict(
+                        shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
+                            'Breed': '.',
+                            'Nurse': '\\',
+                            'Fat': '|'
+                        }).tolist(),
+                        solidity=0.2, # adjust for pattern density
+                    )
+                ),
                 showlegend=False,
             ))
 
@@ -3159,10 +3146,9 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 'type': layout_type,
                 'title':'Burden (DKK)',
             },
-            # legend_title='Source of Burden',
             template='plotly_white',
-            height=600,
-            width=800
+            bargroupgap=0.5,
+            margin=dict(r=200)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
@@ -3171,11 +3157,15 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
             {'label': 'AMR', 'color': '#31BFF3'}
         ]
-        y_pos = 0.95  # Starting y position for legend items
+        y_pos = 0.95    # Starting y position for legend items
 
         # Legend title position
+        legend_x = 1.02
+        if layout.margin.r:
+            legend_x = 1 + 0.005 * (layout.margin.r/20) # Decrease multiplier to move further left.
+
         barchart_fig.add_annotation(
-            x=1.05,
+            x=legend_x,
             y=y_pos + 0.05,
             xref="paper",
             yref="paper",
@@ -3189,9 +3179,9 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         for item in legend_items:
             barchart_fig.add_shape(
                 type="rect",
-                x0=1.02,
+                x0=legend_x - 0.02,
                 y0=y_pos - 0.02,
-                x1=1.04,
+                x1=legend_x,
                 y1=y_pos,
                 xref="paper",
                 yref="paper",
@@ -3199,7 +3189,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 line=dict(color="black", width=1)
             )
             barchart_fig.add_annotation(
-                x=1.05,
+                x=legend_x + 0.01,
                 y=y_pos - 0.01,
                 xref="paper",
                 yref="paper",
@@ -3209,7 +3199,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 xanchor="left",
                 yanchor="middle"
             )
-            y_pos -= 0.05  # Adjust spacing between legend items
+            y_pos -= 0.05    # Adjust spacing between legend items
 
     elif option_tot_pct == 'Percent':
         # 100% stacked bars use histogram, which doesn't have error bar option
