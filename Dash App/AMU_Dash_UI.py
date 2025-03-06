@@ -1648,7 +1648,7 @@ def update_diseases_options_case_study(country_select):
     Input('select-case-study-diseases-amu','value'),
     )
 def update_page_title_case_study(country_select, species_select, disease_select):
-    title = f'AMR to {disease_select} in {country_select} {species_select}'
+    title = f'AMR in {disease_select} in {country_select} {species_select}'
 
     return title
 
@@ -3061,7 +3061,7 @@ def update_sunburst_poplvl_den_amr(disease_select):
     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     sunburst_fig = create_sunburst_den(input_df)
     sunburst_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
+        title_text=f'Population-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
         font_size=15,
         margin=dict(l=10, r=10, b=10),
         )
@@ -3077,7 +3077,7 @@ def update_sunburst_farmlvl_den_amr(disease_select):
     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
     sunburst_fig = create_sunburst_den(input_df)
     sunburst_fig.update_layout(
-        title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
+        title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
         font_size=15,
         margin=dict(l=10, r=10, b=10),
         )
@@ -3149,7 +3149,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 showlegend=False,
             ))
         layout = go.Layout(
-            title=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title=f'Population-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
             barmode='stack',
             xaxis={'title': 'Farm Type'},
             yaxis={
@@ -3228,7 +3228,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title_text=f'Population-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
@@ -3321,7 +3321,7 @@ def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_s
             ,pattern_shape_sequence=[".", "\\", "|"]
             )
         barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
             font_size=15,
             showlegend=False,  # Hide the default legend
             margin=dict(r=200)  # Adjust right margin to account for custom legend
@@ -3389,7 +3389,7 @@ def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_s
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
