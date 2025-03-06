@@ -227,7 +227,8 @@ case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i 
                                                                                     "Dairy Cattle"]]
 
 # Diseases
-case_study_disease_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)"]]
+case_study_disease_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)",
+                                                                                    "Mastitis"]]
 
 # =============================================================================
 #### Layout helper functions
@@ -1617,6 +1618,25 @@ def update_species_options_case_study(country_select):
         case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Dairy Cattle"]]
         case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Swine"]]
         value = "Dairy Cattle"
+
+    return case_study_species_options, value
+
+# Update species options based on country selections
+@gbadsDash.callback(
+    Output('select-case-study-diseases-amu', 'options'),
+    Output('select-case-study-diseases-amu', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_diseases_options_case_study(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Mastitis"]]
+        value = "Post-weaning diarrhea (PWD)"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Mastitis"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Post-weaning diarrhea (PWD)wine"]]
+        value = "Mastitis"
 
     return case_study_species_options, value
 
