@@ -3075,6 +3075,12 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
     input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
 
+    # Get important values to show in title
+    population_amr = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type == 'Total'").query("metric == 'AMR'")['value'].item()
+    population_unattr_ahle = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type == 'Total'").query("metric == 'Unattributed AHLE'")['value'].item()
+    population_total_ahle = population_amr + population_unattr_ahle
+    population_amr_prpn_ahle = population_amr / population_total_ahle
+
     if option_axis_scale == 'Log':
         set_log_y = True
         layout_type = 'log'
@@ -3142,7 +3148,11 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 showlegend=False,
             ))
         layout = go.Layout(
-            title=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title=f"Population-level AHLE and the Burden of AMR to {disease_select}<br>" \
+                + f"by Farm Type<br>" \
+                + f"Total AHLE: {population_total_ahle:,.0f} DKK<br>" \
+                + f"Total AMR:        {population_amr:,.0f} DKK ({population_amr_prpn_ahle:.2%} of total AHLE)"
+            ,
             barmode='stack',
             xaxis={'title': 'Farm Type'},
             yaxis={
