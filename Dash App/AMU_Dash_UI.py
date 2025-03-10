@@ -1242,42 +1242,42 @@ gbadsDash.layout = html.Div([
                             # END OF POPULATION LEVEL RESULTS
                             ]),
 
-                        #### -- FARM LEVEL RESULTS
-                        html.Hr(style={'margin-right':'10px',}),
-                        dbc.Button(
-                            "Farm Level Results",
-                            id="case-study-farm-level-collapse-button",
-                            className="mb-3",
-                            n_clicks=0,
-                            ),
-                        dbc.Collapse( dbc.Row([
-                            # # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
-                            # dbc.Col([
-                            #     dbc.Spinner(children=[
-                            #         dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
-                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                            #     ]),
-                            # sunburst chart at farm level
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-sunburst-farmlvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                ]),
-                            # bar chart at farm level
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                # End of bar chart at farm level
-                                ]),
-                            # END OF FARM LEVEL RESULTS
-                            ]),
-                            # END OF COLLAPSE
-                            id="collapse",
-                            is_open=False,
-                            ),
+                        # #### -- FARM LEVEL RESULTS
+                        # html.Hr(style={'margin-right':'10px',}),
+                        # dbc.Button(
+                        #     "Farm Level Results",
+                        #     id="case-study-farm-level-collapse-button",
+                        #     className="mb-3",
+                        #     n_clicks=0,
+                        #     ),
+                        # dbc.Collapse( dbc.Row([
+                        #     # # MOSAIC PLOT (TREEMAP) AT FARM LEVEL
+                        #     # dbc.Col([
+                        #     #     dbc.Spinner(children=[
+                        #     #         dcc_graph_element(ID='den-amr-treemap-farmlvl', DL_FILENAME='GBADs_AMR_Den_Treemap_Farmlevel', HEIGHT=650)
+                        #     #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #     #     ]),
+                        #     # sunburst chart at farm level
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-sunburst-farmlvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         ]),
+                        #     # bar chart at farm level
+                        #     dbc.Col([
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                        #             ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #         # End of bar chart at farm level
+                        #         ]),
+                        #     # END OF FARM LEVEL RESULTS
+                        #     ]),
+                        #     # END OF COLLAPSE
+                        #     id="collapse",
+                        #     is_open=False,
+                        #     ),
 
-                       #### -- DATATABLES
+                        #### -- DATATABLES
                         html.Hr(style={'margin-right':'10px',}),
                         html.H3("Data Export", id="AMU-case-study-data-export"),
 
@@ -1651,6 +1651,18 @@ def update_page_title_case_study(country_select, species_select, disease_select)
     title = f'AMR in {disease_select} in {country_select} {species_select}'
 
     return title
+
+# # Collapse Farm Level results on case study tab
+# @gbadsDash.callback(
+#     Output("collapse", "is_open"),
+#     [Input("case-study-farm-level-collapse-button", "n_clicks")],
+#     [State("collapse", "is_open")],
+# )
+# def toggle_collapse(n, is_open):
+#     if n:
+#         return not is_open
+#     return is_open
+
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3040,16 +3052,6 @@ def update_expenditure_amu(input_json, expenditure_units):
 #         )
 #     return treemap_fig
 
-# Collapse Farm Level results on case study tab
-@app.callback(
-    Output("collapse", "is_open"),
-    [Input("case-study-farm-level-collapse-button", "n_clicks")],
-    [State("collapse", "is_open")],
-)
-def toggle_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
 
 # Denmark AMR sunburst chart - population level
 @gbadsDash.callback(
@@ -3067,21 +3069,21 @@ def update_sunburst_poplvl_den_amr(disease_select):
         )
     return sunburst_fig
 
-# Denmark AMR sunburst chart - farm level
-@gbadsDash.callback(
-    Output('den-amr-sunburst-farmlvl', 'figure'),
-    Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_sunburst_farmlvl_den_amr(disease_select):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    sunburst_fig = create_sunburst_den(input_df)
-    sunburst_fig.update_layout(
-        title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
-        font_size=15,
-        margin=dict(l=10, r=10, b=10),
-        )
-    return sunburst_fig
+# # Denmark AMR sunburst chart - farm level
+# @gbadsDash.callback(
+#     Output('den-amr-sunburst-farmlvl', 'figure'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_sunburst_farmlvl_den_amr(disease_select):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     sunburst_fig = create_sunburst_den(input_df)
+#     sunburst_fig.update_layout(
+#         title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
+#         font_size=15,
+#         margin=dict(l=10, r=10, b=10),
+#         )
+#     return sunburst_fig
 
 # Denmark AMR bar chart - population level
 @gbadsDash.callback(
@@ -3285,166 +3287,167 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
     return barchart_fig
 
 
-# Denmark AMR bar chart - farm level
-@gbadsDash.callback(
-    Output('den-amr-barchart-farmlvl', 'figure'),
-    Input('select-den-amu-bar-display', 'value'),
-    Input('select-den-amu-bar-scale', 'value'),
-    Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Control not yet created
-    )
-def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+# # Denmark AMR bar chart - farm level
+# @gbadsDash.callback(
+#     Output('den-amr-barchart-farmlvl', 'figure'),
+#     Input('select-den-amu-bar-display', 'value'),
+#     Input('select-den-amu-bar-scale', 'value'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Control not yet created
+#     )
+# def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
-    if option_axis_scale == 'Unit':
-        set_log_y = False
-    elif option_axis_scale == 'Log':
-        set_log_y = True
+#     if option_axis_scale == 'Unit':
+#         set_log_y = False
+#     elif option_axis_scale == 'Log':
+#         set_log_y = True
 
-    if option_tot_pct == 'Total':
-        barchart_fig = px.bar(
-            input_df
-            ,x='farm_type'
-            ,y='value'
-            ,color='metric'
-            ,color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'}
-            ,barmode='relative'
-            ,log_y=set_log_y
-            ,labels={
-                "metric":"Source of Burden"
-                ,"farm_type":"Farm Type"
-                ,"value":"Burden (DKK)"
-                }
-            ,pattern_shape='farm_type'
-            ,pattern_shape_sequence=[".", "\\", "|"]
-            )
-        barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
-            font_size=15,
-            showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
-        )
+#     if option_tot_pct == 'Total':
+#         barchart_fig = px.bar(
+#             input_df
+#             ,x='farm_type'
+#             ,y='value'
+#             ,color='metric'
+#             ,color_discrete_map={
+#                 'Unattributed AHLE':'#fbc98e',
+#                 'AMR':'#31BFF3'}
+#             ,barmode='relative'
+#             ,log_y=set_log_y
+#             ,labels={
+#                 "metric":"Source of Burden"
+#                 ,"farm_type":"Farm Type"
+#                 ,"value":"Burden (DKK)"
+#                 }
+#             ,pattern_shape='farm_type'
+#             ,pattern_shape_sequence=[".", "\\", "|"]
+#             )
+#         barchart_fig.update_layout(
+#             title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
+#             font_size=15,
+#             showlegend=False,  # Hide the default legend
+#             margin=dict(r=200)  # Adjust right margin to account for custom legend
+#         )
 
-        # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
 
-        y_pos = 0.95  # Starting y position for legend items
+#         y_pos = 0.95  # Starting y position for legend items
 
-        # Legend title position
-        barchart_fig.add_annotation(
-            x=1.05,
-            y=y_pos + 0.05,
-            xref="paper",
-            yref="paper",
-            text="Source of Burden",
-            showarrow=False,
-            font=dict(size=16, color="black"),
-            xanchor="left",
-            yanchor="top"
-        )
-        y_pos -= 0.05 # Move the start of the legend down after adding the title
-        for item in legend_items:
-            barchart_fig.add_shape(
-                type="rect",
-                x0=1.02,
-                y0=y_pos - 0.02,
-                x1=1.04,
-                y1=y_pos,
-                xref="paper",
-                yref="paper",
-                fillcolor=item['color'],
-                line=dict(color="black", width=1)
-            )
-            barchart_fig.add_annotation(
-                x=1.05,
-                y=y_pos - 0.01,
-                xref="paper",
-                yref="paper",
-                text=item['label'],
-                showarrow=False,
-                font=dict(size=14),
-                xanchor="left",
-                yanchor="middle"
-            )
-            y_pos -= 0.05  # Adjust spacing between legend items
+#         # Legend title position
+#         barchart_fig.add_annotation(
+#             x=1.05,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=1.02,
+#                 y0=y_pos - 0.02,
+#                 x1=1.04,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=1.05,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05  # Adjust spacing between legend items
 
-    elif option_tot_pct == 'Percent':
-        barchart_fig = px.histogram(
-            input_df,
-            x='farm_type',
-            y='value',
-            log_y=set_log_y,
-            color='metric',
-            color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'},
-            barnorm='percent',
-            pattern_shape='farm_type',
-            pattern_shape_sequence=[".", "\\", "|"],
-            text_auto='.1f',
-            )
-        barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
-            font_size=15,
-            xaxis_title='Farm Type',
-        	yaxis_title='% of AHLE',
-            showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
-        )
+#     elif option_tot_pct == 'Percent':
+#         barchart_fig = px.histogram(
+#             input_df,
+#             x='farm_type',
+#             y='value',
+#             log_y=set_log_y,
+#             color='metric',
+#             color_discrete_map={
+#                 'Unattributed AHLE':'#fbc98e',
+#                 'AMR':'#31BFF3'},
+#             barnorm='percent',
+#             pattern_shape='farm_type',
+#             pattern_shape_sequence=[".", "\\", "|"],
+#             text_auto='.1f',
+#             )
+#         barchart_fig.update_layout(
+#             title_text=f'Farm-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
+#             font_size=15,
+#             xaxis_title='Farm Type',
+#         	yaxis_title='% of AHLE',
+#             showlegend=False,  # Hide the default legend
+#             margin=dict(r=200)  # Adjust right margin to account for custom legend
+#         )
 
-        # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
 
-        y_pos = 0.95  # Starting y position for legend items
+#         y_pos = 0.95  # Starting y position for legend items
 
-        # Legend title position
-        barchart_fig.add_annotation(
-            x=1.05,
-            y=y_pos + 0.05,
-            xref="paper",
-            yref="paper",
-            text="Source of Burden",
-            showarrow=False,
-            font=dict(size=16, color="black"),
-            xanchor="left",
-            yanchor="top"
-        )
-        y_pos -= 0.05 # Move the start of the legend down after adding the title
-        for item in legend_items:
-            barchart_fig.add_shape(
-                type="rect",
-                x0=1.02,
-                y0=y_pos - 0.02,
-                x1=1.04,
-                y1=y_pos,
-                xref="paper",
-                yref="paper",
-                fillcolor=item['color'],
-                line=dict(color="black", width=1)
-            )
-            barchart_fig.add_annotation(
-                x=1.05,
-                y=y_pos - 0.01,
-                xref="paper",
-                yref="paper",
-                text=item['label'],
-                showarrow=False,
-                font=dict(size=14),
-                xanchor="left",
-                yanchor="middle"
-            )
-            y_pos -= 0.05  # Adjust spacing between legend items
+#         # Legend title position
+#         barchart_fig.add_annotation(
+#             x=1.05,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=1.02,
+#                 y0=y_pos - 0.02,
+#                 x1=1.04,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=1.05,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05  # Adjust spacing between legend items
 
 
-    return barchart_fig
+#     return barchart_fig
+
 #%% 6. RUN APP
 #############################################################################################################
 
