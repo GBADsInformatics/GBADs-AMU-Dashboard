@@ -159,7 +159,7 @@ DASHDATA_FOLDER = os.path.join(PARENT_FOLDER, 'Dash App', 'data')
 #%% DENMARK INITIAL DATA
 # *****************************************************************************
 # =============================================================================
-#### Farm summary from UoL
+#### Farm summary
 # =============================================================================
 den_farmsmry = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -169,7 +169,7 @@ datainfo(den_farmsmry)
 export_dataframe(den_farmsmry, PRODATA_FOLDER)
 
 # =============================================================================
-#### AMR from UoL
+#### AMR
 # =============================================================================
 den_amr = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -206,7 +206,7 @@ datainfo(den_amr)
 export_dataframe(den_amr, PRODATA_FOLDER)
 
 # =============================================================================
-#### AHLE from UoL
+#### AHLE
 # =============================================================================
 den_ahle = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR.xlsx')
@@ -233,7 +233,7 @@ datainfo(den_ahle)
 export_dataframe(den_ahle, PRODATA_FOLDER)
 
 # =============================================================================
-#### AMR and AHLE combo from UoL
+#### AMR and AHLE combo
 # =============================================================================
 den_amr_ahle = pd.merge(
     left=den_amr
@@ -280,7 +280,7 @@ export_dataframe(den_amr_ahle, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle, DASHDATA_FOLDER)
 
 # -----------------------------------------------------------------------------
-# Reshape for plotting - farm level
+#### -- Reshape for plotting - farm level
 # -----------------------------------------------------------------------------
 # Median estimates
 den_amr_ahle_farmlvl = den_amr_ahle.melt(
@@ -301,7 +301,7 @@ export_dataframe(den_amr_ahle_farmlvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
 
 # -----------------------------------------------------------------------------
-# Reshape for plotting - population level
+#### -- Reshape for plotting - population level
 # -----------------------------------------------------------------------------
 # Median estimates
 den_amr_ahle_poplvl = den_amr_ahle.melt(
@@ -409,7 +409,7 @@ export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
 # barchart_fig.show()
 
 # =============================================================================
-#### Fixing hidden error bars for stacked bar chart
+#### DEV Code: Fixing hidden error bars for stacked bar chart
 # =============================================================================
 input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'").copy()
 
@@ -526,46 +526,211 @@ export_dataframe(den_ahle_comp, PRODATA_FOLDER)
 This is the data Joao shared at the end of February which is the final result
 using their existing attribution method. We may or may not get an updated data
 set from their ongoing work to update their methods.
+
+NO LONGER USED. JOAO SENT A CORRECTED FILE ON MARCH 5.
 '''
-# -----------------------------------------------------------------------------
-# Results from expert opinion method
-# -----------------------------------------------------------------------------
-den_amr_final_eo = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
-    ,sheet_name='Expert opinion'
-    ,header=[1, 2]
+# # -----------------------------------------------------------------------------
+# # Results from expert opinion method
+# # -----------------------------------------------------------------------------
+# den_amr_final_eo = pd.read_excel(
+#     os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
+#     ,sheet_name='Expert opinion'
+#     ,header=[1, 2]
+# )
+
+# # Cleanup column names
+# den_amr_final_eo = colnames_from_index(den_amr_final_eo)
+# den_amr_final_eo = clean_colnames(den_amr_final_eo)
+# rename_cols = {
+#     "item_unnamed:_0_level_1":"item"
+#     ,"scenario_unnamed:_1_level_1":"scenario"
+# }
+# den_amr_final_eo = den_amr_final_eo.rename(columns=rename_cols)
+
+# # Separate AHLE and expenditure numbers
+# _row_select = (den_amr_final_eo['item'].str.upper().isin(['AHLE' ,'EXPENDITURE DKK']))
+# den_amr_final_eo_ahle = den_amr_final_eo.loc[_row_select]
+# den_amr_final_eo_amr = den_amr_final_eo.loc[~ _row_select]
+
+# # Transpose item names
+# den_amr_final_eo_amr_p = den_amr_final_eo_amr.pivot(
+# 	index=['scenario']       # Column(s) to make new index. If blank, uses existing index.
+# 	,columns=['item']        # Column(s) whose values define new columns
+# )
+# den_amr_final_eo_amr_p = colnames_from_index(den_amr_final_eo_amr_p)
+# den_amr_final_eo_amr_p = den_amr_final_eo_amr_p.reset_index()
+# den_amr_final_eo_amr_p = clean_colnames(den_amr_final_eo_amr_p)
+
+# datainfo(den_amr_final_eo_amr_p)
+
+# # -----------------------------------------------------------------------------
+# # Results from internal method
+# # -----------------------------------------------------------------------------
+# den_amr_final = pd.read_excel(
+#     os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
+#     ,sheet_name='Our method'
+#     ,header=[1, 2]   # Header is split over two rows
+# )
+
+#%% DENMARK DATA MARCH 5
+# *****************************************************************************
+# =============================================================================
+#### AMR from UoL
+# =============================================================================
+den_amr_final = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
+    ,sheet_name='AMR'
+    ,header=[0,1]   # Header is split over two rows
 )
 
 # Cleanup column names
-den_amr_final_eo = colnames_from_index(den_amr_final_eo)
-den_amr_final_eo = clean_colnames(den_amr_final_eo)
+den_amr_final = colnames_from_index(den_amr_final)      # Flatten multi-indexed column names
+den_amr_final = clean_colnames(den_amr_final)
+
 rename_cols = {
-    "item_unnamed:_0_level_1":"item"
-    ,"scenario_unnamed:_1_level_1":"scenario"
+    'unnamed:_0_level_0_scenario':"scenario"
+    ,'unnamed:_1_level_0_farm_type':"farm_type"
+    ,'unnamed:_2_level_0_number_of_farms':"number_of_farms"
 }
-den_amr_final_eo = den_amr_final_eo.rename(columns=rename_cols)
+den_amr_final = den_amr_final.rename(columns=rename_cols)
 
-# Separate AHLE and expenditure numbers
-_row_select = (den_amr_final_eo['item'].str.upper().isin(['AHLE' ,'EXPENDITURE DKK']))
-den_amr_final_eo_ahle = den_amr_final_eo.loc[_row_select]
-den_amr_final_eo_amr = den_amr_final_eo.loc[~ _row_select]
+# Some confidence intervals change sign. Set any AMR numbers > 0 to 0.
+set_ceiling_for_vars = [
+    'amr_production_losses_at_farm_level_median'
+    ,'amr_production_losses_at_farm_level_5_pct_ile'
+    ,'amr_production_losses_at_farm_level_95_pct_ile'
 
-# Transpose item names
-den_amr_final_eo_amr_p = den_amr_final_eo_amr.pivot(
-	index=['scenario']       # Column(s) to make new index. If blank, uses existing index.
-	,columns=['item']        # Column(s) whose values define new columns
+    ,'amr_production_losses_at_pop_level_median'
+    ,'amr_production_losses_at_pop_level_5_pct_ile'
+    ,'amr_production_losses_at_pop_level_95_pct_ile'
+
+    ,'amr_health_expenditure_at_pop_level_median'
+    ,'amr_health_expenditure_at_pop_level_5_pct_ile'
+    ,'amr_health_expenditure_at_pop_level_95_pct_ile'
+
+    ,'amr_total_burden_at_pop_level_median'
+    ,'amr_total_burden_at_pop_level_5_pct_ile'
+    ,'amr_total_burden_at_pop_level_95_pct_ile'
+]
+for COL in set_ceiling_for_vars:
+    den_amr_final[COL] = den_amr_final[COL].clip(upper=0)
+
+# Make AMR numbers positive for graphing
+numeric_cols = list(den_amr_final.select_dtypes('number'))
+for COL in numeric_cols:
+    den_amr_final[COL] = abs(den_amr_final[COL])
+
+datainfo(den_amr_final)
+export_dataframe(den_amr_final, PRODATA_FOLDER)
+
+# =============================================================================
+#### AHLE from UoL
+# =============================================================================
+den_ahle_final = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
+    ,sheet_name='AHLE'
 )
-den_amr_final_eo_amr_p = colnames_from_index(den_amr_final_eo_amr_p)
-den_amr_final_eo_amr_p = den_amr_final_eo_amr_p.reset_index()
-den_amr_final_eo_amr_p = clean_colnames(den_amr_final_eo_amr_p)
+den_ahle_final = clean_colnames(den_ahle_final)
 
-datainfo(den_amr_final_eo_amr_p)
+# Make AHLE numbers positive for graphing
+numeric_cols = list(den_ahle_final.select_dtypes('number'))
+for COL in numeric_cols:
+    den_ahle_final[COL] = abs(den_ahle_final[COL])
+
+datainfo(den_ahle_final)
+export_dataframe(den_ahle_final, PRODATA_FOLDER)
+
+# =============================================================================
+#### AMR and AHLE combo from UoL
+# =============================================================================
+den_amr_ahle_final = pd.merge(
+    left=den_amr_final
+    ,right=den_ahle_final.drop(columns='number_of_farms')
+    ,on='farm_type'
+    ,how='left'
+)
+
+# Add calcs
+den_amr_ahle_final = den_amr_ahle_final.eval(
+    # Farm level AHLE not available in latest data
+    # Population level
+    '''
+    ahle_at_pop_level_withoutamr_median = ahle_at_pop_level___median - amr_total_burden_at_pop_level_median
+    ahle_at_pop_level_withoutamr_errhigh = ahle_at_pop_level___5_pct_ile - ahle_at_pop_level___median
+    ahle_at_pop_level_withoutamr_errlow = ahle_at_pop_level___median - ahle_at_pop_level___95_pct_ile
+
+    amr_production_losses_at_pop_level_errhigh = amr_production_losses_at_pop_level_5_pct_ile - amr_production_losses_at_pop_level_median
+    amr_production_losses_at_pop_level_errlow = amr_production_losses_at_pop_level_median - amr_production_losses_at_pop_level_95_pct_ile
+
+    amr_health_expenditure_at_pop_level_errhigh = amr_health_expenditure_at_pop_level_95_pct_ile - amr_health_expenditure_at_pop_level_median
+    amr_health_expenditure_at_pop_level_errlow = amr_health_expenditure_at_pop_level_median - amr_health_expenditure_at_pop_level_5_pct_ile
+
+    amr_total_burden_at_pop_level_errhigh = amr_total_burden_at_pop_level_5_pct_ile - amr_total_burden_at_pop_level_median
+    amr_total_burden_at_pop_level_errlow = amr_total_burden_at_pop_level_median - amr_total_burden_at_pop_level_95_pct_ile
+
+    amr_total_burden_at_pop_level_median_pctofahle = amr_total_burden_at_pop_level_median / ahle_at_pop_level___median
+    amr_total_burden_at_pop_level_5pctile_pctofahle = amr_total_burden_at_pop_level_5_pct_ile / ahle_at_pop_level___median
+    amr_total_burden_at_pop_level_95pctile_pctofahle = amr_total_burden_at_pop_level_95_pct_ile / ahle_at_pop_level___median
+    '''
+)
+export_dataframe(den_amr_ahle_final, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle_final, DASHDATA_FOLDER)
+datainfo(den_amr_ahle_final)
 
 # -----------------------------------------------------------------------------
-# Results from internal method
+#### -- Reshape for plotting - population level
 # -----------------------------------------------------------------------------
-den_amr_final = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER, 'Results Denmark.xlsx')
-    ,sheet_name='Our method'
-    ,header=[1, 2]   # Header is split over two rows
+# Melt and merge relies on consistent column ordering
+columns_inorder = [
+    'amr_production_losses_at_pop_level'
+    ,'amr_health_expenditure_at_pop_level'
+    # ,'amr_total_burden_at_pop_level'  # This is the sum of AMR production losses and AMR health expenditure. Should not appear in plotting data.
+    ,'ahle_at_pop_level_withoutamr'
+]
+columns_inorder_median = [COL + '_median' for COL in columns_inorder]
+columns_inorder_errhigh = [COL + '_errhigh' for COL in columns_inorder]
+columns_inorder_errlow = [COL + '_errlow' for COL in columns_inorder]
+
+# Medians
+den_amr_ahle_final_poplvl_median = den_amr_ahle_final.melt(
+	id_vars=['scenario', 'farm_type', 'number_of_farms']
+    #!!! Ordering matters for plotting with log scale. Want smaller value first (AMR).
+	,value_vars=columns_inorder_median
+	,var_name='metric'
+	,value_name='value'
 )
+
+# Errors
+den_amr_ahle_final_poplvl_errhigh = den_amr_ahle_final.melt(
+	id_vars=['scenario', 'farm_type', 'number_of_farms']
+	,value_vars=columns_inorder_errhigh
+	,var_name='metric'
+	,value_name='error_high'
+)
+den_amr_ahle_final_poplvl_errlow = den_amr_ahle_final.melt(
+	id_vars=['scenario', 'farm_type', 'number_of_farms']
+	,value_vars=columns_inorder_errlow
+	,var_name='metric'
+	,value_name='error_low'
+)
+
+# Put them together
+den_amr_ahle_final_poplvl = den_amr_ahle_final_poplvl_median.copy()
+den_amr_ahle_final_poplvl['error_high'] = den_amr_ahle_final_poplvl_errhigh['error_high']
+den_amr_ahle_final_poplvl['error_low'] = den_amr_ahle_final_poplvl_errlow['error_low']
+
+datainfo(den_amr_ahle_final_poplvl)
+export_dataframe(den_amr_ahle_final_poplvl, PRODATA_FOLDER)
+export_dataframe(den_amr_ahle_final_poplvl, DASHDATA_FOLDER)
+
+# =============================================================================
+#### Selected input parameters
+# =============================================================================
+'''
+All parameters for AMR modeling are in the following file provided by UoL:
+    AMR attribution PWD DK Feb2025_old_method_ideal_v1.0.xlsx
+
+The current plan is not to show these, but we will use the incidence rates to
+label the dashboard selector for scenario (average, worst, best):
+    RiskPert(0.0065,0.0736,0.1942)
+'''

@@ -141,38 +141,81 @@ amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
 # -----------------------------------------------------------------------------
 # Denmark AMR
 # -----------------------------------------------------------------------------
-den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
-den_amr_ahle_farmlvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_farmlvl.pkl.gz'))
-den_amr_ahle_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_poplvl.pkl.gz'))
+# Updated data - note no farm level
+den_amr_ahle_final_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_final_poplvl.pkl.gz'))
 
 # Replace column values to show in legend
-legend_text_farmlvl = {
-    "burden_of_amr_at_farm_level_median":"AMR"
-    ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
-    }
-den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
-
+# Note order here defines order in plot
 legend_text_poplvl = {
-    "burden_of_amr_at_pop_level_median":"AMR"
-    ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
+    "amr_health_expenditure_at_pop_level_median":"AMR health expenditure",
+    "amr_production_losses_at_pop_level_median":"AMR production losses",
+    "amr_total_burden_at_pop_level_median":"AMR total burden",
+    "ahle_at_pop_level_withoutamr_median":"Unattributed AHLE",
     }
-den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
+den_amr_ahle_final_poplvl['metric'] = den_amr_ahle_final_poplvl['metric'].replace(legend_text_poplvl)
 
 # Define custom sort order for columns
 scenario_order = ['Average', 'Worse', 'Best']
 farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
-metric_order = ['AMR', 'Unattributed AHLE']
+metric_order = legend_text_poplvl.values()  # Use ordering from dictionary
 
+den_amr_ahle_final_poplvl_sorted = den_amr_ahle_final_poplvl.copy()
+den_amr_ahle_final_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_final_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_final_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_final_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_final_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_final_poplvl_sorted['metric'], categories=metric_order, ordered=True)
 
-den_amr_ahle_poplvl_sorted = den_amr_ahle_poplvl.copy()
-den_amr_ahle_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
-den_amr_ahle_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
-den_amr_ahle_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_poplvl_sorted['metric'], categories=metric_order, ordered=True)
+# Incidence rates
+'''
+All parameters for AMR modeling are in the following file provided by UoL:
+    AMR attribution PWD DK Feb2025_old_method_ideal_v1.0.xlsx
 
-den_amr_ahle_farmlvl_sorted = den_amr_ahle_farmlvl.copy()
-den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
-den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
-den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
+The current plan is not to show these, but we will may use the incidence rates
+to label the selector for scenarios (average, worst, best):
+    RiskPert(0.0065,0.0736,0.1942)
+'''
+den_param_incidence_rates = {
+    "Best":    0.0065,
+    "Average": 0.0736,
+    "Worst":   0.1942,
+    }
+den_scenario_options = [
+    {"label":"Best", "value":"Best"},
+    {"label":"Average", "value":"Average"},
+    {"label":"Worst", "value":"Worse"},
+    ]
+
+#!!! OLD DATA - remove from use
+den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
+den_amr_ahle_farmlvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_farmlvl.pkl.gz'))
+den_amr_ahle_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_poplvl.pkl.gz'))
+
+# # Replace column values to show in legend
+# legend_text_farmlvl = {
+#     "burden_of_amr_at_farm_level_median":"AMR"
+#     ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
+#     }
+# den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
+
+# legend_text_poplvl = {
+#     "burden_of_amr_at_pop_level_median":"AMR"
+#     ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
+#     }
+# den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
+
+# # Define custom sort order for columns
+# scenario_order = ['Average', 'Worse', 'Best']
+# farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
+# metric_order = ['AMR', 'Unattributed AHLE']
+
+# den_amr_ahle_poplvl_sorted = den_amr_ahle_poplvl.copy()
+# den_amr_ahle_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
+# den_amr_ahle_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+# den_amr_ahle_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_poplvl_sorted['metric'], categories=metric_order, ordered=True)
+
+# den_amr_ahle_farmlvl_sorted = den_amr_ahle_farmlvl.copy()
+# den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
+# den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+# den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
 
 # =============================================================================
 #### User options and defaults
@@ -214,10 +257,6 @@ amu_pathogen_options = []
 for i in np.sort(amr_withsmry['pathogen'].unique()):
     str(amu_pathogen_options.append({'label':i,'value':(i)}))
 
-
-# =============================================================================
-#### Antimicrobial Usage (AMU) options
-# =============================================================================
 # Countries
 case_study_country_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Denmark",
                                                                                     "Ethiopia"]]
@@ -254,7 +293,8 @@ def dcc_graph_element(
                 'autoScale',
                 'pan',
                 'select2d',
-                'lasso2d']
+                'lasso2d',
+                ]
             }
         )
     return element
@@ -1152,7 +1192,7 @@ gbadsDash.layout = html.Div([
                     tab_style=tab_style,
                     style={"height":"100vh"},
                     children=[
-                       #### -- COUNTRY/SPECIES/DISEASE SELECT
+                        #### -- COUNTRY/SPECIES/DISEASE SELECT
                         dbc.Row([
                             # Case Study Countries
                             dbc.Col([
@@ -1190,6 +1230,17 @@ gbadsDash.layout = html.Div([
                             html.H3("Denmark Swine", id='case-study-amu-title', style={'text-align':'center'}),
                         # END OF COUNTRY/SPECIES TITLE ROW
                         ], justify="end"),
+                        html.Hr(style={'margin-right':'10px',}),
+
+                        #### -- SCENARIO SELECT
+                        dbc.Row([
+                            html.H6("Scenario", style={'text-align':'center'}),
+                            dcc.Dropdown(id='select-scenario-den-amu',
+                                  options=den_scenario_options,
+                                  value='Average',
+                                  clearable=False,
+                                  ),
+                            ], justify="end"),
                         html.Hr(style={'margin-right':'10px',}),
 
                         #### -- FIRST ROW GRAPHICS CONTROLS
@@ -1257,18 +1308,18 @@ gbadsDash.layout = html.Div([
                             #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
                             #     ]),
                             # sunburst chart at farm level
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-sunburst-farmlvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                ]),
+                            # dbc.Col([
+                            #     dbc.Spinner(children=[
+                            #         dcc_graph_element(ID='den-amr-sunburst-farmlvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
+                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            #     ]),
                             # bar chart at farm level
-                            dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                # End of bar chart at farm level
-                                ]),
+                            # dbc.Col([
+                            #     dbc.Spinner(children=[
+                            #         dcc_graph_element(ID='den-amr-barchart-farmlvl', DL_FILENAME='GBADs_AMR_Den_Barchart_FarmLevel', HEIGHT=650)
+                            #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            #     # End of bar chart at farm level
+                            #     ]),
                             # END OF FARM LEVEL RESULTS
                             ]),
                             # END OF COLLAPSE
@@ -3048,41 +3099,52 @@ def update_sunburst_poplvl_den_amr(disease_select):
     return sunburst_fig
 
 # Denmark AMR sunburst chart - farm level
-@gbadsDash.callback(
-    Output('den-amr-sunburst-farmlvl', 'figure'),
-    Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_sunburst_farmlvl_den_amr(disease_select):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    sunburst_fig = create_sunburst_den(input_df)
-    sunburst_fig.update_layout(
-        title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
-        font_size=15,
-        margin=dict(l=10, r=10, b=10),
-        )
-    return sunburst_fig
+# @gbadsDash.callback(
+#     Output('den-amr-sunburst-farmlvl', 'figure'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_sunburst_farmlvl_den_amr(disease_select):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     sunburst_fig = create_sunburst_den(input_df)
+#     sunburst_fig.update_layout(
+#         title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select} <br>by Farm Type',
+#         font_size=15,
+#         margin=dict(l=10, r=10, b=10),
+#         )
+#     return sunburst_fig
 
 # Denmark AMR bar chart - population level
+# Updated to use data update from March 5
+# Note we no longer have every metric by farm type - plotting only for farm_type == 'Total'
 @gbadsDash.callback(
     Output('den-amr-barchart-poplvl', 'figure'),
     Input('select-den-amu-bar-display', 'value'),
     Input('select-den-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Control not yet created
+    Input('select-scenario-den-amu', 'value'),
     )
-def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
-    input_df = den_amr_ahle_poplvl_sorted.query("scenario == 'Average'").query("farm_type != 'Total'")
+def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select, scenario_select):
+    input_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'").query("farm_type == 'Total'")
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
     input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
 
     # Get important values to show in title
-    population_amr = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type == 'Total'").query("metric == 'AMR'")['value'].item()
-    population_unattr_ahle = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type == 'Total'").query("metric == 'Unattributed AHLE'")['value'].item()
-    population_total_ahle = population_amr + population_unattr_ahle
-    population_amr_prpn_ahle = population_amr / population_total_ahle
+    population_amr_prod = input_df.query("metric == 'AMR production losses'")['value'].item()
+    population_amr_health = input_df.query("metric == 'AMR health expenditure'")['value'].item()
+    population_amr_total = population_amr_prod + population_amr_health
+    population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")['value'].item()
+    population_total_ahle = population_amr_total + population_unattr_ahle
+    population_amr_prpn_ahle = population_amr_total / population_total_ahle
+
+    # Define color for each metric to use in plot
+    legend_items = [
+        {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+        {'label': 'AMR production losses', 'color': '#31BFF3'},
+        {'label': 'AMR health expenditure', 'color': '#31f3be'},
+    ]
 
     if option_axis_scale == 'Log':
         set_log_y = True
@@ -3102,15 +3164,15 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
                 y=input_df.query(f"metric == '{selected_metric}'")['value'],
                 marker=dict(
-                    color=['#31BFF3', '#fbc98e'][i],  # Different color for each metric
-                    pattern=dict(
-                        shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
-                            'Breed': '.',
-                            'Nurse': '\\',
-                            'Fat': '|'
-                        }).tolist(),
-                        solidity=0.2, # adjust for pattern density
-                    )
+                    color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0],
+                    # pattern=dict(
+                    #     shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
+                    #         'Breed': '.',
+                    #         'Nurse': '\\',
+                    #         'Fat': '|'
+                    #     }).tolist(),
+                    #     solidity=0.2, # adjust for pattern density
+                    # )
                 ),
                 showlegend=False,
             ))
@@ -3136,9 +3198,12 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             ))
         layout = go.Layout(
             title=f"Population-level AHLE and the Burden of AMR to {disease_select}<br>" \
-                + f"by Farm Type<br>" \
-                + f"Total AHLE: {population_total_ahle:,.0f} DKK<br>" \
-                + f"Total AMR:        {population_amr:,.0f} DKK ({population_amr_prpn_ahle:.2%} of total AHLE)"
+                # + f"by Farm Type<br>" \
+                + f"{scenario_select} scenario<br>" \
+                + "<br>"
+                + f"Total AHLE: {population_total_ahle :>20,.0f} DKK<br>" \
+                + f"Total AMR:   {population_amr_total :>20,.0f} DKK ({population_amr_prpn_ahle:.1%} of total AHLE)" \
+                + "<br>"
             ,
             barmode='stack',
             xaxis={'title': 'Farm Type'},
@@ -3148,15 +3213,11 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200)
+            margin=dict(r=200, t=200)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
         # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
         y_pos = 0.95    # Starting y position for legend items
 
         # Legend title position
@@ -3209,16 +3270,15 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             y='value',
             log_y=set_log_y,
             color='metric',
-            color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'},
+            color_discrete_map={legend_item_dct['label']:legend_item_dct['color'] for legend_item_dct in legend_items},
             barnorm='percent',
             pattern_shape='farm_type',
             pattern_shape_sequence=[".", "\\", "|"],
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+            title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>' \
+                + f'by Farm Type',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
@@ -3227,11 +3287,6 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         )
 
         # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
-
         y_pos = 0.95  # Starting y position for legend items
 
         # Legend title position
@@ -3274,167 +3329,379 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
 
     return barchart_fig
 
+# Denmark AMR bar chart - population level
+# Updating this to use data update from March 5
+# @gbadsDash.callback(
+#     Output('den-amr-barchart-poplvl', 'figure'),
+#     Input('select-den-amu-bar-display', 'value'),
+#     Input('select-den-amu-bar-scale', 'value'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Control not yet created
+#     )
+# def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
+#     input_df = den_amr_ahle_poplvl_sorted.query("scenario == 'Average'").query("farm_type != 'Total'")
+
+#     # Calculate cumulative values for plotly trick to overlay error bars
+#     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
+#     input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
+
+#     # Get important values to show in title
+#     population_amr = input_df.query("metric == 'AMR'")['value'].item()
+#     population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")['value'].item()
+#     population_total_ahle = population_amr + population_unattr_ahle
+#     population_amr_prpn_ahle = population_amr / population_total_ahle
+
+#     if option_axis_scale == 'Log':
+#         set_log_y = True
+#         layout_type = 'log'
+#     else:
+#         set_log_y = False
+#         layout_type = None
+
+#     if option_tot_pct == 'Total':
+#         traces = []
+#         unique_metrics = input_df['metric'].unique()
+
+#         # Create data bars
+#         for i, selected_metric in enumerate(unique_metrics):
+#             traces.append(go.Bar(
+#                 name=selected_metric,
+#                 x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+#                 y=input_df.query(f"metric == '{selected_metric}'")['value'],
+#                 marker=dict(
+#                     color=['#31BFF3', '#fbc98e'][i],  # Different color for each metric
+#                     pattern=dict(
+#                         shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
+#                             'Breed': '.',
+#                             'Nurse': '\\',
+#                             'Fat': '|'
+#                         }).tolist(),
+#                         solidity=0.2, # adjust for pattern density
+#                     )
+#                 ),
+#                 showlegend=False,
+#             ))
+
+#         # Add error whiskers
+#         for i, selected_metric in enumerate(unique_metrics):
+#             traces.append(go.Scatter(
+#                 name=f"{selected_metric}_error",
+#                 x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
+#                 y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+#                 mode='markers',
+#                 marker=dict(color='gray'),
+#                 error_y=dict(
+#                     type='data',
+#                     array=input_df.query(f"metric == '{selected_metric}'")['error_high'],
+#                     arrayminus=input_df.query(f"metric == '{selected_metric}'")['error_low'],
+#                     visible=True,
+#                     color='gray',
+#                     thickness=2,
+#                     width=5
+#                 ),
+#                 showlegend=False,
+#             ))
+#         layout = go.Layout(
+#             title=f"Population-level AHLE and the Burden of AMR to {disease_select}<br>" \
+#                 + f"by Farm Type<br>" \
+#                 + f"Total AHLE: {population_total_ahle:,.0f} DKK<br>" \
+#                 + f"Total AMR:        {population_amr:,.0f} DKK ({population_amr_prpn_ahle:.2%} of total AHLE)"
+#             ,
+#             barmode='stack',
+#             xaxis={'title': 'Farm Type'},
+#             yaxis={
+#                 'type': layout_type,
+#                 'title':'Burden (DKK)',
+#             },
+#             template='plotly_white',
+#             bargroupgap=0.5,
+#             margin=dict(r=200)
+#         )
+#         barchart_fig = go.Figure(data=traces, layout=layout)
+
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
+#         y_pos = 0.95    # Starting y position for legend items
+
+#         # Legend title position
+#         legend_x = 1.02
+#         if layout.margin.r:
+#             legend_x = 1 + 0.005 * (layout.margin.r/20) # Decrease multiplier to move further left.
+
+#         barchart_fig.add_annotation(
+#             x=legend_x,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=legend_x - 0.02,
+#                 y0=y_pos - 0.02,
+#                 x1=legend_x,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=legend_x + 0.01,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05    # Adjust spacing between legend items
+
+#     elif option_tot_pct == 'Percent':
+#         # 100% stacked bars use histogram, which doesn't have error bar option
+#         barchart_fig = px.histogram(
+#             input_df,
+#             x='farm_type',
+#             y='value',
+#             log_y=set_log_y,
+#             color='metric',
+#             color_discrete_map={
+#                 'Unattributed AHLE':'#fbc98e',
+#                 'AMR':'#31BFF3'},
+#             barnorm='percent',
+#             pattern_shape='farm_type',
+#             pattern_shape_sequence=[".", "\\", "|"],
+#             text_auto='.1f',
+#             )
+#         barchart_fig.update_layout(
+#             title_text=f'Population-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+#             font_size=15,
+#             xaxis_title='Farm Type',
+#         	yaxis_title='% of AHLE',
+#             showlegend=False,  # Hide the default legend
+#             margin=dict(r=200)  # Adjust right margin to account for custom legend
+#         )
+
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
+
+#         y_pos = 0.95  # Starting y position for legend items
+
+#         # Legend title position
+#         barchart_fig.add_annotation(
+#             x=1.05,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=1.02,
+#                 y0=y_pos - 0.02,
+#                 x1=1.04,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=1.05,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05  # Adjust spacing between legend items
+
+#     return barchart_fig
 
 # Denmark AMR bar chart - farm level
-@gbadsDash.callback(
-    Output('den-amr-barchart-farmlvl', 'figure'),
-    Input('select-den-amu-bar-display', 'value'),
-    Input('select-den-amu-bar-scale', 'value'),
-    Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Control not yet created
-    )
-def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
-    input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+# @gbadsDash.callback(
+#     Output('den-amr-barchart-farmlvl', 'figure'),
+#     Input('select-den-amu-bar-display', 'value'),
+#     Input('select-den-amu-bar-scale', 'value'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Control not yet created
+#     )
+# def update_barchart_farmlvl_den_amr(option_tot_pct, option_axis_scale, disease_select):
+#     input_df = den_amr_ahle_farmlvl.query("scenario == 'Average'").query("farm_type != 'Total'")
 
-    if option_axis_scale == 'Unit':
-        set_log_y = False
-    elif option_axis_scale == 'Log':
-        set_log_y = True
+#     if option_axis_scale == 'Unit':
+#         set_log_y = False
+#     elif option_axis_scale == 'Log':
+#         set_log_y = True
 
-    if option_tot_pct == 'Total':
-        barchart_fig = px.bar(
-            input_df
-            ,x='farm_type'
-            ,y='value'
-            ,color='metric'
-            ,color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'}
-            ,barmode='relative'
-            ,log_y=set_log_y
-            ,labels={
-                "metric":"Source of Burden"
-                ,"farm_type":"Farm Type"
-                ,"value":"Burden (DKK)"
-                }
-            ,pattern_shape='farm_type'
-            ,pattern_shape_sequence=[".", "\\", "|"]
-            )
-        barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
-            font_size=15,
-            showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
-        )
+#     if option_tot_pct == 'Total':
+#         barchart_fig = px.bar(
+#             input_df
+#             ,x='farm_type'
+#             ,y='value'
+#             ,color='metric'
+#             ,color_discrete_map={
+#                 'Unattributed AHLE':'#fbc98e',
+#                 'AMR':'#31BFF3'}
+#             ,barmode='relative'
+#             ,log_y=set_log_y
+#             ,labels={
+#                 "metric":"Source of Burden"
+#                 ,"farm_type":"Farm Type"
+#                 ,"value":"Burden (DKK)"
+#                 }
+#             ,pattern_shape='farm_type'
+#             ,pattern_shape_sequence=[".", "\\", "|"]
+#             )
+#         barchart_fig.update_layout(
+#             title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+#             font_size=15,
+#             showlegend=False,  # Hide the default legend
+#             margin=dict(r=200)  # Adjust right margin to account for custom legend
+#         )
 
-        # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
 
-        y_pos = 0.95  # Starting y position for legend items
+#         y_pos = 0.95  # Starting y position for legend items
 
-        # Legend title position
-        barchart_fig.add_annotation(
-            x=1.05,
-            y=y_pos + 0.05,
-            xref="paper",
-            yref="paper",
-            text="Source of Burden",
-            showarrow=False,
-            font=dict(size=16, color="black"),
-            xanchor="left",
-            yanchor="top"
-        )
-        y_pos -= 0.05 # Move the start of the legend down after adding the title
-        for item in legend_items:
-            barchart_fig.add_shape(
-                type="rect",
-                x0=1.02,
-                y0=y_pos - 0.02,
-                x1=1.04,
-                y1=y_pos,
-                xref="paper",
-                yref="paper",
-                fillcolor=item['color'],
-                line=dict(color="black", width=1)
-            )
-            barchart_fig.add_annotation(
-                x=1.05,
-                y=y_pos - 0.01,
-                xref="paper",
-                yref="paper",
-                text=item['label'],
-                showarrow=False,
-                font=dict(size=14),
-                xanchor="left",
-                yanchor="middle"
-            )
-            y_pos -= 0.05  # Adjust spacing between legend items
+#         # Legend title position
+#         barchart_fig.add_annotation(
+#             x=1.05,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=1.02,
+#                 y0=y_pos - 0.02,
+#                 x1=1.04,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=1.05,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05  # Adjust spacing between legend items
 
-    elif option_tot_pct == 'Percent':
-        barchart_fig = px.histogram(
-            input_df,
-            x='farm_type',
-            y='value',
-            log_y=set_log_y,
-            color='metric',
-            color_discrete_map={
-                'Unattributed AHLE':'#fbc98e',
-                'AMR':'#31BFF3'},
-            barnorm='percent',
-            pattern_shape='farm_type',
-            pattern_shape_sequence=[".", "\\", "|"],
-            text_auto='.1f',
-            )
-        barchart_fig.update_layout(
-            title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
-            font_size=15,
-            xaxis_title='Farm Type',
-        	yaxis_title='% of AHLE',
-            showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
-        )
+#     elif option_tot_pct == 'Percent':
+#         barchart_fig = px.histogram(
+#             input_df,
+#             x='farm_type',
+#             y='value',
+#             log_y=set_log_y,
+#             color='metric',
+#             color_discrete_map={
+#                 'Unattributed AHLE':'#fbc98e',
+#                 'AMR':'#31BFF3'},
+#             barnorm='percent',
+#             pattern_shape='farm_type',
+#             pattern_shape_sequence=[".", "\\", "|"],
+#             text_auto='.1f',
+#             )
+#         barchart_fig.update_layout(
+#             title_text=f'Farm-level AHLE and the Burden of AMR to {disease_select}<br>by Farm Type',
+#             font_size=15,
+#             xaxis_title='Farm Type',
+#         	yaxis_title='% of AHLE',
+#             showlegend=False,  # Hide the default legend
+#             margin=dict(r=200)  # Adjust right margin to account for custom legend
+#         )
 
-        # Add custom legend annotations with colored squares
-        legend_items = [
-            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31BFF3'}
-        ]
+#         # Add custom legend annotations with colored squares
+#         legend_items = [
+#             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+#             {'label': 'AMR', 'color': '#31BFF3'}
+#         ]
 
-        y_pos = 0.95  # Starting y position for legend items
+#         y_pos = 0.95  # Starting y position for legend items
 
-        # Legend title position
-        barchart_fig.add_annotation(
-            x=1.05,
-            y=y_pos + 0.05,
-            xref="paper",
-            yref="paper",
-            text="Source of Burden",
-            showarrow=False,
-            font=dict(size=16, color="black"),
-            xanchor="left",
-            yanchor="top"
-        )
-        y_pos -= 0.05 # Move the start of the legend down after adding the title
-        for item in legend_items:
-            barchart_fig.add_shape(
-                type="rect",
-                x0=1.02,
-                y0=y_pos - 0.02,
-                x1=1.04,
-                y1=y_pos,
-                xref="paper",
-                yref="paper",
-                fillcolor=item['color'],
-                line=dict(color="black", width=1)
-            )
-            barchart_fig.add_annotation(
-                x=1.05,
-                y=y_pos - 0.01,
-                xref="paper",
-                yref="paper",
-                text=item['label'],
-                showarrow=False,
-                font=dict(size=14),
-                xanchor="left",
-                yanchor="middle"
-            )
-            y_pos -= 0.05  # Adjust spacing between legend items
+#         # Legend title position
+#         barchart_fig.add_annotation(
+#             x=1.05,
+#             y=y_pos + 0.05,
+#             xref="paper",
+#             yref="paper",
+#             text="Source of Burden",
+#             showarrow=False,
+#             font=dict(size=16, color="black"),
+#             xanchor="left",
+#             yanchor="top"
+#         )
+#         y_pos -= 0.05 # Move the start of the legend down after adding the title
+#         for item in legend_items:
+#             barchart_fig.add_shape(
+#                 type="rect",
+#                 x0=1.02,
+#                 y0=y_pos - 0.02,
+#                 x1=1.04,
+#                 y1=y_pos,
+#                 xref="paper",
+#                 yref="paper",
+#                 fillcolor=item['color'],
+#                 line=dict(color="black", width=1)
+#             )
+#             barchart_fig.add_annotation(
+#                 x=1.05,
+#                 y=y_pos - 0.01,
+#                 xref="paper",
+#                 yref="paper",
+#                 text=item['label'],
+#                 showarrow=False,
+#                 font=dict(size=14),
+#                 xanchor="left",
+#                 yanchor="middle"
+#             )
+#             y_pos -= 0.05  # Adjust spacing between legend items
 
 
-    return barchart_fig
+#     return barchart_fig
+
 #%% 6. RUN APP
 #############################################################################################################
 
