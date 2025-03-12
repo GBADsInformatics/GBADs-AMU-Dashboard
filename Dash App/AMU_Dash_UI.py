@@ -179,53 +179,43 @@ den_amr_ahle_final_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_final_p
 All parameters for AMR modeling are in the following file provided by UoL:
     AMR attribution PWD DK Feb2025_old_method_ideal_v1.0.xlsx
 
-The current plan is not to show these, but we will may use the incidence rates
-to label the selector for scenarios (average, worst, best):
+The current plan is not to show these, but we may use the incidence rates
+to label the selector for scenarios (worst, average, best):
     RiskPert(0.0065,0.0736,0.1942)
 '''
-den_param_incidence_rates = {
-    "Best":    0.0065,
-    "Average": 0.0736,
-    "Worst":   0.1942,
-    }
-den_scenario_options = [
-    {"label":"Best", "value":"Best"},
-    {"label":"Average", "value":"Average"},
-    {"label":"Worst", "value":"Worse"},
-    ]
 
-#!!! OLD DATA - remove from use
+# OLD DATA
 den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
 den_amr_ahle_farmlvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_farmlvl.pkl.gz'))
 den_amr_ahle_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_poplvl.pkl.gz'))
 
-# # Replace column values to show in legend
-# legend_text_farmlvl = {
-#     "burden_of_amr_at_farm_level_median":"AMR"
-#     ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
-#     }
-# den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
+# Replace column values to show in legend
+legend_text_farmlvl = {
+    "burden_of_amr_at_farm_level_median":"AMR"
+    ,"ahle_at_farm_level_median_withoutamr":"Unattributed AHLE"
+    }
+den_amr_ahle_farmlvl['metric'] = den_amr_ahle_farmlvl['metric'].replace(legend_text_farmlvl)
 
-# legend_text_poplvl = {
-#     "burden_of_amr_at_pop_level_median":"AMR"
-#     ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
-#     }
-# den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
+legend_text_poplvl = {
+    "burden_of_amr_at_pop_level_median":"AMR"
+    ,"ahle_at_pop_level_median_withoutamr":"Unattributed AHLE"
+    }
+den_amr_ahle_poplvl['metric'] = den_amr_ahle_poplvl['metric'].replace(legend_text_poplvl)
 
-# # Define custom sort order for columns
-# scenario_order = ['Average', 'Worse', 'Best']
-# farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
-# metric_order = ['AMR', 'Unattributed AHLE']
+# Define custom sort order for columns
+scenario_order = ['Average', 'Worse', 'Best']
+farm_type_order = ['Breed', 'Nurse', 'Fat', 'Total']
+metric_order = ['AMR', 'Unattributed AHLE']
 
-# den_amr_ahle_poplvl_sorted = den_amr_ahle_poplvl.copy()
-# den_amr_ahle_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
-# den_amr_ahle_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
-# den_amr_ahle_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_poplvl_sorted['metric'], categories=metric_order, ordered=True)
+den_amr_ahle_poplvl_sorted = den_amr_ahle_poplvl.copy()
+den_amr_ahle_poplvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_poplvl_sorted['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_poplvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_poplvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_poplvl_sorted['metric'] = pd.Categorical(den_amr_ahle_poplvl_sorted['metric'], categories=metric_order, ordered=True)
 
-# den_amr_ahle_farmlvl_sorted = den_amr_ahle_farmlvl.copy()
-# den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
-# den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
-# den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
+den_amr_ahle_farmlvl_sorted = den_amr_ahle_farmlvl.copy()
+den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
+den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
+den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
 
 # =============================================================================
 #### User options and defaults
@@ -1325,7 +1315,7 @@ gbadsDash.layout = html.Div([
                                 dbc.Collapse(
                                    dbc.Card([
                                        dbc.CardBody([
-                                           html.H5("Population-level data by farm type",
+                                           html.H5("Population-level data",
                                                    id='case-study-graphics-ctrls-card-title',
                                                    className="card-title",
                                                    style={"font-weight": "bold"}
@@ -1354,15 +1344,14 @@ gbadsDash.layout = html.Div([
                                                                   inputStyle={"margin-right": "10px"},
                                                                   ),
                                                    ]),
-                                           ]), # END OF ROW
-
+                                               ]), # END OF ROW
                                            html.Br(),
 
                                            dbc.Row([
                                                 # Incidents
                                                 html.Div([
-                                                    html.Abbr("Incident Scenario",
-                                                              title="Level of incidents, see table below for rates",
+                                                    html.Abbr("Scenario",
+                                                              title="Scenarios correspond to different disease incidence rates. See table below for rates.",
                                                               style=abbr_heading_style),
                                                     dcc.Slider(0,5,
                                                                id='select-scenario-den-amu',
@@ -1376,7 +1365,12 @@ gbadsDash.layout = html.Div([
                                                                ),
                                                     ]),
                                                ]), # END OF ROW
+                                           html.Br(),
 
+                                           # dbc.Row([
+                                           #     # Show AHLE and AMR numbers
+                                           #     html.Div(id='den-ahle-amr-totals-printout')
+                                           #     ]), # END OF ROW
                                            dbc.Row([
                                                 # Footnotes
                                                     html.Div(id='case-study-ctrls-footnote-1'),
@@ -3201,6 +3195,34 @@ def update_expenditure_amu(input_json, expenditure_units):
 
 #     return fig
 
+# # Denmark top level AHLE and AMR number printout
+# @gbadsDash.callback(
+#     Output('den-ahle-amr-totals-printout', 'children'),
+#     Input('select-scenario-den-amu', 'value'),
+#     )
+# def update_toplevel_numbers_den_amr(scenario_select_num):
+#     scenario_select_translate={
+#         0: 'Worse',
+#         3: 'Average',
+#         5: 'Best',
+#         }
+#     scenario_select = scenario_select_translate[scenario_select_num]
+
+#     input_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'").query("farm_type == 'Total'")
+
+#     # Get important values to show in title
+#     population_amr_prod = input_df.query("metric == 'AMR production losses'")['value'].item()
+#     population_amr_health = input_df.query("metric == 'AMR health expenditure'")['value'].item()
+#     population_amr_total = population_amr_prod + population_amr_health
+#     population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")['value'].item()
+#     population_total_ahle = population_amr_total + population_unattr_ahle
+#     population_amr_prpn_ahle = population_amr_total / population_total_ahle
+
+#     return html.Div([
+#         html.H6(f"Total AHLE: {population_total_ahle :,.0f} DKK"),
+#         html.H6(f"Total AMR: {population_amr_total :,.0f} DKK ({population_amr_prpn_ahle:.1%} of total AHLE)")
+#         ])
+
 # Denmark AMR treemap
 ## JR: Hiding farm-level results to focus on population-level
 # @gbadsDash.callback(
@@ -3278,9 +3300,9 @@ def update_expenditure_amu(input_json, expenditure_units):
     )
 def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select, scenario_select_num):
     scenario_select_translate={
-        0:'Worse',
-        3:'Average',
-        5:'Best',
+        0: 'Worse',
+        3: 'Average',
+        5: 'Best',
         }
     scenario_select = scenario_select_translate[scenario_select_num]
 
@@ -3356,14 +3378,14 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 showlegend=False,
             ))
         layout = go.Layout(
-            title=f"AHLE and the Burden of AMR in {disease_select}<br>" \
-                # + f"by Farm Type<br>" \
-                + f"{scenario_select} scenario<br>" \
-                + "<br>"
-                + f"Total AHLE: {population_total_ahle :>20,.0f} DKK<br>" \
-                + f"Total AMR:   {population_amr_total :>20,.0f} DKK ({population_amr_prpn_ahle:.1%} of total AHLE)" \
-                + "<br>"
-            ,
+            title=dict(
+                text=f"AHLE and the Burden of AMR in {disease_select}<br>" \
+                    # + f"by Farm Type<br>" \
+                    + f"{scenario_select} scenario<br>"
+                    ,
+                font=dict(size=20),
+                y=0.95,
+            ),
             barmode='stack',
             xaxis={'title': 'Farm Type'},
             yaxis={
@@ -3372,9 +3394,24 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200, t=200)
+            margin=dict(r=200, t=120)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
+
+        # Add subtitle
+        barchart_fig.add_annotation(
+            text=f"Population AHLE: {population_total_ahle :>16,.0f} DKK<br>" \
+                + f"Population AMR:    {population_amr_total :>16,.0f} DKK<br>" \
+                + f"{' '*50}{population_amr_prpn_ahle:>16.1%} of total AHLE"
+                ,
+            xref='paper',
+            yref='paper',
+            x=0.5,
+            y=1.12,
+            showarrow=False,
+            font=dict(size=16),
+            xanchor='center'
+        )
 
         # Add custom legend annotations with colored squares
         y_pos = 0.95    # Starting y position for legend items
@@ -3382,7 +3419,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         # Legend title position
         legend_x = 1.02
         if layout.margin.r:
-            legend_x = 1 + 0.005 * (layout.margin.r/20) # Decrease multiplier to move further left.
+            legend_x = 1 + 0.005 * (layout.margin.r/25) # Decrease multiplier to move further left.
 
         barchart_fig.add_annotation(
             x=legend_x,
