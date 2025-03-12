@@ -1368,9 +1368,9 @@ gbadsDash.layout = html.Div([
                                                                id='select-scenario-den-amu',
                                                                step=None,
                                                                marks={
-                                                                   0: 'Low',
-                                                                   3: 'Most Likely',
-                                                                   5: 'High',
+                                                                   0: 'Worse',
+                                                                   3: 'Average',
+                                                                   5: 'Best',
                                                                    },
                                                                value=3,
                                                                ),
@@ -3276,7 +3276,14 @@ def update_expenditure_amu(input_json, expenditure_units):
     Input('select-case-study-diseases-amu','value'),
     Input('select-scenario-den-amu', 'value'),
     )
-def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select, scenario_select):
+def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select, scenario_select_num):
+    scenario_select_translate={
+        0:'Worse',
+        3:'Average',
+        5:'Best',
+        }
+    scenario_select = scenario_select_translate[scenario_select_num]
+
     input_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'").query("farm_type == 'Total'")
 
     # Calculate cumulative values for plotly trick to overlay error bars
