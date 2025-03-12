@@ -1319,7 +1319,7 @@ gbadsDash.layout = html.Div([
                                            html.Br(),
 
                                            dbc.Row([
-                                                # Footnotes
+                                                # Incidents
                                                 html.Div([
                                                     html.Abbr("Incident Scenario",
                                                               title="Level of incidents, see table below for rates",
