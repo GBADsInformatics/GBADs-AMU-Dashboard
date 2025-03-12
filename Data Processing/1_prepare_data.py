@@ -734,3 +734,133 @@ The current plan is not to show these, but we will use the incidence rates to
 label the dashboard selector for scenario (average, worst, best):
     RiskPert(0.0065,0.0736,0.1942)
 '''
+#%% ETHIOPIA DATA MARCH 5
+# *****************************************************************************
+# =============================================================================
+#### AMR from UoL
+# =============================================================================
+
+# =============================================================================
+#### Test plot
+# =============================================================================
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+
+# Your data
+data = {
+    'Metric': [
+        'Production losses due to resistant mastitis (USD)',
+        'Expenditure with resistant mastitis (USD)',
+        'Indirect costs due to AMR (USD)',
+        'AHLE - cattle (USD)'
+    ],
+    'Mean': [
+        685208346.22,
+        136823.49,
+        279555.32,
+        15420000000.00
+    ],
+    'Lower_95_CI': [
+        522339460.51,
+        66345.88,
+        279555.32,
+        12700000000.00
+    ],
+    'Upper_95_CI': [
+        825158203.48,
+        219368.87,
+        279555.32,
+        18570000000.00
+    ]
+}
+
+# Convert to DataFrame
+df = pd.DataFrame(data)
+
+# Calculate error margins
+df['Error_Minus'] = df['Mean'] - df['Lower_95_CI']
+df['Error_Plus'] = df['Upper_95_CI'] - df['Mean']
+
+# Create shorter labels for display
+df['Short_Label'] = [
+    'Production losses',
+    'Expenditure',
+    'Indirect costs',
+    'AHLE - cattle'
+]
+
+# Sort data by Mean value in descending order to have largest at bottom of stack
+df = df.sort_values('Mean')
+
+# Create figure
+fig = go.Figure()
+
+# Calculate cumulative sums for stacking
+df['Cumulative_Sum'] = df['Mean'].cumsum()
+df['Previous_Sum'] = df['Cumulative_Sum'].shift(1).fillna(0)
+
+# Add traces for each metric (stacked)
+colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+
+for i, row in df.iterrows():
+    fig.add_trace(go.Bar(
+        name=row['Short_Label'],
+        x=['AMR Economic Impact'],
+        y=[row['Mean']],
+        base=[row['Previous_Sum']],
+        marker_color=colors[i % len(colors)],
+        text=f"${row['Mean']:,.2f}",
+        textposition='inside',
+        insidetextanchor='middle',
+        error_y=dict(
+            type='data',
+            symmetric=False,
+            array=[row['Error_Plus']],
+            arrayminus=[row['Error_Minus']],
+            visible=True
+        ),
+        hovertemplate='<b>%{data.name}</b><br>Value: $%{y:,.2f}<br>Lower CI: $%{customdata[0]:,.2f}<br>Upper CI: $%{customdata[1]:,.2f}',
+        customdata=[[row['Lower_95_CI'], row['Upper_95_CI']]]
+    ))
+
+# Calculate total value
+total_value = df['Mean'].sum()
+
+# Update layout
+fig.update_layout(
+    title='Economic Impact of Antimicrobial Resistance (AMR)',
+    yaxis_title='USD ($)',
+    barmode='stack',
+    legend_title='Cost Categories',
+    template='plotly_white',
+    height=700,
+    width=900,
+    yaxis=dict(
+        type='log',  # Using log scale due to large differences in values
+        title='USD (Log Scale)'
+    ),
+    legend=dict(
+        orientation='h',
+        yanchor='bottom',
+        y=1.02,
+        xanchor='center',
+        x=0.5
+    )
+)
+
+# Add annotation for total value
+fig.add_annotation(
+    x='AMR Economic Impact',
+    y=total_value * 1.1,  # Slightly above the top of the bar
+    text=f'Total: ${total_value:,.2f}',
+    showarrow=False,
+    font=dict(size=14, color='black', family='Arial Black')
+)
+
+# Show the figure
+fig.show()
+
+# To save the figure
+# fig.write_html("amr_economic_impact_stacked_bar.html")
