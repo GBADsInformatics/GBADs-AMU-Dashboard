@@ -110,6 +110,16 @@ user_guide_tab_selected_style ={
     'fontWeight': 'bold'
 }
 
+# Heading styles
+control_heading_style = {"font-weight": "bold",
+                         "color": "#555555",
+                         }
+
+abbr_heading_style = {"font-weight": "bold",
+                      "color": "#555555",
+                      "font-size": "var(--pst-font-size-h5)",
+                      }
+
 # =============================================================================
 #### Read data
 # =============================================================================
@@ -1157,7 +1167,12 @@ gbadsDash.layout = html.Div([
                         dbc.Row([
                             # Case Study Countries
                             dbc.Col([
-                                html.H6("Countries", style={'text-align':'center'}),
+                                html.H6("Countries",
+                                        style={
+                                            'text-align':'center',
+                                            "font-weight": "bold",
+                                            "color": "#555555",
+                                            }),
                                 dcc.Dropdown(id='select-case-study-countries-amu',
                                       options=case_study_country_options,
                                       value='Denmark',
@@ -1166,7 +1181,12 @@ gbadsDash.layout = html.Div([
                                 ],),
                             # Case Study Species
                             dbc.Col([
-                                html.H6("Species", style={'text-align':'center'}),
+                                html.H6("Species",
+                                        style={
+                                            'text-align':'center',
+                                            "font-weight": "bold",
+                                            "color": "#555555",
+                                            }),
                                 dcc.Dropdown(id='select-case-study-species-amu',
                                       options=case_study_species_options,
                                       value='Swine',
@@ -1175,7 +1195,12 @@ gbadsDash.layout = html.Div([
                                 ],),
                             # Case Study Diseases
                             dbc.Col([
-                                html.H6("Diseases", style={'text-align':'center'}),
+                                html.H6("Diseases",
+                                        style={
+                                            'text-align':'center',
+                                            "font-weight": "bold",
+                                            "color": "#555555",
+                                            }),
                                 dcc.Dropdown(id='select-case-study-diseases-amu',
                                       options=case_study_disease_options,
                                       value='Post-weaning diarrhea (PWD)',
@@ -1185,38 +1210,61 @@ gbadsDash.layout = html.Div([
                         # END OF COUNTRY SELECT ROW
                         ], justify="evenly"),
 
+                        html.Br(),
+
                         #### -- COUNTRY/SPECIES TITLE
                         dbc.Row([
                             # Case Study Countries
-                            html.H3("Denmark Swine", id='case-study-amu-title', style={'text-align':'center'}),
+                            html.H3("Denmark Swine",
+                                    id='case-study-amu-title',
+                                    style={
+                                        'text-align':'center',
+                                        "color": "#555555",
+                                        }),
                         # END OF COUNTRY/SPECIES TITLE ROW
                         ], justify="end"),
                         html.Hr(style={'margin-right':'10px',}),
 
-                        #### -- FIRST ROW GRAPHICS CONTROLS
+
+                        # #### -- FIRST ROW GRAPHICS CONTROLS
+                        # dbc.Row([
+                        #     dbc.Col([]),    # Placeholder for treemap controls 1
+                        #     dbc.Col([]),    # Placeholder for treemap controls 2
+                        #     # dbc.Col([       # Bar chart controls 1
+                        #     #     html.H6("AMR Bar Display"),
+                        #     #     dcc.RadioItems(id='select-case-study-amu-barr-display',
+                        #     #                    options=['Total', 'Percent'],
+                        #     #                    value='Total',
+                        #     #                    labelStyle={'display': 'block'},
+                        #     #                    inputStyle={"margin-right": "10px"},
+                        #     #                    ),
+                        #     #     ]),
+                        #     # dbc.Col([       # Bar chart controls 2
+                        #     #     html.H6("Axis scale"),
+                        #     #     dcc.RadioItems(id='select-case-study-amu-bar-scale',
+                        #     #                    options=['Unit', 'Log'],
+                        #     #                    value='Unit',
+                        #     #                    labelStyle={'display': 'block'},
+                        #     #                    inputStyle={"margin-right": "10px"},
+                        #     #                    ),
+                        #     #     ]),
+                        #     ], justify='evenly'),
+                        # html.Hr(style={'margin-right':'10px',}),
+
+                        # Row with collapse button
                         dbc.Row([
-                            dbc.Col([]),    # Placeholder for treemap controls 1
-                            dbc.Col([]),    # Placeholder for treemap controls 2
-                            dbc.Col([       # Bar chart controls 1
-                                html.H6("AMR Bar Display"),
-                                dcc.RadioItems(id='select-den-amu-bar-display',
-                                               options=['Total', 'Percent'],
-                                               value='Total',
-                                               labelStyle={'display': 'block'},
-                                               inputStyle={"margin-right": "10px"},
-                                               ),
-                                ]),
-                            dbc.Col([       # Bar chart controls 2
-                                html.H6("Axis scale"),
-                                dcc.RadioItems(id='select-den-amu-bar-scale',
-                                               options=['Unit', 'Log'],
-                                               value='Unit',
-                                               labelStyle={'display': 'block'},
-                                               inputStyle={"margin-right": "10px"},
-                                               ),
-                                ]),
-                            ], justify='evenly'),
-                        html.Hr(style={'margin-right':'10px',}),
+                            # Collapse Button
+                            html.Div(
+                                dbc.Button(
+                                        id="tbl-btn-open-collapse-case-study-ctrl",
+                                        color="primary",
+                                        n_clicks=0,
+                                        style={"margin-bottom": "0rem!important"}
+                                    ),
+                                id='table-collapse-button',
+                                className='tab-section table-collapse-button',
+                                ),
+                        ]), #END OF COLLASPE BUTTON ROW
 
                         #### -- POPULATION LEVEL RESULTS
                         dbc.Row([
@@ -1228,14 +1276,87 @@ gbadsDash.layout = html.Div([
                             #     ]),
                             # sunburst chart at pop level
                             dbc.Col([
-                                dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-sunburst-poplvl', DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel', HEIGHT=650)
-                                    ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                                ]),
+                                # dbc.Spinner(children=[
+                                #     dcc_graph_element(ID='den-amr-sunburst-poplvl',
+                                #                       DL_FILENAME='GBADs_AMR_Den_Sunburst_Poplevel',
+                                #                       HEIGHT=650)
+                                #     ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                                # Collapse
+                                dbc.Collapse(
+                                   dbc.Card([
+                                       dbc.CardBody([
+                                           html.H5("Population-level data by farm type",
+                                                   id='case-study-graphics-ctrls-card-title',
+                                                   className="card-title",
+                                                   style={"font-weight": "bold"}
+                                                   ),
+                                           html.Label("Explore the burden of AMR in post-weaning diarrhea (PWD) for three different farm types: \
+                                                      breed, nurse, and fat. Burden is measured in DKK (Danish Krone). The graph also shows the \
+                                                      uncertainty in the estimate of the burden, which is represented by the error bars."),
+                                           dbc.Row([
+                                               # AMR Bar Display
+                                               dbc.Col([
+                                                   html.H6("AMR Bar Display", style=control_heading_style),
+                                                   dcc.RadioItems(id='select-case-study-amu-barr-display',
+                                                                  options=['Total', 'Percent'],
+                                                                  value='Total',
+                                                                  labelStyle={'display': 'block'},
+                                                                  inputStyle={"margin-right": "10px"},
+                                                                  ),
+                                                   ]),
+                                               # Axis Display
+                                               dbc.Col([
+                                                   html.H6("Axis scale", style=control_heading_style),
+                                                   dcc.RadioItems(id='select-case-study-amu-bar-scale',
+                                                                  options=['Unit', 'Log'],
+                                                                  value='Unit',
+                                                                  labelStyle={'display': 'block'},
+                                                                  inputStyle={"margin-right": "10px"},
+                                                                  ),
+                                                   ]),
+                                           ]), # END OF ROW
+
+                                           html.Br(),
+
+                                           dbc.Row([
+                                                # Footnotes
+                                                html.Div([
+                                                    html.Abbr("Incident Scenario",
+                                                              title="Level of incidents, see table below for rates",
+                                                              style=abbr_heading_style),
+                                                    dcc.Slider(0,5,
+                                                               id='select-case-study-incdnt-scenario',
+                                                               step=None,
+                                                               marks={
+                                                                   0: 'Low',
+                                                                   3: 'Most Likely',
+                                                                   5: 'High',
+                                                                   },
+                                                               value=3,
+                                                               ),
+                                                    ]),
+                                               ]), # END OF ROW
+
+                                           dbc.Row([
+                                                # Footnotes
+                                                    html.Div(id='case-study-ctrls-footnote-1'),
+                                                    html.Div(id='case-stud-ctrls-footnote-2'),
+                                               ]) # END OF ROW
+
+                                           ]),    # END OF CARD BODY
+                                       ], color='#F2F2F2'),    # END OF CARD
+
+                                    id="collapse-case-study-graphics-controls",
+                                    is_open=False,
+                                    ), # END OF COLLAPSE
+                                ], id='case-study-control-col'), # END OF CRTL COL
+
                             # bar chart at pop level
                             dbc.Col([
                                 dbc.Spinner(children=[
-                                    dcc_graph_element(ID='den-amr-barchart-poplvl', DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel', HEIGHT=650)
+                                    dcc_graph_element(ID='case-study-amr-barchart-poplvl',
+                                                      DL_FILENAME='GBADs_AMR_Den_Barchart_PopLevel',
+                                                      HEIGHT=650)
                                     ],size="md", color="#393375", fullscreen=False), # End of Spinner
                                 # End of Bar chart at pop level
                                 ]),
@@ -1663,6 +1784,26 @@ def update_page_title_case_study(country_select, species_select, disease_select)
 #         return not is_open
 #     return is_open
 
+# Collapse AHLE graph controls
+@app.callback(
+    Output("collapse-case-study-graphics-controls", "is_open"),
+    Output('tbl-btn-open-collapse-case-study-ctrl','children'),
+    Output('case-study-control-col','width'),
+    Input("tbl-btn-open-collapse-case-study-ctrl", "n_clicks"),
+    State("collapse-case-study-graphics-controls", "is_open"),
+)
+def toggle_case_study_ctrls_collapse(n, is_open):
+    open_collapse = 'Open'
+    control_width = 1
+
+    if n is None:
+        return is_open, open_collapse, control_width
+
+    if not is_open:
+        open_collapse ='Collapse'
+        control_width = 4
+
+    return not is_open, open_collapse, control_width
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3053,21 +3194,21 @@ def update_expenditure_amu(input_json, expenditure_units):
 #     return treemap_fig
 
 
-# Denmark AMR sunburst chart - population level
-@gbadsDash.callback(
-    Output('den-amr-sunburst-poplvl', 'figure'),
-    Input('select-case-study-diseases-amu','value'),
-    # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
-    )
-def update_sunburst_poplvl_den_amr(disease_select):
-    input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-    sunburst_fig = create_sunburst_den(input_df)
-    sunburst_fig.update_layout(
-        title_text=f'Population-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
-        font_size=15,
-        margin=dict(l=10, r=10, b=10),
-        )
-    return sunburst_fig
+# # Denmark AMR sunburst chart - population level
+# @gbadsDash.callback(
+#     Output('den-amr-sunburst-poplvl', 'figure'),
+#     Input('select-case-study-diseases-amu','value'),
+#     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
+#     )
+# def update_sunburst_poplvl_den_amr(disease_select):
+#     input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
+#     sunburst_fig = create_sunburst_den(input_df)
+#     sunburst_fig.update_layout(
+#         title_text=f'Population-level AHLE and the Burden of AMR in {disease_select} <br>by Farm Type',
+#         font_size=15,
+#         margin=dict(l=10, r=10, b=10),
+#         )
+#     return sunburst_fig
 
 # # Denmark AMR sunburst chart - farm level
 # @gbadsDash.callback(
@@ -3087,9 +3228,9 @@ def update_sunburst_poplvl_den_amr(disease_select):
 
 # Denmark AMR bar chart - population level
 @gbadsDash.callback(
-    Output('den-amr-barchart-poplvl', 'figure'),
-    Input('select-den-amu-bar-display', 'value'),
-    Input('select-den-amu-bar-scale', 'value'),
+    Output('case-study-amr-barchart-poplvl', 'figure'),
+    Input('select-case-study-amu-barr-display', 'value'),
+    Input('select-case-study-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu','value'),
     # Input('select-amr-scenario', 'value'),    # Control not yet created
     )
@@ -3151,7 +3292,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
                 showlegend=False,
             ))
         layout = go.Layout(
-            title=f'Population-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
+            title=f'AHLE and the Burden of AMR in {disease_select}',
             barmode='stack',
             xaxis={'title': 'Farm Type'},
             yaxis={
@@ -3230,7 +3371,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             text_auto='.1f',
             )
         barchart_fig.update_layout(
-            title_text=f'Population-level AHLE and the Burden of AMR in {disease_select}<br>by Farm Type',
+            title_text=f'AHLE and the Burden of AMR in {disease_select}',
             font_size=15,
             xaxis_title='Farm Type',
         	yaxis_title='% of AHLE',
@@ -3290,8 +3431,8 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
 # # Denmark AMR bar chart - farm level
 # @gbadsDash.callback(
 #     Output('den-amr-barchart-farmlvl', 'figure'),
-#     Input('select-den-amu-bar-display', 'value'),
-#     Input('select-den-amu-bar-scale', 'value'),
+#     Input('select-case-study-amu-barr-display', 'value'),
+#     Input('select-case-study-amu-bar-scale', 'value'),
 #     Input('select-case-study-diseases-amu','value'),
 #     # Input('select-amr-scenario', 'value'),    # Control not yet created
 #     )
