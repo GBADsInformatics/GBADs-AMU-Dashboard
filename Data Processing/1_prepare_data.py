@@ -243,7 +243,7 @@ den_amr_ahle = pd.merge(
 )
 
 # Add calcs
-#!!! When calculating AMR as a proportion of AHLE for the 5th and 95th percentiles, Joao's
+# When calculating AMR as a proportion of AHLE for the 5th and 95th percentiles, Joao's
 # spreadsheet varies the denominator (AHLE) in addition to the numerator. I'm doing the same here.
 # An alternative would be to keep the median AHLE as the denominator and just vary the numerator (AMR).
 # This represents the uncertainty in AMR without conflating it with uncertainty in the AHLE.
@@ -321,92 +321,6 @@ den_amr_ahle_poplvl["error_low"] = den_amr_ahle[["burden_of_amr_at_pop_level_err
 
 export_dataframe(den_amr_ahle_poplvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_poplvl, DASHDATA_FOLDER)
-
-# -----------------------------------------------------------------------------
-# Test plot
-# -----------------------------------------------------------------------------
-# set_log_y = True
-
-# # Bar with melted data same as Dash
-# #!!! This is the only way to show separate error bars for AMR and AHLE
-# input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-# barchart_fig = px.bar(
-#     input_df
-#     ,x='farm_type'
-#     ,y='value'
-#     ,color='metric'
-#     ,barmode='relative'
-#     ,error_y='error_high'
-#     ,error_y_minus='error_low'
-#     ,log_y=set_log_y
-#     )
-# barchart_fig.update_layout(
-#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-#     ,font_size=15
-#     ,xaxis_title='Farm Type'
-# 	,yaxis_title='Burden (DKK)'
-# 	,legend_title_text='Source of Burden'
-#     )
-# barchart_fig.show()
-
-# # Bar with unmelted data
-# input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
-# barchart_fig = px.bar(
-#     input_df
-#     ,x='farm_type'
-#     ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
-#     ,barmode='relative'
-#     ,log_y=set_log_y
-#     ,error_y='burden_of_amr_at_pop_level_errhigh'
-#     ,error_y_minus='burden_of_amr_at_pop_level_errlow'
-#     )
-# barchart_fig.update_layout(
-#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-#     ,font_size=15
-#     ,xaxis_title='Farm Type'
-# 	,yaxis_title='Burden (DKK)'
-# 	,legend_title_text='Source of Burden'
-#     )
-# barchart_fig.show()
-
-# # Histogram with melted data same as Dash
-# input_df = den_amr_ahle_poplvl.query("scenario == 'Average'").query("farm_type != 'Total'")
-# barchart_fig = px.histogram(
-#     input_df
-#     ,x='farm_type'
-#     ,y='value'
-#     ,color='metric'
-#     ,log_y=set_log_y
-#     ,barnorm='percent'
-#     ,text_auto='.1f'
-#     )
-# barchart_fig.update_layout(
-#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-#     ,font_size=15
-#     ,xaxis_title='Farm Type'
-# 	,yaxis_title='% of AHLE'
-# 	,legend_title_text='Source of Burden'
-#     )
-# barchart_fig.show()
-
-# # Histogram with unmelted data
-# input_df = den_amr_ahle.query("scenario == 'Average'").query("farm_type != 'Total'")
-# barchart_fig = px.histogram(
-#     input_df
-#     ,x='farm_type'
-#     ,y=['burden_of_amr_at_pop_level_median', 'ahle_at_pop_level_median_withoutamr']
-#     ,log_y=set_log_y
-#     ,barnorm='percent'
-#     ,text_auto='.1f'
-#     )
-# barchart_fig.update_layout(
-#     title_text=f'Population-level AHLE and the Burden of Antimicrobial Resistance (AMR)<br>by Farm Type'
-#     ,font_size=15
-#     ,xaxis_title='Farm Type'
-# 	,yaxis_title='% of AHLE'
-# 	,legend_title_text='Source of Burden'
-#     )
-# barchart_fig.show()
 
 # =============================================================================
 #### DEV Code: Fixing hidden error bars for stacked bar chart
@@ -620,6 +534,9 @@ numeric_cols = list(den_amr_final.select_dtypes('number'))
 for COL in numeric_cols:
     den_amr_final[COL] = abs(den_amr_final[COL])
 
+#!!! Fill in health expenditure for each farm type
+# Allocate population health expenditure to each type in the same proportion as production losses
+
 datainfo(den_amr_final)
 export_dataframe(den_amr_final, PRODATA_FOLDER)
 
@@ -641,23 +558,50 @@ datainfo(den_ahle_final)
 export_dataframe(den_ahle_final, PRODATA_FOLDER)
 
 # =============================================================================
-#### AMR and AHLE combo from UoL
+#### AHLE from Bern
 # =============================================================================
+den_ahle_bern_final = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
+    ,sheet_name='AHLE from U Bern'
+)
+den_ahle_bern_final = clean_colnames(den_ahle_bern_final)
+
+# =============================================================================
+#### AMR and AHLE combo
+# =============================================================================
+# Using AHLE from UoL - not broken out by farm type!
+# den_amr_ahle_final = pd.merge(
+#     left=den_amr_final
+#     ,right=den_ahle_final.drop(columns='number_of_farms')
+#     ,on='farm_type'
+#     ,how='left'
+# )
+
+# Using AHLE from Bern
+recode_farmtype = {
+    "Breed":"Breeding"
+    ,"Nurse":"Rearing"
+    ,"Fat":"Fattening"
+    ,"Total":"TOTAL"
+}
+den_amr_final['farm_type'] = den_amr_final['farm_type'].replace(recode_farmtype)
 den_amr_ahle_final = pd.merge(
     left=den_amr_final
-    ,right=den_ahle_final.drop(columns='number_of_farms')
-    ,on='farm_type'
+    ,right=den_ahle_bern_final.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
+    ,left_on='farm_type'
+    ,right_on='production_stage'
     ,how='left'
 )
+datainfo(den_amr_ahle_final)
 
 # Add calcs
 den_amr_ahle_final = den_amr_ahle_final.eval(
     # Farm level AHLE not available in latest data
     # Population level
     '''
-    ahle_at_pop_level_withoutamr_median = ahle_at_pop_level___median - amr_total_burden_at_pop_level_median
-    ahle_at_pop_level_withoutamr_errhigh = ahle_at_pop_level___5_pct_ile - ahle_at_pop_level___median
-    ahle_at_pop_level_withoutamr_errlow = ahle_at_pop_level___median - ahle_at_pop_level___95_pct_ile
+    ahle_at_pop_level_withoutamr_median = population_ahle_median - amr_total_burden_at_pop_level_median
+    ahle_at_pop_level_withoutamr_errhigh = population_ahle_median - population_ahle_5_pct__percentile
+    ahle_at_pop_level_withoutamr_errlow = population_ahle_95_pct__percentile - population_ahle_median
 
     amr_production_losses_at_pop_level_errhigh = amr_production_losses_at_pop_level_5_pct_ile - amr_production_losses_at_pop_level_median
     amr_production_losses_at_pop_level_errlow = amr_production_losses_at_pop_level_median - amr_production_losses_at_pop_level_95_pct_ile
@@ -668,9 +612,9 @@ den_amr_ahle_final = den_amr_ahle_final.eval(
     amr_total_burden_at_pop_level_errhigh = amr_total_burden_at_pop_level_5_pct_ile - amr_total_burden_at_pop_level_median
     amr_total_burden_at_pop_level_errlow = amr_total_burden_at_pop_level_median - amr_total_burden_at_pop_level_95_pct_ile
 
-    amr_total_burden_at_pop_level_median_pctofahle = amr_total_burden_at_pop_level_median / ahle_at_pop_level___median
-    amr_total_burden_at_pop_level_5pctile_pctofahle = amr_total_burden_at_pop_level_5_pct_ile / ahle_at_pop_level___median
-    amr_total_burden_at_pop_level_95pctile_pctofahle = amr_total_burden_at_pop_level_95_pct_ile / ahle_at_pop_level___median
+    amr_total_burden_at_pop_level_median_pctofahle = amr_total_burden_at_pop_level_median / population_ahle_median
+    amr_total_burden_at_pop_level_5pctile_pctofahle = amr_total_burden_at_pop_level_5_pct_ile / population_ahle_median
+    amr_total_burden_at_pop_level_95pctile_pctofahle = amr_total_burden_at_pop_level_95_pct_ile / population_ahle_median
     '''
 )
 export_dataframe(den_amr_ahle_final, PRODATA_FOLDER)
@@ -681,6 +625,7 @@ datainfo(den_amr_ahle_final)
 #### -- Reshape for plotting - population level
 # -----------------------------------------------------------------------------
 # Melt and merge relies on consistent column ordering
+#!!! For plotting with log scale, want smaller value first (AMR).
 columns_inorder = [
     'amr_production_losses_at_pop_level'
     ,'amr_health_expenditure_at_pop_level'
@@ -694,7 +639,6 @@ columns_inorder_errlow = [COL + '_errlow' for COL in columns_inorder]
 # Medians
 den_amr_ahle_final_poplvl_median = den_amr_ahle_final.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']
-    #!!! Ordering matters for plotting with log scale. Want smaller value first (AMR).
 	,value_vars=columns_inorder_median
 	,var_name='metric'
 	,value_name='value'

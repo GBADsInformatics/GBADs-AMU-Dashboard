@@ -269,6 +269,16 @@ case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i 
 case_study_disease_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)",
                                                                                     "Mastitis"]]
 
+# Scenarios
+# Define dictionary mapping scenario names from data to integers
+# This is used to create the scenario slider and in callbacks for reference
+scenario_codes = {
+    0: 'Worse',
+    1: 'Average',
+    2: 'Best',
+    }
+scenario_code_default = 1
+
 # =============================================================================
 #### Layout helper functions
 # =============================================================================
@@ -1326,9 +1336,12 @@ gbadsDash.layout = html.Div([
                                            dbc.Row([
                                                # AMR Bar Display
                                                dbc.Col([
-                                                   html.H6("AMR Bar Display", style=control_heading_style),
+                                                   html.H6("AMR metric", style=control_heading_style),
                                                    dcc.RadioItems(id='select-case-study-amu-barr-display',
-                                                                  options=['Total', 'Percent'],
+                                                                  options=[
+                                                                      {"label":'Actual burden', "value":"Total"},
+                                                                      {"label":'Percent of AHLE', "value":"Percent"},
+                                                                      ],
                                                                   value='Total',
                                                                   labelStyle={'display': 'block'},
                                                                   inputStyle={"margin-right": "10px"},
@@ -1344,6 +1357,19 @@ gbadsDash.layout = html.Div([
                                                                   inputStyle={"margin-right": "10px"},
                                                                   ),
                                                    ]),
+                                               # Population or Farm Type display
+                                               dbc.Col([
+                                                   html.H6("Display", style=control_heading_style),
+                                                   dcc.RadioItems(id='select-case-study-amu-bar-farmtype',
+                                                                  options=[
+                                                                      {"label":'Total', "value":"total"},
+                                                                      {"label":'By Farm Type', "value":"bytype"},
+                                                                      ],
+                                                                  value='total',
+                                                                  labelStyle={'display': 'block'},
+                                                                  inputStyle={"margin-right": "10px"},
+                                                                  ),
+                                                   ]),
                                                ]), # END OF ROW
                                            html.Br(),
 
@@ -1353,15 +1379,12 @@ gbadsDash.layout = html.Div([
                                                     html.Abbr("Scenario",
                                                               title="Scenarios correspond to different disease incidence rates. See table below for rates.",
                                                               style=abbr_heading_style),
-                                                    dcc.Slider(0,5,
-                                                               id='select-scenario-den-amu',
+                                                    dcc.Slider(id='select-scenario-den-amu',
+                                                               min=np.array(list(scenario_codes)).min(),
+                                                               max=np.array(list(scenario_codes)).max(),
                                                                step=None,
-                                                               marks={
-                                                                   0: 'Worse',
-                                                                   3: 'Average',
-                                                                   5: 'Best',
-                                                                   },
-                                                               value=3,
+                                                               marks=scenario_codes,
+                                                               value=scenario_code_default,
                                                                ),
                                                     ]),
                                                ]), # END OF ROW
@@ -3201,12 +3224,7 @@ def update_expenditure_amu(input_json, expenditure_units):
 #     Input('select-scenario-den-amu', 'value'),
 #     )
 # def update_toplevel_numbers_den_amr(scenario_select_num):
-#     scenario_select_translate={
-#         0: 'Worse',
-#         3: 'Average',
-#         5: 'Best',
-#         }
-#     scenario_select = scenario_select_translate[scenario_select_num]
+    # scenario_select = scenario_codes[scenario_select_num]
 
 #     input_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'").query("farm_type == 'Total'")
 
@@ -3297,28 +3315,30 @@ def update_expenditure_amu(input_json, expenditure_units):
     Input('select-case-study-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu','value'),
     Input('select-scenario-den-amu', 'value'),
+    Input('select-case-study-amu-bar-farmtype', 'value'),
     )
-def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_select, scenario_select_num):
-    scenario_select_translate={
-        0: 'Worse',
-        3: 'Average',
-        5: 'Best',
-        }
-    scenario_select = scenario_select_translate[scenario_select_num]
-
-    input_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'").query("farm_type == 'Total'")
-
-    # Calculate cumulative values for plotly trick to overlay error bars
-    input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
-    input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
+def update_barchart_poplvl_den_amr(
+        option_tot_pct
+        ,option_axis_scale
+        ,disease_select
+        ,scenario_select_num
+        ,farmtype_select
+    ):
+    scenario_select = scenario_codes[scenario_select_num]
+    base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
     # Get important values to show in title
-    population_amr_prod = input_df.query("metric == 'AMR production losses'")['value'].item()
-    population_amr_health = input_df.query("metric == 'AMR health expenditure'")['value'].item()
+    population_amr_prod = base_df.query("farm_type == 'Total'").query("metric == 'AMR production losses'")['value'].item()
+    population_amr_health = base_df.query("farm_type == 'Total'").query("metric == 'AMR health expenditure'")['value'].item()
     population_amr_total = population_amr_prod + population_amr_health
-    population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")['value'].item()
+    population_unattr_ahle = base_df.query("farm_type == 'Total'").query("metric == 'Unattributed AHLE'")['value'].item()
     population_total_ahle = population_amr_total + population_unattr_ahle
     population_amr_prpn_ahle = population_amr_total / population_total_ahle
+
+    if farmtype_select == 'total':
+        input_df = base_df.query("farm_type == 'Total'")
+    elif farmtype_select == 'bytype':
+        input_df = base_df.query("farm_type != 'Total'")
 
     # Define color for each metric to use in plot
     legend_items = [
@@ -3327,6 +3347,11 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         {'label': 'AMR health expenditure', 'color': '#31f3be'},
     ]
 
+    # Calculate cumulative values for plotly trick to overlay error bars
+    input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
+    input_df['cumluative_value_over_metrics'] = input_df.groupby('farm_type')['value'].cumsum()
+
+    # Set axis scaling
     if option_axis_scale == 'Log':
         set_log_y = True
         layout_type = 'log'
@@ -3334,6 +3359,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         set_log_y = False
         layout_type = None
 
+    # Plot actual burden (currency)
     if option_tot_pct == 'Total':
         traces = []
         unique_metrics = input_df['metric'].unique()
@@ -3394,23 +3420,30 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200, t=120)
+            margin=dict(r=200, t=100)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
-        # Add subtitle
+        # Add total AHLE and AMR message
         barchart_fig.add_annotation(
-            text=f"Population AHLE: {population_total_ahle :>16,.0f} DKK<br>" \
-                + f"Population AMR:    {population_amr_total :>16,.0f} DKK<br>" \
-                + f"{' '*50}{population_amr_prpn_ahle:>16.1%} of total AHLE"
-                ,
+            text=f"Total AHLE: {population_total_ahle:>16,.0f} DKK",
             xref='paper',
             yref='paper',
-            x=0.5,
-            y=1.12,
+            x=0,
+            y=1.07,
             showarrow=False,
             font=dict(size=16),
-            xanchor='center'
+            xanchor='left'
+        )
+        barchart_fig.add_annotation(
+            text=f"Total AMR:    {population_amr_total:>16,.0f} DKK  ({population_amr_prpn_ahle:.1%} of AHLE)",
+            xref='paper',
+            yref='paper',
+            x=0,
+            y=1.03,
+            showarrow=False,
+            font=dict(size=16),
+            xanchor='left'
         )
 
         # Add custom legend annotations with colored squares
@@ -3419,7 +3452,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
         # Legend title position
         legend_x = 1.02
         if layout.margin.r:
-            legend_x = 1 + 0.005 * (layout.margin.r/25) # Decrease multiplier to move further left.
+            legend_x = 1 + 0.005 * (layout.margin.r/30) # Decrease multiplier to move further left.
 
         barchart_fig.add_annotation(
             x=legend_x,
@@ -3458,6 +3491,7 @@ def update_barchart_poplvl_den_amr(option_tot_pct, option_axis_scale, disease_se
             )
             y_pos -= 0.05    # Adjust spacing between legend items
 
+    # Plot % of AHLE
     elif option_tot_pct == 'Percent':
         # 100% stacked bars use histogram, which doesn't have error bar option
         barchart_fig = px.histogram(
