@@ -296,6 +296,11 @@ scenario_codes = {
     }
 scenario_code_default = 1
 
+# Currency
+case_study_currency_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
+                                                                                     "USD",
+                                                                                     "Birr"]]
+
 # =============================================================================
 #### Layout helper functions
 # =============================================================================
@@ -1347,9 +1352,7 @@ gbadsDash.layout = html.Div([
                                                    className="card-title",
                                                    style={"font-weight": "bold"}
                                                    ),
-                                           html.Label("Explore the burden of AMR in post-weaning diarrhea (PWD) for three different farm types: \
-                                                      breed, nurse, and fat. Burden is measured in DKK (Danish Krone). The graph also shows the \
-                                                      uncertainty in the estimate of the burden, which is represented by the error bars."),
+                                           html.Label(id='case-study-collapse-card-description'),
                                            dbc.Row([
                                                # AMR Bar Display
                                                dbc.Col([
@@ -1391,7 +1394,20 @@ gbadsDash.layout = html.Div([
                                            html.Br(),
 
                                            dbc.Row([
-                                                # Incidents
+                                                # Currency Selector
+                                                html.Div([
+                                                    html.H6("Currency", style=control_heading_style),
+                                                    dcc.Dropdown(id='select-case-study-currency-amu',
+                                                                 options=case_study_currency_options,
+                                                                 value='DKK',
+                                                                 clearable=False,
+                                                                 ),
+                                                    ]),
+                                               ]), # END OF ROW
+                                           html.Br(),
+
+                                           dbc.Row([
+                                                # Incident Scenarios
                                                 html.Div([
                                                     html.Abbr("Scenario",
                                                               title="Scenarios correspond to different disease incidence rates. See table below for rates.",
@@ -1878,6 +1894,44 @@ def toggle_case_study_ctrls_collapse(n, is_open):
         control_width = 4
 
     return not is_open, open_collapse, control_width
+
+# Update graph collapse box description
+@app.callback(
+    Output("case-study-collapse-card-description", "children"),
+    Input('select-case-study-countries-amu', 'value'),
+)
+def update_case_study_graph_description(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        graph_description = "Explore the burden of AMR in post-weaning diarrhea (PWD) for three different farm types: \
+            breeding, nursery, and fatting. Burden is displayed by currency or percentage of Animal Health Loss Evelope \
+            (AHLE). The uncertainty in the estimate of the burden is represented by the error bars."
+
+    elif country_select.upper() == 'ETHIOPIA':
+        graph_description = ""
+
+    return graph_description
+
+# Update currency options based on country selections
+@gbadsDash.callback(
+    Output('select-case-study-currency-amu', 'options'),
+    Output('select-case-study-currency-amu', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_currency_options_case_study(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
+                                                                                            "USD"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Birr"]]
+        value = "DKK"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Birr",
+                                                                                            "USD"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["DKK"]]
+        value = "Birr"
+
+    return case_study_species_options, value
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3333,7 +3387,7 @@ def update_expenditure_amu(input_json, expenditure_units):
     Input('select-case-study-diseases-amu','value'),
     Input('select-scenario-den-amu', 'value'),
     Input('select-case-study-amu-bar-farmtype', 'value'),
-    # Input('select-currency-den', 'value'),    # Control not yet created
+    Input('select-case-study-currency-amu', 'value'),
     )
 def update_barchart_poplvl_den_amr(
         option_tot_pct
@@ -3341,21 +3395,20 @@ def update_barchart_poplvl_den_amr(
         ,disease_select
         ,scenario_select_num
         ,farmtype_select
-        ,currency_select='dkk'    # Control not yet created
+        ,currency_select
     ):
     scenario_select = scenario_codes[scenario_select_num]
     base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
-    if currency_select == 'dkk':
+    if currency_select == 'DKK':
         value_col = 'value_dkk'
         error_high_col = 'error_high_dkk'
         error_low_col = 'error_low_dkk'
-        currency_label = 'DKK'
-    elif currency_select == 'usd':
+    elif currency_select == 'USD':
         value_col = 'value_usd'
         error_high_col = 'error_high_usd'
         error_low_col = 'error_low_usd'
-        currency_label = 'USD'
+
 
     # Get important values to show in title
     population_amr_prod = base_df.query("farm_type == 'Total'").query("metric == 'AMR production losses'")[value_col].item()
@@ -3445,7 +3498,7 @@ def update_barchart_poplvl_den_amr(
             xaxis={'title': 'Farm Type'},
             yaxis={
                 'type': layout_type,
-                'title':f'Burden ({currency_label})',
+                'title':f'Burden ({currency_select})',
             },
             template='plotly_white',
             bargroupgap=0.5,
@@ -3455,7 +3508,7 @@ def update_barchart_poplvl_den_amr(
 
         # Add total AHLE and AMR message
         barchart_fig.add_annotation(
-            text=f"Total AHLE: {population_total_ahle:>16,.0f} {currency_label}",
+            text=f"Total AHLE: {population_total_ahle:>16,.0f} {currency_select}",
             xref='paper',
             yref='paper',
             x=0,
@@ -3465,7 +3518,7 @@ def update_barchart_poplvl_den_amr(
             xanchor='left'
         )
         barchart_fig.add_annotation(
-            text=f"Total AMR:    {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
+            text=f"Total AMR:    {population_amr_total:>16,.0f} {currency_select}  ({population_amr_prpn_ahle:.1%} of AHLE)",
             xref='paper',
             yref='paper',
             x=0,
