@@ -491,6 +491,9 @@ NO LONGER USED. JOAO SENT A CORRECTED FILE ON MARCH 5.
 # =============================================================================
 #### AMR from UoL
 # =============================================================================
+# -----------------------------------------------------------------------------
+#### -- Import and basic column cleanup
+# -----------------------------------------------------------------------------
 den_amr_final = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
     ,sheet_name='AMR'
@@ -508,8 +511,14 @@ rename_cols = {
 }
 den_amr_final = den_amr_final.rename(columns=rename_cols)
 
-# Some confidence intervals change sign. Set any AMR numbers > 0 to 0.
-set_ceiling_for_vars = [
+# -----------------------------------------------------------------------------
+#### -- Cleanup
+# -----------------------------------------------------------------------------
+# AMR numbers are reported as negative (seen in the median values; confidence limits can be positive)
+# To be consistent with AHLE, flip the sign of AMR estimates
+# Note this means flipping the upper and lower confidence levels (upper becomes lower and vice versa)
+# Note also that some confidence intervals contain zero (upper and lower limits have opposite sign), so can't use abs(), must use *(-1)
+reverse_sign_for_vars = [
     'amr_production_losses_at_farm_level_median'
     ,'amr_production_losses_at_farm_level_5_pct_ile'
     ,'amr_production_losses_at_farm_level_95_pct_ile'
@@ -526,17 +535,84 @@ set_ceiling_for_vars = [
     ,'amr_total_burden_at_pop_level_5_pct_ile'
     ,'amr_total_burden_at_pop_level_95_pct_ile'
 ]
-for COL in set_ceiling_for_vars:
-    den_amr_final[COL] = den_amr_final[COL].clip(upper=0)
+for COL in reverse_sign_for_vars:
+    den_amr_final[COL] = den_amr_final[COL] * -1
 
-# Make AMR numbers positive for graphing
-numeric_cols = list(den_amr_final.select_dtypes('number'))
-for COL in numeric_cols:
-    den_amr_final[COL] = abs(den_amr_final[COL])
+# Dictionary to define pairs of variables to swap (upper and lower confidence limits)
+exchange_vars = {
+    'amr_production_losses_at_farm_level_5_pct_ile':'amr_production_losses_at_farm_level_95_pct_ile'
+    ,'amr_production_losses_at_pop_level_5_pct_ile':'amr_production_losses_at_pop_level_95_pct_ile'
+    ,'amr_health_expenditure_at_pop_level_5_pct_ile':'amr_health_expenditure_at_pop_level_95_pct_ile'
+    ,'amr_total_burden_at_pop_level_5_pct_ile':'amr_total_burden_at_pop_level_95_pct_ile'
+}
+for KEY, VALUE in exchange_vars.items():
+    den_amr_final = den_amr_final.rename(columns={KEY:VALUE, VALUE:KEY})
 
-#!!! Fill in health expenditure for each farm type
+# -----------------------------------------------------------------------------
+#### -- Fill in health expenditure for each farm type
 # Allocate population health expenditure to each type in the same proportion as production losses
+# -----------------------------------------------------------------------------
+# Get proportion of population production losses in each farm type, separately for each scenario
+keep_cols = [
+    'scenario'
+    ,'farm_type'
+    ,'amr_production_losses_at_pop_level_median'        # To get each farm types proportion of total
+    # ,'amr_production_losses_at_pop_level_5_pct_ile'
+    # ,'amr_production_losses_at_pop_level_95_pct_ile'
+    ,'amr_health_expenditure_at_pop_level_median'       # To allocate to farm types
+    ,'amr_health_expenditure_at_pop_level_5_pct_ile'    # To allocate to farm types
+    ,'amr_health_expenditure_at_pop_level_95_pct_ile'   # To allocate to farm types
+]
+totals_by_scenario = den_amr_final.query("farm_type == 'Total'")[keep_cols]
+totals_by_scenario = totals_by_scenario.set_index(keys=['scenario', 'farm_type'])
+totals_by_scenario = totals_by_scenario.add_prefix('total_')
+datainfo(totals_by_scenario)
 
+den_amr_final_working = pd.merge(
+    left=den_amr_final
+    ,right=totals_by_scenario
+    ,how='left'
+    ,on='scenario'
+)
+datainfo(den_amr_final_working)
+
+# Calculate health expenditure for each farm type by allocating population total proportionally
+den_amr_final_working = den_amr_final_working.eval(
+    f'''
+    prpn_prodloss_this_farm_type = amr_production_losses_at_pop_level_median / total_amr_production_losses_at_pop_level_median
+
+    amr_health_expenditure_prpn_median = total_amr_health_expenditure_at_pop_level_median * prpn_prodloss_this_farm_type
+    amr_health_expenditure_prpn_5pct = total_amr_health_expenditure_at_pop_level_5_pct_ile * prpn_prodloss_this_farm_type
+    amr_health_expenditure_prpn_95pct = total_amr_health_expenditure_at_pop_level_95_pct_ile * prpn_prodloss_this_farm_type
+    '''
+)
+
+# Fill in missing health expenditure with calculated value
+# Dictionary with KEY: column with missings to fill, VALUE: column with values to use
+fill_na = {
+    'amr_health_expenditure_at_pop_level_median':'amr_health_expenditure_prpn_median'
+    ,'amr_health_expenditure_at_pop_level_5_pct_ile':'amr_health_expenditure_prpn_5pct'
+    ,'amr_health_expenditure_at_pop_level_95_pct_ile':'amr_health_expenditure_prpn_95pct'
+}
+for BASE_COL, FILL_COL in fill_na.items():
+    den_amr_final_working[BASE_COL] = den_amr_final_working[BASE_COL].fillna(den_amr_final_working[FILL_COL])
+
+# Recalculate total burden using new health expenditure
+den_amr_final_working = den_amr_final_working.eval(
+    f'''
+    amr_total_burden_at_pop_level_median = amr_production_losses_at_pop_level_median + amr_health_expenditure_at_pop_level_median
+    amr_total_burden_at_pop_level_5_pct_ile = amr_production_losses_at_pop_level_5_pct_ile + amr_health_expenditure_at_pop_level_5_pct_ile
+    amr_total_burden_at_pop_level_95_pct_ile = amr_production_losses_at_pop_level_95_pct_ile + amr_health_expenditure_at_pop_level_95_pct_ile
+    '''
+)
+
+# Trim working columns and replace original data
+orig_cols = list(den_amr_final)
+den_amr_final = den_amr_final_working[orig_cols].copy()
+
+# -----------------------------------------------------------------------------
+#### -- Export
+# -----------------------------------------------------------------------------
 datainfo(den_amr_final)
 export_dataframe(den_amr_final, PRODATA_FOLDER)
 
@@ -549,10 +625,10 @@ den_ahle_final = pd.read_excel(
 )
 den_ahle_final = clean_colnames(den_ahle_final)
 
-# Make AHLE numbers positive for graphing
-numeric_cols = list(den_ahle_final.select_dtypes('number'))
-for COL in numeric_cols:
-    den_ahle_final[COL] = abs(den_ahle_final[COL])
+# # Make AHLE numbers positive for graphing
+# numeric_cols = list(den_ahle_final.select_dtypes('number'))
+# for COL in numeric_cols:
+#     den_ahle_final[COL] = abs(den_ahle_final[COL])
 
 datainfo(den_ahle_final)
 export_dataframe(den_ahle_final, PRODATA_FOLDER)
@@ -584,33 +660,34 @@ recode_farmtype = {
     ,"Fat":"Fattening"
     ,"Total":"TOTAL"
 }
-den_amr_final['farm_type'] = den_amr_final['farm_type'].replace(recode_farmtype)
+den_amr_final['production_stage'] = den_amr_final['farm_type'].replace(recode_farmtype)
 den_amr_ahle_final = pd.merge(
     left=den_amr_final
     ,right=den_ahle_bern_final.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
-    ,left_on='farm_type'
-    ,right_on='production_stage'
+    ,on='production_stage'
     ,how='left'
 )
 datainfo(den_amr_ahle_final)
 
 # Add calcs
+# Note: here is where it matters if the estimates are positive or negative - this determines order of terms for subtraction to calc error_high or error_low
+# If medians are positive, error_high = 95%ile minus median and error_low = median minus 5%ile
 den_amr_ahle_final = den_amr_ahle_final.eval(
     # Farm level AHLE not available in latest data
     # Population level
     '''
     ahle_at_pop_level_withoutamr_median = population_ahle_median - amr_total_burden_at_pop_level_median
-    ahle_at_pop_level_withoutamr_errhigh = population_ahle_median - population_ahle_5_pct__percentile
-    ahle_at_pop_level_withoutamr_errlow = population_ahle_95_pct__percentile - population_ahle_median
+    ahle_at_pop_level_withoutamr_errhigh = population_ahle_95_pct__percentile - population_ahle_median
+    ahle_at_pop_level_withoutamr_errlow =  population_ahle_median - population_ahle_5_pct__percentile
 
-    amr_production_losses_at_pop_level_errhigh = amr_production_losses_at_pop_level_5_pct_ile - amr_production_losses_at_pop_level_median
-    amr_production_losses_at_pop_level_errlow = amr_production_losses_at_pop_level_median - amr_production_losses_at_pop_level_95_pct_ile
+    amr_production_losses_at_pop_level_errhigh = amr_production_losses_at_pop_level_95_pct_ile - amr_production_losses_at_pop_level_median
+    amr_production_losses_at_pop_level_errlow = amr_production_losses_at_pop_level_median - amr_production_losses_at_pop_level_5_pct_ile
 
     amr_health_expenditure_at_pop_level_errhigh = amr_health_expenditure_at_pop_level_95_pct_ile - amr_health_expenditure_at_pop_level_median
     amr_health_expenditure_at_pop_level_errlow = amr_health_expenditure_at_pop_level_median - amr_health_expenditure_at_pop_level_5_pct_ile
 
-    amr_total_burden_at_pop_level_errhigh = amr_total_burden_at_pop_level_5_pct_ile - amr_total_burden_at_pop_level_median
-    amr_total_burden_at_pop_level_errlow = amr_total_burden_at_pop_level_median - amr_total_burden_at_pop_level_95_pct_ile
+    amr_total_burden_at_pop_level_errhigh = amr_total_burden_at_pop_level_95_pct_ile - amr_total_burden_at_pop_level_median
+    amr_total_burden_at_pop_level_errlow = amr_total_burden_at_pop_level_median - amr_total_burden_at_pop_level_5_pct_ile
 
     amr_total_burden_at_pop_level_median_pctofahle = amr_total_burden_at_pop_level_median / population_ahle_median
     amr_total_burden_at_pop_level_5pctile_pctofahle = amr_total_burden_at_pop_level_5_pct_ile / population_ahle_median
@@ -663,6 +740,29 @@ den_amr_ahle_final_poplvl = den_amr_ahle_final_poplvl_median.copy()
 den_amr_ahle_final_poplvl['error_high'] = den_amr_ahle_final_poplvl_errhigh['error_high']
 den_amr_ahle_final_poplvl['error_low'] = den_amr_ahle_final_poplvl_errlow['error_low']
 
+# -----------------------------------------------------------------------------
+#### -- Add exchange rate
+# -----------------------------------------------------------------------------
+'''
+From Sara 3/13/2025:
+    For our Danish dashboard, please use the exchange rate 1 Danish Krone = 0.1416 US Dollar (average exchange rate for 2022).
+'''
+usd_per_dkk = 0.1416
+
+rename_cols = {
+    "value":"value_dkk"
+    ,"error_high":"error_high_dkk"
+    ,"error_low":"error_low_dkk"
+}
+den_amr_ahle_final_poplvl = den_amr_ahle_final_poplvl.rename(columns=rename_cols)
+
+den_amr_ahle_final_poplvl['value_usd'] = den_amr_ahle_final_poplvl['value_dkk'] * usd_per_dkk
+den_amr_ahle_final_poplvl['error_high_usd'] = den_amr_ahle_final_poplvl['error_high_dkk'] * usd_per_dkk
+den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_low_dkk'] * usd_per_dkk
+
+# -----------------------------------------------------------------------------
+#### -- Export
+# -----------------------------------------------------------------------------
 datainfo(den_amr_ahle_final_poplvl)
 export_dataframe(den_amr_ahle_final_poplvl, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_final_poplvl, DASHDATA_FOLDER)
@@ -683,6 +783,51 @@ label the dashboard selector for scenario (average, worst, best):
 # =============================================================================
 #### AMR from UoL
 # =============================================================================
+# -----------------------------------------------------------------------------
+#### -- Import and basic column cleanup
+# -----------------------------------------------------------------------------
+eth_amr_imp = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'results_ethiopia_5March25_JREdit.xlsx')
+    ,sheet_name='overall'
+    ,usecols='A:E'
+)
+eth_amr_imp = clean_colnames(eth_amr_imp)
+datainfo(eth_amr_imp)
+
+# -----------------------------------------------------------------------------
+#### -- Bash into shape
+# Want same columns as Denmark data to use same plotting code
+# -----------------------------------------------------------------------------
+# Keep the metrics we want - USD instead of billions
+keep_metrics = [
+    'Production losses due to mastitis (USD)'
+    ,'Production losses due to resistant mastitis (USD)'
+    ,'Expenditure with mastitis (USD)'
+    ,'Expenditure with resistant mastitis (USD)'
+    ,'Indirect costs due to AMR (USD)'
+    ,'AHLE - cattle (USD)'
+    ,'Expenditure in cattle (USD)'
+]
+_row_select = (eth_amr_imp['metric'].isin(keep_metrics))
+eth_amr = eth_amr_imp.loc[_row_select].copy()
+
+# Calc point estimate and error limits
+eth_amr = eth_amr.eval(
+    f'''
+    value_usd = mean
+    error_high_usd = upper_95_pct__ci - mean
+    error_low_usd = mean - lower_95_pct__ci
+    '''
+)
+eth_amr = eth_amr.drop(columns=['median', 'mean', 'upper_95_pct__ci', 'lower_95_pct__ci'])
+
+# Currency is in column name, drop from metric
+eth_amr['metric'] = eth_amr['metric'].str.replace(' (USD)', '', regex=False)
+
+# -----------------------------------------------------------------------------
+#### -- Add exchange rate
+# -----------------------------------------------------------------------------
+#!!! Bring in 2021 rate from Ethiopia dashboard. Confirm with Joao that this is the correct year.
 
 # =============================================================================
 #### Test plot
