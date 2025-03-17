@@ -828,6 +828,22 @@ eth_amr['metric'] = eth_amr['metric'].str.replace(' (USD)', '', regex=False)
 #### -- Add exchange rate
 # -----------------------------------------------------------------------------
 #!!! Bring in 2021 rate from Ethiopia dashboard. Confirm with Joao that this is the correct year.
+# https://data.worldbank.org/indicator/PA.NUS.FCRF?end=2023&start=2023&view=bar
+birr_per_usd_2023 = 54.60
+birr_per_usd_2022 = 51.76
+birr_per_usd_2021 = 43.73
+birr_per_usd_2020 = 34.93
+
+eth_amr['value_birr'] = eth_amr['value_usd'] * birr_per_usd_2021
+eth_amr['error_high_birr'] = eth_amr['error_high_usd'] * birr_per_usd_2021
+eth_amr['error_low_birr'] = eth_amr['error_low_usd'] * birr_per_usd_2021
+
+# -----------------------------------------------------------------------------
+#### -- Export
+# -----------------------------------------------------------------------------
+datainfo(eth_amr)
+export_dataframe(eth_amr, PRODATA_FOLDER)
+export_dataframe(eth_amr, DASHDATA_FOLDER)
 
 # =============================================================================
 #### Test plot

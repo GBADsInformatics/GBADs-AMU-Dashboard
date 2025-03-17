@@ -128,7 +128,7 @@ CWD = os.getcwd()
 DASH_DATA_FOLDER = os.path.join(CWD ,'data')
 
 # -----------------------------------------------------------------------------
-# Antimicrobial Usage
+#### -- Global AMU/AMR
 # -----------------------------------------------------------------------------
 amu2018_combined_tall = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu2018_combined_tall.csv"))
 
@@ -149,7 +149,7 @@ amu_combined_regional = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amu_combined
 amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
 
 # -----------------------------------------------------------------------------
-# Denmark AMR
+#### -- Denmark AMR
 # -----------------------------------------------------------------------------
 # Updated data - note no farm level
 den_amr_ahle_final_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_final_poplvl.pkl.gz'))
@@ -231,6 +231,11 @@ to label the selector for scenarios (worst, average, best):
 # den_amr_ahle_farmlvl_sorted['scenario'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['scenario'], categories=scenario_order, ordered=True)
 # den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
 # den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
+
+# -----------------------------------------------------------------------------
+#### -- Ethiopia AMR
+# -----------------------------------------------------------------------------
+eth_amr = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr.pkl.gz'))
 
 # =============================================================================
 #### User options and defaults
