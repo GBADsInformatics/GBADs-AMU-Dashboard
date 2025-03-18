@@ -232,6 +232,20 @@ to label the selector for scenarios (worst, average, best):
 # den_amr_ahle_farmlvl_sorted['farm_type'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['farm_type'], categories=farm_type_order, ordered=True)
 # den_amr_ahle_farmlvl_sorted['metric'] = pd.Categorical(den_amr_ahle_farmlvl_sorted['metric'], categories=metric_order, ordered=True)
 
+# AMR metric
+# Set each option to have hover over explanation
+display_option_actual_burden = html.Abbr("Actual burden",
+                                         title="AHLE broken out by production loss and health expenditure, the remaining unattributed",
+                                         )
+
+display_option_percent_ahle = html.Abbr("Percent of AHLE",
+                                        title="AMR burden as percent of total AHLE",
+                                        )
+
+case_study_metric_options = [{'label': display_option_actual_burden, 'value': "Total", 'disabled': False},
+                             {'label': display_option_percent_ahle, 'value': "Percent", 'disabled': False},
+                             ]
+
 # =============================================================================
 #### User options and defaults
 # =============================================================================
@@ -1287,31 +1301,6 @@ gbadsDash.layout = html.Div([
                         ], justify="end"),
                         html.Hr(style={'margin-right':'10px',}),
 
-                        # #### -- FIRST ROW GRAPHICS CONTROLS
-                        # dbc.Row([
-                        #     dbc.Col([]),    # Placeholder for treemap controls 1
-                        #     dbc.Col([]),    # Placeholder for treemap controls 2
-                        #     # dbc.Col([       # Bar chart controls 1
-                        #     #     html.H6("AMR Bar Display"),
-                        #     #     dcc.RadioItems(id='select-case-study-amu-barr-display',
-                        #     #                    options=['Total', 'Percent'],
-                        #     #                    value='Total',
-                        #     #                    labelStyle={'display': 'block'},
-                        #     #                    inputStyle={"margin-right": "10px"},
-                        #     #                    ),
-                        #     #     ]),
-                        #     # dbc.Col([       # Bar chart controls 2
-                        #     #     html.H6("Axis scale"),
-                        #     #     dcc.RadioItems(id='select-case-study-amu-bar-scale',
-                        #     #                    options=['Unit', 'Log'],
-                        #     #                    value='Unit',
-                        #     #                    labelStyle={'display': 'block'},
-                        #     #                    inputStyle={"margin-right": "10px"},
-                        #     #                    ),
-                        #     #     ]),
-                        #     ], justify='evenly'),
-                        # html.Hr(style={'margin-right':'10px',}),
-
                         # Row with collapse button
                         #### -- FIRST ROW GRAPHICS CONTROLS
                         dbc.Row([
@@ -1357,11 +1346,8 @@ gbadsDash.layout = html.Div([
                                                # AMR Bar Display
                                                dbc.Col([
                                                    html.H6("AMR metric", style=control_heading_style),
-                                                   dcc.RadioItems(id='select-case-study-amu-barr-display',
-                                                                  options=[
-                                                                      {"label":'Actual burden', "value":"Total"},
-                                                                      {"label":'Percent of AHLE', "value":"Percent"},
-                                                                      ],
+                                                   dcc.RadioItems(id='select-case-study-amu-metric-display',
+                                                                  options=case_study_metric_options,
                                                                   value='Total',
                                                                   labelStyle={'display': 'block'},
                                                                   inputStyle={"margin-right": "10px"},
@@ -1380,7 +1366,7 @@ gbadsDash.layout = html.Div([
                                                # Population or Farm Type display
                                                dbc.Col([
                                                    html.H6("Display", style=control_heading_style),
-                                                   dcc.RadioItems(id='select-case-study-amu-bar-farmtype',
+                                                   dcc.RadioItems(id='select-case-study-graphic-display-option',
                                                                   options=[
                                                                       {"label":'Total', "value":"total"},
                                                                       {"label":'By Farm Type', "value":"bytype"},
@@ -1899,20 +1885,46 @@ def toggle_case_study_ctrls_collapse(n, is_open):
 @app.callback(
     Output("case-study-collapse-card-description", "children"),
     Input('select-case-study-countries-amu', 'value'),
+    Input('select-case-study-diseases-amu','value'),
 )
-def update_case_study_graph_description(country_select):
+def update_case_study_graph_description(country_select, disease_select):
 
     if country_select.upper() == 'DENMARK':
-        graph_description = "Explore the burden of AMR in post-weaning diarrhea (PWD) for three different farm types: \
-            breeding, nursery, and fatting. Burden is displayed by currency or percentage of Animal Health Loss Evelope \
-            (AHLE). The uncertainty in the estimate of the burden is represented by the error bars."
+        graph_description = f"Explore the burden of AMR in {disease_select} for three different farm types: breeding, nursery, and fatting. \
+            Burden is displayed by selected currency or percentage of Animal Health Loss Evelope (AHLE). \
+            The uncertainty in the estimate of the burden is represented by the error bars."
 
     elif country_select.upper() == 'ETHIOPIA':
-        graph_description = ""
+        graph_description = f"Explore the burden of AMR in {disease_select}. \
+            Compare {disease_select} to resistant {disease_select} with the side by side view. \
+            Burden is displayed by selected currency. \
+            The uncertainty in the estimate of the burden is represented by the error bars."
 
     return graph_description
 
-# Update currency options based on country selections
+# Update display graph options based on country selection
+@gbadsDash.callback(
+    Output('select-case-study-graphic-display-option', 'options'),
+    Output('select-case-study-graphic-display-option', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    Input('select-case-study-diseases-amu','value'),
+    )
+def update_graphic_display_options_case_study(country_select, disease_select):
+
+    if country_select.upper() == 'DENMARK':
+
+        case_study_species_options = [{"label":'Total', "value":"total"},
+                                      {"label":'By Farm Type', "value":"bytype"},
+                                      ]
+        value = "total"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in [f"AMR {disease_select}",
+                                                                                            "Side by Side"]]
+        value = f"AMR {disease_select}"
+
+    return case_study_species_options, value
+
+# Update currency options based on country selection
 @gbadsDash.callback(
     Output('select-case-study-currency-amu', 'options'),
     Output('select-case-study-currency-amu', 'value'),
@@ -3382,11 +3394,11 @@ def update_expenditure_amu(input_json, expenditure_units):
 # Note we no longer have every metric by farm type - plotting only for farm_type == 'Total'
 @gbadsDash.callback(
     Output('case-study-amr-barchart-poplvl', 'figure'),
-    Input('select-case-study-amu-barr-display', 'value'),
+    Input('select-case-study-amu-metric-display', 'value'),
     Input('select-case-study-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu','value'),
     Input('select-scenario-den-amu', 'value'),
-    Input('select-case-study-amu-bar-farmtype', 'value'),
+    Input('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-currency-amu', 'value'),
     )
 def update_barchart_poplvl_den_amr(
@@ -3643,7 +3655,7 @@ def update_barchart_poplvl_den_amr(
 # # Denmark AMR bar chart - farm level
 # @gbadsDash.callback(
 #     Output('den-amr-barchart-farmlvl', 'figure'),
-#     Input('select-case-study-amu-barr-display', 'value'),
+#     Input('select-case-study-amu-metric-display', 'value'),
 #     Input('select-case-study-amu-bar-scale', 'value'),
 #     Input('select-case-study-diseases-amu','value'),
 #     # Input('select-amr-scenario', 'value'),    # Control not yet created
