@@ -257,6 +257,19 @@ keep_metrics_in_order = legend_text_poplvl_eth.values()  # Use ordering from dic
 _row_select = (eth_amr['metric'].isin(keep_metrics_in_order))
 eth_amr_sorted = eth_amr.loc[_row_select].copy()
 eth_amr_sorted['metric'] = pd.Categorical(eth_amr_sorted['metric'], categories=keep_metrics_in_order, ordered=True)
+# AMR metric
+# Set each option to have hover over explanation
+display_option_actual_burden = html.Abbr("Actual burden",
+                                         title="AHLE broken out by production loss and health expenditure, the remaining unattributed",
+                                         )
+
+display_option_percent_ahle = html.Abbr("Percent of AHLE",
+                                        title="AMR burden as percent of total AHLE",
+                                        )
+
+case_study_metric_options = [{'label': display_option_actual_burden, 'value': "Total", 'disabled': False},
+                             {'label': display_option_percent_ahle, 'value': "Percent", 'disabled': False},
+                             ]
 
 # =============================================================================
 #### User options and defaults
@@ -321,6 +334,11 @@ scenario_codes = {
     2: 'Best',
     }
 scenario_code_default = 1
+
+# Currency
+case_study_currency_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
+                                                                                     "USD",
+                                                                                     "Birr"]]
 
 # =============================================================================
 #### Layout helper functions
@@ -569,44 +587,39 @@ def create_barchart_poplvl_den_amr(
         traces = []
         unique_metrics = input_df['metric'].unique()
 
-        # Create data bars
-        for i, selected_metric in enumerate(unique_metrics):
+        for selected_metric in unique_metrics:
+            metric_df = input_df.query(f"metric == '{selected_metric}'")
+            metric_df['error_range_low'] = metric_df['cumluative_value_over_metrics'] - metric_df[error_low_col]
+            metric_df['error_range_high'] = metric_df['cumluative_value_over_metrics'] + metric_df[error_high_col]
+
             traces.append(go.Bar(
                 name=selected_metric,
-                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
-                y=input_df.query(f"metric == '{selected_metric}'")[value_col],
-                marker=dict(
-                    color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0],
-                    # pattern=dict(
-                    #     shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
-                    #         'Breeding': '.',
-                    #         'Nursery': '\\',
-                    #         'Fattening': '|'
-                    #     }).tolist(),
-                    #     solidity=0.2, # adjust for pattern density
-                    # )
-                ),
+                x=metric_df['farm_type'],
+                y=metric_df[value_col],
+                marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
+                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<extra></extra>",
             ))
 
-        # Add error whiskers
-        for i, selected_metric in enumerate(unique_metrics):
+            # Add error whiskers
             traces.append(go.Scatter(
                 name=f"{selected_metric}_error",
-                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
-                y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+                x=metric_df['farm_type'],
+                y=metric_df['cumluative_value_over_metrics'],
                 mode='markers',
                 marker=dict(color='gray'),
                 error_y=dict(
                     type='data',
-                    array=input_df.query(f"metric == '{selected_metric}'")[error_high_col],
-                    arrayminus=input_df.query(f"metric == '{selected_metric}'")[error_low_col],
+                    array=metric_df[error_high_col],
+                    arrayminus=metric_df[error_low_col],
                     visible=True,
                     color='gray',
                     thickness=2,
-                    width=5
+                    width=5,
                 ),
                 showlegend=False,
+                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_select}<extra></extra>",
+                customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
@@ -1789,31 +1802,6 @@ gbadsDash.layout = html.Div([
                             ], justify="end"),
                         html.Hr(style={'margin-right':'10px',}),
 
-                        # #### -- FIRST ROW GRAPHICS CONTROLS
-                        # dbc.Row([
-                        #     dbc.Col([]),    # Placeholder for treemap controls 1
-                        #     dbc.Col([]),    # Placeholder for treemap controls 2
-                        #     # dbc.Col([       # Bar chart controls 1
-                        #     #     html.H6("AMR Bar Display"),
-                        #     #     dcc.RadioItems(id='select-case-study-amu-barr-display',
-                        #     #                    options=['Total', 'Percent'],
-                        #     #                    value='Total',
-                        #     #                    labelStyle={'display': 'block'},
-                        #     #                    inputStyle={"margin-right": "10px"},
-                        #     #                    ),
-                        #     #     ]),
-                        #     # dbc.Col([       # Bar chart controls 2
-                        #     #     html.H6("Axis scale"),
-                        #     #     dcc.RadioItems(id='select-case-study-amu-bar-scale',
-                        #     #                    options=['Unit', 'Log'],
-                        #     #                    value='Unit',
-                        #     #                    labelStyle={'display': 'block'},
-                        #     #                    inputStyle={"margin-right": "10px"},
-                        #     #                    ),
-                        #     #     ]),
-                        #     ], justify='evenly'),
-                        # html.Hr(style={'margin-right':'10px',}),
-
                         # Row with collapse button
                         #### -- FIRST ROW GRAPHICS CONTROLS
                         dbc.Row([
@@ -1854,18 +1842,13 @@ gbadsDash.layout = html.Div([
                                                    className="card-title",
                                                    style={"font-weight": "bold"}
                                                    ),
-                                           html.Label("Explore the burden of AMR in post-weaning diarrhea (PWD) for three different farm types: \
-                                                      breed, nurse, and fat. Burden is measured in DKK (Danish Krone). The graph also shows the \
-                                                      uncertainty in the estimate of the burden, which is represented by the error bars."),
+                                           html.Label(id='case-study-collapse-card-description'),
                                            dbc.Row([
                                                # AMR Bar Display
                                                dbc.Col([
                                                    html.H6("AMR metric", style=control_heading_style),
-                                                   dcc.RadioItems(id='select-case-study-amu-barr-display',
-                                                                  options=[
-                                                                      {"label":'Actual burden', "value":"Total"},
-                                                                      {"label":'Percent of AHLE', "value":"Percent"},
-                                                                      ],
+                                                   dcc.RadioItems(id='select-case-study-amu-metric-display',
+                                                                  options=case_study_metric_options,
                                                                   value='Total',
                                                                   labelStyle={'display': 'block'},
                                                                   inputStyle={"margin-right": "10px"},
@@ -1884,7 +1867,7 @@ gbadsDash.layout = html.Div([
                                                # Population or Farm Type display
                                                dbc.Col([
                                                    html.H6("Display", style=control_heading_style),
-                                                   dcc.RadioItems(id='select-case-study-amu-bar-farmtype',
+                                                   dcc.RadioItems(id='select-case-study-graphic-display-option',
                                                                   options=[
                                                                       {"label":'Total', "value":"total"},
                                                                       {"label":'By Farm Type', "value":"bytype"},
@@ -1898,7 +1881,20 @@ gbadsDash.layout = html.Div([
                                            html.Br(),
 
                                            dbc.Row([
-                                                # Incidents
+                                                # Currency Selector
+                                                html.Div([
+                                                    html.H6("Currency", style=control_heading_style),
+                                                    dcc.Dropdown(id='select-case-study-currency-amu',
+                                                                 options=case_study_currency_options,
+                                                                 value='DKK',
+                                                                 clearable=False,
+                                                                 ),
+                                                    ]),
+                                               ]), # END OF ROW
+                                           html.Br(),
+
+                                           dbc.Row([
+                                                # Incident Scenarios
                                                 html.Div([
                                                     html.Abbr("Scenario",
                                                               title="Scenarios correspond to different disease incidence rates. See table below for rates.",
@@ -2394,6 +2390,70 @@ def toggle_case_study_ctrls_collapse(n, is_open):
         control_width = 4
 
     return not is_open, open_collapse, control_width
+
+# Update graph collapse box description
+@app.callback(
+    Output("case-study-collapse-card-description", "children"),
+    Input('select-case-study-countries-amu', 'value'),
+    Input('select-case-study-diseases-amu','value'),
+)
+def update_case_study_graph_description(country_select, disease_select):
+
+    if country_select.upper() == 'DENMARK':
+        graph_description = f"Explore the burden of AMR in {disease_select} for three different farm types: breeding, nursery, and fatting. \
+            Burden is displayed by selected currency or percentage of Animal Health Loss Evelope (AHLE). \
+            The uncertainty in the estimate of the burden is represented by the error bars."
+
+    elif country_select.upper() == 'ETHIOPIA':
+        graph_description = f"Explore the burden of AMR in {disease_select}. \
+            Compare {disease_select} to resistant {disease_select} with the side by side view. \
+            Burden is displayed by selected currency. \
+            The uncertainty in the estimate of the burden is represented by the error bars."
+
+    return graph_description
+
+# Update display graph options based on country selection
+@gbadsDash.callback(
+    Output('select-case-study-graphic-display-option', 'options'),
+    Output('select-case-study-graphic-display-option', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    Input('select-case-study-diseases-amu','value'),
+    )
+def update_graphic_display_options_case_study(country_select, disease_select):
+
+    if country_select.upper() == 'DENMARK':
+
+        case_study_species_options = [{"label":'Total', "value":"total"},
+                                      {"label":'By Farm Type', "value":"bytype"},
+                                      ]
+        value = "total"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in [f"AMR {disease_select}",
+                                                                                            "Side by Side"]]
+        value = f"AMR {disease_select}"
+
+    return case_study_species_options, value
+
+# Update currency options based on country selection
+@gbadsDash.callback(
+    Output('select-case-study-currency-amu', 'options'),
+    Output('select-case-study-currency-amu', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_currency_options_case_study(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
+                                                                                            "USD"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Birr"]]
+        value = "DKK"
+    elif country_select.upper() == 'ETHIOPIA':
+        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Birr",
+                                                                                            "USD"]]
+        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["DKK"]]
+        value = "Birr"
+
+    return case_study_species_options, value
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3947,13 +4007,12 @@ def update_expenditure_amu(input_json, expenditure_units):
 @gbadsDash.callback(
     Output('case-study-amr-barchart-poplvl', 'figure'),
     Input('select-case-study-countries-amu', 'value'),
-
-    Input('select-case-study-amu-barr-display', 'value'),
+    Input('select-case-study-amu-metric-display', 'value'),
     Input('select-case-study-amu-bar-scale', 'value'),
-    Input('select-case-study-diseases-amu','value'),
+    Input('select-case-study-diseases-amu', 'value'),
     Input('select-scenario-den-amu', 'value'),
-    Input('select-case-study-amu-bar-farmtype', 'value'),
-    # Input('select-currency-den', 'value'),    # Control not yet created
+    Input('select-case-study-graphic-display-option', 'value'),
+    Input('select-case-study-currency-amu', 'value'),
     )
 def update_barchart_poplvl(
         country_select
@@ -3980,12 +4039,13 @@ def update_barchart_poplvl(
             ,disease_select
             ,currency_select='usd'    # Control not yet created
             )
+
     return barchart_fig
 
 # # Denmark AMR bar chart - farm level
 # @gbadsDash.callback(
 #     Output('den-amr-barchart-farmlvl', 'figure'),
-#     Input('select-case-study-amu-barr-display', 'value'),
+#     Input('select-case-study-amu-metric-display', 'value'),
 #     Input('select-case-study-amu-bar-scale', 'value'),
 #     Input('select-case-study-diseases-amu','value'),
 #     # Input('select-amr-scenario', 'value'),    # Control not yet created
