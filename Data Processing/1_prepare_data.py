@@ -761,6 +761,16 @@ den_amr_ahle_final_poplvl['error_high_usd'] = den_amr_ahle_final_poplvl['error_h
 den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_low_dkk'] * usd_per_dkk
 
 # -----------------------------------------------------------------------------
+#### -- Add biomass
+# -----------------------------------------------------------------------------
+'''
+#!!! From Beat 3/13:
+    -Slaughter weight for DK is 114.7kg
+    -17,203,200 are slaughtered in DK
+    -> Total of 1,973,207,040 kg
+'''
+
+# -----------------------------------------------------------------------------
 #### -- Export
 # -----------------------------------------------------------------------------
 datainfo(den_amr_ahle_final_poplvl)
@@ -798,7 +808,7 @@ datainfo(eth_amr_imp)
 #### -- Bash into shape
 # Want same columns as Denmark data to use same plotting code
 # -----------------------------------------------------------------------------
-# Keep the metrics we want - USD instead of billions
+# Keep the metrics we want - USD, not billions
 keep_metrics = [
     'Production losses due to mastitis (USD)'
     ,'Production losses due to resistant mastitis (USD)'
@@ -807,6 +817,8 @@ keep_metrics = [
     ,'Indirect costs due to AMR (USD)'
     ,'AHLE - cattle (USD)'
     ,'Expenditure in cattle (USD)'
+    ,'Total AMR burden (USD)'
+    ,'AHLE without AMR (USD)'
 ]
 _row_select = (eth_amr_imp['metric'].isin(keep_metrics))
 eth_amr = eth_amr_imp.loc[_row_select].copy()
@@ -817,6 +829,8 @@ eth_amr = eth_amr.eval(
     value_usd = mean
     error_high_usd = upper_95_pct__ci - mean
     error_low_usd = mean - lower_95_pct__ci
+    upper_95pct_ci_usd = upper_95_pct__ci
+    lower_95pct_ci_usd = lower_95_pct__ci
     '''
 )
 eth_amr = eth_amr.drop(columns=['median', 'mean', 'upper_95_pct__ci', 'lower_95_pct__ci'])
@@ -824,10 +838,13 @@ eth_amr = eth_amr.drop(columns=['median', 'mean', 'upper_95_pct__ci', 'lower_95_
 # Currency is in column name, drop from metric
 eth_amr['metric'] = eth_amr['metric'].str.replace(' (USD)', '', regex=False)
 
+# Add a dummy column for production system - all one value
+eth_amr['production_system'] = 'Overall'
+
 # -----------------------------------------------------------------------------
 #### -- Add exchange rate
 # -----------------------------------------------------------------------------
-#!!! Bring in 2021 rate from Ethiopia dashboard. Confirm with Joao that this is the correct year.
+# Bring in 2021 rate from Ethiopia dashboard. Confirm with Joao that this is the correct year.
 # https://data.worldbank.org/indicator/PA.NUS.FCRF?end=2023&start=2023&view=bar
 birr_per_usd_2023 = 54.60
 birr_per_usd_2022 = 51.76
@@ -837,6 +854,8 @@ birr_per_usd_2020 = 34.93
 eth_amr['value_birr'] = eth_amr['value_usd'] * birr_per_usd_2021
 eth_amr['error_high_birr'] = eth_amr['error_high_usd'] * birr_per_usd_2021
 eth_amr['error_low_birr'] = eth_amr['error_low_usd'] * birr_per_usd_2021
+eth_amr['upper_95pct_ci_birr'] = eth_amr['upper_95pct_ci_usd'] * birr_per_usd_2021
+eth_amr['lower_95pct_ci_birr'] = eth_amr['lower_95pct_ci_usd'] * birr_per_usd_2021
 
 # -----------------------------------------------------------------------------
 #### -- Export
@@ -846,126 +865,149 @@ export_dataframe(eth_amr, PRODATA_FOLDER)
 export_dataframe(eth_amr, DASHDATA_FOLDER)
 
 # =============================================================================
+#### Data by Production System
+# =============================================================================
+# -----------------------------------------------------------------------------
+#### -- AMR by Production System
+# -----------------------------------------------------------------------------
+eth_amr_prodsys_imp = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'results_ethiopia_5March25_JREdit.xlsx')
+    ,sheet_name='AHLE and burden per prod syst'
+)
+eth_amr_prodsys_imp = clean_colnames(eth_amr_prodsys_imp)
+datainfo(eth_amr_prodsys_imp)
+
+# -----------------------------------------------------------------------------
+#### -- Population by Production System
+# -----------------------------------------------------------------------------
+eth_pop_prodsys_imp = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'results_ethiopia_5March25_JREdit.xlsx')
+    ,sheet_name='Population per prod syst'
+)
+eth_pop_prodsys_imp = clean_colnames(eth_pop_prodsys_imp)
+datainfo(eth_pop_prodsys_imp)
+
+# =============================================================================
 #### Test plot
 # =============================================================================
-import pandas as pd
-import numpy as np
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
+# import pandas as pd
+# import numpy as np
+# import plotly.graph_objects as go
+# from plotly.subplots import make_subplots
 
-# Your data
-data = {
-    'Metric': [
-        'Production losses due to resistant mastitis (USD)',
-        'Expenditure with resistant mastitis (USD)',
-        'Indirect costs due to AMR (USD)',
-        'AHLE - cattle (USD)'
-    ],
-    'Mean': [
-        685208346.22,
-        136823.49,
-        279555.32,
-        15420000000.00
-    ],
-    'Lower_95_CI': [
-        522339460.51,
-        66345.88,
-        279555.32,
-        12700000000.00
-    ],
-    'Upper_95_CI': [
-        825158203.48,
-        219368.87,
-        279555.32,
-        18570000000.00
-    ]
-}
+# # Your data
+# data = {
+#     'Metric': [
+#         'Production losses due to resistant mastitis (USD)',
+#         'Expenditure with resistant mastitis (USD)',
+#         'Indirect costs due to AMR (USD)',
+#         'AHLE - cattle (USD)'
+#     ],
+#     'Mean': [
+#         685208346.22,
+#         136823.49,
+#         279555.32,
+#         15420000000.00
+#     ],
+#     'Lower_95_CI': [
+#         522339460.51,
+#         66345.88,
+#         279555.32,
+#         12700000000.00
+#     ],
+#     'Upper_95_CI': [
+#         825158203.48,
+#         219368.87,
+#         279555.32,
+#         18570000000.00
+#     ]
+# }
 
-# Convert to DataFrame
-df = pd.DataFrame(data)
+# # Convert to DataFrame
+# df = pd.DataFrame(data)
 
-# Calculate error margins
-df['Error_Minus'] = df['Mean'] - df['Lower_95_CI']
-df['Error_Plus'] = df['Upper_95_CI'] - df['Mean']
+# # Calculate error margins
+# df['Error_Minus'] = df['Mean'] - df['Lower_95_CI']
+# df['Error_Plus'] = df['Upper_95_CI'] - df['Mean']
 
-# Create shorter labels for display
-df['Short_Label'] = [
-    'Production losses',
-    'Expenditure',
-    'Indirect costs',
-    'AHLE - cattle'
-]
+# # Create shorter labels for display
+# df['Short_Label'] = [
+#     'Production losses',
+#     'Expenditure',
+#     'Indirect costs',
+#     'AHLE - cattle'
+# ]
 
-# Sort data by Mean value in descending order to have largest at bottom of stack
-df = df.sort_values('Mean')
+# # Sort data by Mean value in descending order to have largest at bottom of stack
+# df = df.sort_values('Mean')
 
-# Create figure
-fig = go.Figure()
+# # Create figure
+# fig = go.Figure()
 
-# Calculate cumulative sums for stacking
-df['Cumulative_Sum'] = df['Mean'].cumsum()
-df['Previous_Sum'] = df['Cumulative_Sum'].shift(1).fillna(0)
+# # Calculate cumulative sums for stacking
+# df['Cumulative_Sum'] = df['Mean'].cumsum()
+# df['Previous_Sum'] = df['Cumulative_Sum'].shift(1).fillna(0)
 
-# Add traces for each metric (stacked)
-colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
+# # Add traces for each metric (stacked)
+# colors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728']
 
-for i, row in df.iterrows():
-    fig.add_trace(go.Bar(
-        name=row['Short_Label'],
-        x=['AMR Economic Impact'],
-        y=[row['Mean']],
-        base=[row['Previous_Sum']],
-        marker_color=colors[i % len(colors)],
-        text=f"${row['Mean']:,.2f}",
-        textposition='inside',
-        insidetextanchor='middle',
-        error_y=dict(
-            type='data',
-            symmetric=False,
-            array=[row['Error_Plus']],
-            arrayminus=[row['Error_Minus']],
-            visible=True
-        ),
-        hovertemplate='<b>%{data.name}</b><br>Value: $%{y:,.2f}<br>Lower CI: $%{customdata[0]:,.2f}<br>Upper CI: $%{customdata[1]:,.2f}',
-        customdata=[[row['Lower_95_CI'], row['Upper_95_CI']]]
-    ))
+# for i, row in df.iterrows():
+#     fig.add_trace(go.Bar(
+#         name=row['Short_Label'],
+#         x=['AMR Economic Impact'],
+#         y=[row['Mean']],
+#         base=[row['Previous_Sum']],
+#         marker_color=colors[i % len(colors)],
+#         text=f"${row['Mean']:,.2f}",
+#         textposition='inside',
+#         insidetextanchor='middle',
+#         error_y=dict(
+#             type='data',
+#             symmetric=False,
+#             array=[row['Error_Plus']],
+#             arrayminus=[row['Error_Minus']],
+#             visible=True
+#         ),
+#         hovertemplate='<b>%{data.name}</b><br>Value: $%{y:,.2f}<br>Lower CI: $%{customdata[0]:,.2f}<br>Upper CI: $%{customdata[1]:,.2f}',
+#         customdata=[[row['Lower_95_CI'], row['Upper_95_CI']]]
+#     ))
 
-# Calculate total value
-total_value = df['Mean'].sum()
+# # Calculate total value
+# total_value = df['Mean'].sum()
 
-# Update layout
-fig.update_layout(
-    title='Economic Impact of Antimicrobial Resistance (AMR)',
-    yaxis_title='USD ($)',
-    barmode='stack',
-    legend_title='Cost Categories',
-    template='plotly_white',
-    height=700,
-    width=900,
-    yaxis=dict(
-        type='log',  # Using log scale due to large differences in values
-        title='USD (Log Scale)'
-    ),
-    legend=dict(
-        orientation='h',
-        yanchor='bottom',
-        y=1.02,
-        xanchor='center',
-        x=0.5
-    )
-)
+# # Update layout
+# fig.update_layout(
+#     title='Economic Impact of Antimicrobial Resistance (AMR)',
+#     yaxis_title='USD ($)',
+#     barmode='stack',
+#     legend_title='Cost Categories',
+#     template='plotly_white',
+#     height=700,
+#     width=900,
+#     yaxis=dict(
+#         type='log',  # Using log scale due to large differences in values
+#         title='USD (Log Scale)'
+#     ),
+#     legend=dict(
+#         orientation='h',
+#         yanchor='bottom',
+#         y=1.02,
+#         xanchor='center',
+#         x=0.5
+#     )
+# )
 
-# Add annotation for total value
-fig.add_annotation(
-    x='AMR Economic Impact',
-    y=total_value * 1.1,  # Slightly above the top of the bar
-    text=f'Total: ${total_value:,.2f}',
-    showarrow=False,
-    font=dict(size=14, color='black', family='Arial Black')
-)
+# # Add annotation for total value
+# fig.add_annotation(
+#     x='AMR Economic Impact',
+#     y=total_value * 1.1,  # Slightly above the top of the bar
+#     text=f'Total: ${total_value:,.2f}',
+#     showarrow=False,
+#     font=dict(size=14, color='black', family='Arial Black')
+# )
 
-# Show the figure
-fig.show()
+# # Show the figure
+# fig.show()
 
-# To save the figure
-# fig.write_html("amr_economic_impact_stacked_bar.html")
+# # To save the figure
+# # fig.write_html("amr_economic_impact_stacked_bar.html")
