@@ -3396,19 +3396,19 @@ def update_expenditure_amu(input_json, expenditure_units):
     Output('case-study-amr-barchart-poplvl', 'figure'),
     Input('select-case-study-amu-metric-display', 'value'),
     Input('select-case-study-amu-bar-scale', 'value'),
-    Input('select-case-study-diseases-amu','value'),
+    Input('select-case-study-diseases-amu', 'value'),
     Input('select-scenario-den-amu', 'value'),
     Input('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-currency-amu', 'value'),
     )
 def update_barchart_poplvl_den_amr(
-        option_tot_pct
-        ,option_axis_scale
-        ,disease_select
-        ,scenario_select_num
-        ,farmtype_select
-        ,currency_select
-    ):
+        option_tot_pct,
+        option_axis_scale,
+        disease_select,
+        scenario_select_num,
+        farmtype_select,
+        currency_select,
+        ):
     scenario_select = scenario_codes[scenario_select_num]
     base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
@@ -3460,63 +3460,56 @@ def update_barchart_poplvl_den_amr(
         unique_metrics = input_df['metric'].unique()
 
         # Create data bars
-        for i, selected_metric in enumerate(unique_metrics):
+        for selected_metric in unique_metrics:
+            metric_df = input_df.query(f"metric == '{selected_metric}'")
+            metric_df['error_range_low'] = metric_df['cumluative_value_over_metrics'] - metric_df[error_low_col]
+            metric_df['error_range_high'] = metric_df['cumluative_value_over_metrics'] + metric_df[error_high_col]
+
             traces.append(go.Bar(
                 name=selected_metric,
-                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
-                y=input_df.query(f"metric == '{selected_metric}'")[value_col],
-                marker=dict(
-                    color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0],
-                    # pattern=dict(
-                    #     shape=input_df.query(f"metric == '{selected_metric}'")['farm_type'].map({
-                    #         'Breeding': '.',
-                    #         'Nursery': '\\',
-                    #         'Fattening': '|'
-                    #     }).tolist(),
-                    #     solidity=0.2, # adjust for pattern density
-                    # )
-                ),
+                x=metric_df['farm_type'],
+                y=metric_df[value_col],
+                marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
+                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<extra></extra>",
             ))
 
-        # Add error whiskers
-        for i, selected_metric in enumerate(unique_metrics):
+            # Add error whiskers
             traces.append(go.Scatter(
                 name=f"{selected_metric}_error",
-                x=input_df.query(f"metric == '{selected_metric}'")['farm_type'],
-                y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+                x=metric_df['farm_type'],
+                y=metric_df['cumluative_value_over_metrics'],
                 mode='markers',
                 marker=dict(color='gray'),
                 error_y=dict(
                     type='data',
-                    array=input_df.query(f"metric == '{selected_metric}'")[error_high_col],
-                    arrayminus=input_df.query(f"metric == '{selected_metric}'")[error_low_col],
+                    array=metric_df[error_high_col],
+                    arrayminus=metric_df[error_low_col],
                     visible=True,
                     color='gray',
                     thickness=2,
-                    width=5
+                    width=5,
                 ),
                 showlegend=False,
+                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_select}<extra></extra>",
+                customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
+
         layout = go.Layout(
             title=dict(
-                text=f"AHLE and the Burden of AMR in {disease_select}<br>" \
-                    + f"{scenario_select} scenario<br>"
-                    ,
+                text=f"AHLE and the Burden of AMR in {disease_select}<br>{scenario_select} scenario<br>",
                 font=dict(size=20),
                 y=0.95,
             ),
             barmode='stack',
             xaxis={'title': 'Farm Type'},
-            yaxis={
-                'type': layout_type,
-                'title':f'Burden ({currency_select})',
-            },
+            yaxis={'type': layout_type, 'title': f'Burden ({currency_select})'},
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200, t=100)
+            margin=dict(r=200, t=100),
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
+
 
         # Add total AHLE and AMR message
         barchart_fig.add_annotation(
@@ -3585,6 +3578,7 @@ def update_barchart_poplvl_den_amr(
             )
             y_pos -= 0.05    # Adjust spacing between legend items
 
+
     # Plot % of AHLE
     elif option_tot_pct == 'Percent':
         # 100% stacked bars use histogram, which doesn't have error bar option
@@ -3596,8 +3590,8 @@ def update_barchart_poplvl_den_amr(
             color='metric',
             color_discrete_map={legend_item_dct['label']:legend_item_dct['color'] for legend_item_dct in legend_items},
             barnorm='percent',
-            pattern_shape='farm_type',
-            pattern_shape_sequence=[".", "\\", "|"],
+            # pattern_shape='farm_type',
+            # pattern_shape_sequence=[".", "\\", "|"],
             text_auto='.1f',
             )
         barchart_fig.update_layout(
