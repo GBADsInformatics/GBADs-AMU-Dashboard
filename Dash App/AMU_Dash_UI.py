@@ -4021,7 +4021,7 @@ def update_barchart_poplvl(
         ,disease_select
         ,scenario_select_num
         ,farmtype_select
-        # ,currency_select    # Control not yet created
+        ,currency_select
     ):
     if country_select == 'Denmark':
         barchart_fig = create_barchart_poplvl_den_amr(
