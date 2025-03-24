@@ -1,1 +1,0 @@
-# Drug Resistance Index

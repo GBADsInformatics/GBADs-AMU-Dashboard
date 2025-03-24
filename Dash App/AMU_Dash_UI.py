@@ -27,7 +27,7 @@ print(f"[{dt.datetime.now().strftime('%Y%m%d_%H%M%S.%f')[:19]}] {sys.version = }
 # Third party packages (ie, those installed with pip )
 # NO NEED to import Dash or JupyterDash here.  That is done within fa.instantiate_app
 
-from dash import html, dcc, Input, Output, State, dash_table, ctx
+from dash import html, dcc, Input, Output, State, dash_table
 import dash_bootstrap_components as dbc  # Allows easy access to all bootstrap themes
 import dash_daq as daq
 import dash_auth
@@ -37,7 +37,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
-import geopandas as gpd
 from flask import Flask, redirect
 
 # private (fa) libraries
@@ -1803,7 +1802,7 @@ gbadsDash.layout = html.Div([
                         html.Hr(style={'margin-right':'10px',}),
 
                         # Row with collapse button
-                        #### -- FIRST ROW GRAPHICS CONTROLS
+                        #### -- COLLAPSE BOX GRAPHICS CONTROLS
                         dbc.Row([
                             # Collapse Button
                             html.Div(
@@ -1895,25 +1894,25 @@ gbadsDash.layout = html.Div([
 
                                            dbc.Row([
                                                 # Incident Scenarios
-                                                html.Div([
+                                                html.Div(id='select-case-study-scenario-amu-container', children=[
                                                     html.Abbr("Scenario",
+                                                              id='select-case-study-scenario-amu-title',
                                                               title="Scenarios correspond to different disease incidence rates. See table below for rates.",
                                                               style=abbr_heading_style),
-                                                    dcc.Slider(id='select-scenario-den-amu',
+                                                    dcc.Slider(id='select-case-study-scenario-amu',
                                                                min=np.array(list(scenario_codes)).min(),
                                                                max=np.array(list(scenario_codes)).max(),
                                                                step=None,
                                                                marks=scenario_codes,
                                                                value=scenario_code_default,
                                                                ),
-                                                    ]),
-                                               ]), # END OF ROW
+                                                    ], style= {'display': 'block'}),
                                            html.Br(),
 
                                            # dbc.Row([
                                            #     # Show AHLE and AMR numbers
                                            #     html.Div(id='den-ahle-amr-totals-printout')
-                                           #     ]), # END OF ROW
+                                               ]), # END OF ROW
                                            dbc.Row([
                                                 # Footnotes
                                                     html.Div(id='case-study-ctrls-footnote-1'),
@@ -2454,6 +2453,18 @@ def update_currency_options_case_study(country_select):
         value = "Birr"
 
     return case_study_species_options, value
+
+# Hide Scenario selector when Ethiopia is selected
+@gbadsDash.callback(
+    Output('select-case-study-scenario-amu-container','style'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def toggle_scenarior_selector(country_select):
+
+    if country_select.upper() == 'ETHIOPIA':
+        return {'display':'none'}
+    else:
+        return {'display':'block'}
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -3917,7 +3928,7 @@ def update_expenditure_amu(input_json, expenditure_units):
 # # Denmark top level AHLE and AMR number printout
 # @gbadsDash.callback(
 #     Output('den-ahle-amr-totals-printout', 'children'),
-#     Input('select-scenario-den-amu', 'value'),
+#     Input('select-case-study-scenario-amu', 'value'),
 #     )
 # def update_toplevel_numbers_den_amr(scenario_select_num):
     # scenario_select = scenario_codes[scenario_select_num]
@@ -4010,7 +4021,7 @@ def update_expenditure_amu(input_json, expenditure_units):
     Input('select-case-study-amu-metric-display', 'value'),
     Input('select-case-study-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu', 'value'),
-    Input('select-scenario-den-amu', 'value'),
+    Input('select-case-study-scenario-amu', 'value'),
     Input('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-currency-amu', 'value'),
     )

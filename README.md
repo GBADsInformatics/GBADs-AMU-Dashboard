@@ -24,15 +24,14 @@ Built upon the AHLE Dashboard framework.
 │   ├── processed_data/			# Directory for data files that have been processed
 │   ├── raw_data/			    # Directory for raw data files
 │   ├── 1_prepare_data.py  		# Python script for processing data
-├── requirements.txt        	# Python dependencies
 ├── LICENSE		            	# License
 ├── README.md               	# Project documentation
 ```
 
 <h2>Contributors</h2>
-- Kassy Raymond 
 - Kristen McCaffrey
 - Justin Replogle
+- Kassy Raymond 
 
 ---
 
