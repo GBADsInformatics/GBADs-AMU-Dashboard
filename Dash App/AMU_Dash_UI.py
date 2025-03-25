@@ -434,96 +434,6 @@ def create_tree_map_amu(input_df, value, categories):
 
     return tree_map_fig
 
-# def create_tree_map_den(input_df):
-#     tree_map_fig = px.treemap(input_df,
-#                               path=[px.Constant('All'), 'farm_type', 'metric'],
-#                               values='value',
-#                               maxdepth=3,
-#                               color='farm_type',
-#                               color_discrete_map={'(?)':'lightgrey'}
-#                               )
-
-#     # # Add value to bottom leaf node labels
-#     # tree_map_fig.data[0].textinfo = 'label+text+value'
-
-#     return tree_map_fig
-
-def create_sunburst_den(input_df):
-    # Group by farm_type to get parent totals
-    farm_type_totals = input_df.groupby('farm_type')['value'].sum()
-
-    # Create a new column for labels with percentages for metrics
-    def add_percent_to_label(row):
-        if row['farm_type'] != 'All':
-            parent_total = farm_type_totals[row['farm_type']]
-            percent = (row['value'] / parent_total) * 100
-            return f"{row['metric']} | {percent:.1f}%"
-        return row['metric']
-
-    input_df['label_with_percent'] = input_df.apply(add_percent_to_label, axis=1)
-
-    sunburst_fig_px = px.sunburst(
-        input_df,
-        path=[px.Constant('All'), 'farm_type', 'label_with_percent'],
-        # path=[px.Constant('All'), 'farm_type', 'label_with_percent'], # removing 'all' as the center
-        values='value',
-        color='metric',
-    )
-
-    labels = sunburst_fig_px['data'][0]['labels'].tolist()
-    parents = sunburst_fig_px['data'][0]['parents'].tolist()
-    colors = []
-    patterns = []
-    ids = sunburst_fig_px['data'][0]['ids'].tolist()
-
-    for i, p in enumerate(labels):
-        # Colors based on metrics
-        if "Unattributed AHLE" in p:
-            colors.append("#fbc98e")
-        elif "AMR" in p:
-            colors.append("#31BFF3")
-        else:
-            colors.append("lightgrey")
-
-        # Patterns based on farm_type
-        if ids[i] == 'All':  # No pattern for the top level
-            patterns.append('')
-        elif parents[i] == 'All': #pattern for farm_type level
-            if "Breeding" in ids[i]:
-                patterns.append(".")
-            elif "Nursery" in ids[i]:
-                patterns.append("\\")
-            elif "Fattening" in ids[i]:
-                patterns.append("|")
-            else:
-                patterns.append('') #if farm type is not found
-        else : #pattern for metric level
-            if "Breeding" in parents[i]:
-                patterns.append(".")
-            elif "Nursery" in parents[i]:
-                patterns.append("\\")
-            elif "Fattening" in parents[i]:
-                patterns.append("|")
-            else:
-                patterns.append('') # if parent farm type is not found.
-
-    sunburst_fig_go = go.Figure(go.Sunburst(
-        labels=labels,
-        parents=parents,
-        values=sunburst_fig_px['data'][0]['values'].tolist(),
-        ids=ids,
-        domain={'x': [0.0, 1.0], 'y': [0.0, 1.0]},
-        branchvalues="total",
-        marker=dict(
-            colors=colors,
-            pattern=dict(
-                shape=patterns,
-                solidity=0.7),
-            line=dict(color='darkgrey', width=2)
-        ),
-    ))
-
-    return sunburst_fig_go
 
 # Denmark AMR bar chart - population level
 # Using data update from March 5
@@ -1007,6 +917,111 @@ def create_barchart_poplvl_eth_amr(
             y_pos -= 0.05  # Adjust spacing between legend items
 
     return barchart_fig
+
+def create_case_study_piechart_den_poplvl(
+        scenario_select_num,
+        disease_select,
+        currency_select,
+    ):
+    scenario_select = scenario_codes[scenario_select_num]
+    base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
+    base_df = base_df.query("farm_type == 'Total'")
+
+    if currency_select == 'dkk':
+        value_col = 'value_dkk'
+        currency_label = 'DKK'
+    elif currency_select == 'usd':
+        value_col = 'value_usd'
+        currency_label = 'USD'
+
+    # Get important values to show in title
+    population_amr_prod = base_df.query("farm_type == 'Total'").query("metric == 'AMR production losses'")[value_col].item()
+    population_amr_health = base_df.query("farm_type == 'Total'").query("metric == 'AMR health expenditure'")[value_col].item()
+    population_amr_total = population_amr_prod + population_amr_health
+    population_unattr_ahle = base_df.query("farm_type == 'Total'").query("metric == 'Unattributed AHLE'")[value_col].item()
+    population_total_ahle = population_amr_total + population_unattr_ahle
+    population_amr_prpn_ahle = population_amr_total / population_total_ahle
+
+    # Define color for each metric to use in plot
+    legend_items = {
+        'Unattributed AHLE': '#fbc98e',
+        'AMR production losses': '#31bff3',
+        'AMR health expenditure': '#31f3be',
+    }
+
+    # Create pie chart
+    piechart_fig = go.Figure(data=[
+        go.Pie(
+            labels=base_df['metric'],
+            values=base_df[value_col],
+            textinfo='label+percent',
+            rotation = -90,
+            marker=dict(
+                colors=[legend_items[label] for label in base_df['metric']],
+                # line=dict(color='#000000', width=1)
+            ),
+        )
+    ])
+
+    piechart_fig.update_layout(
+        title=dict(
+            text=f"AHLE and the Burden of AMR in {disease_select}<br>" \
+                + f"{scenario_select} scenario<br>",
+                )
+            )
+
+    return piechart_fig
+
+def create_case_study_piechart_eth_poplvl(
+        disease_select,
+        currency_select,
+    ):
+    input_df = eth_amr_sorted
+
+    if currency_select == 'usd':
+        value_col = 'value_usd'
+        currency_label = 'USD'
+    elif currency_select == 'birr':
+        value_col = 'value_birr'
+        currency_label = 'Birr'
+
+    # Get important values to show in title
+    population_amr_prod = input_df.query("metric == 'AMR production losses'")[value_col].item()
+    population_amr_health = input_df.query("metric == 'AMR health expenditure'")[value_col].item()
+    population_amr_indirect = input_df.query("metric == 'AMR indirect costs'")[value_col].item()
+    population_amr_total = population_amr_prod + population_amr_health + population_amr_indirect
+    population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")[value_col].item()
+    population_total_ahle = population_amr_total + population_unattr_ahle
+    population_amr_prpn_ahle = population_amr_total / population_total_ahle
+
+    # Define color for each metric to use in plot
+    legend_items = {
+        'Unattributed AHLE': '#fbc98e',
+        'AMR production losses': '#31bff3',
+        'AMR health expenditure': '#31f3be',
+        'AMR indirect costs': '#c131f3',
+    }
+
+    # Create pie chart
+    piechart_fig = go.Figure(data=[
+        go.Pie(
+            labels=input_df['metric'],
+            values=input_df[value_col],
+            textinfo='label+percent',
+            rotation = -90,
+            marker=dict(
+                colors=[legend_items[label] for label in input_df['metric']],
+            ),
+        )
+    ])
+
+    piechart_fig.update_layout(
+        title=dict(
+            text=f"AHLE and the Burden of AMR in {disease_select}<br>",
+            )
+        )
+
+    return piechart_fig
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -1973,6 +1988,30 @@ gbadsDash.layout = html.Div([
                         #     id="collapse",
                         #     is_open=False,
                         #     ),
+
+
+                        # #### -- TESTING GRAPH ALTERNATIVES
+                        # html.Hr(style={'margin-right':'10px',}),
+                        # html.H3("Testing visuals", id="AMU-case-study-data-export"),
+                        # dbc.Row([
+                        #     dbc.Col([ # Pie Chart
+                        #         dbc.Spinner(children=[
+                        #             dcc_graph_element(ID='case-study-amr-piechart-poplvl', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
+                        #             ], size="md", color="#393375", fullscreen=False),   # End of Spinner
+                        #         ]),
+
+                        #     # dbc.Col([ # Waterfall Chart
+                        #     #     dbc.Spinner(children=[
+                        #     #         dcc_graph_element(ID='case-study-amr-waterfall-poplvl', DL_FILENAME='GBADs_AMU_Donut', HEIGHT=650)
+                        #     #         ],size="md", color="#393375", fullscreen=False),    # End of Spinner
+                        #     #     ]),
+
+                        #     # dbc.Col([ # Bubble Plot
+                        #     #     dbc.Spinner(children=[
+                        #     #         dcc_graph_element(ID='case-study-amr-bubbleplot-poplvl', DL_FILENAME='GBADs_AMU_Bubble', HEIGHT=650)
+                        #     #         ],size="md", color="#393375", fullscreen=False),    # End of Spinner
+                        #     #     ]),
+                        #     ]), # END OF ROW
 
                         #### -- DATATABLES
                         html.Hr(style={'margin-right':'10px',}),
@@ -4041,17 +4080,45 @@ def update_barchart_poplvl(
             ,disease_select
             ,scenario_select_num
             ,farmtype_select
-            ,currency_select='dkk'    # Control not yet created
+            ,currency_select='dkk'
             )
     elif country_select == 'Ethiopia':
         barchart_fig = create_barchart_poplvl_eth_amr(
             option_tot_pct
             ,option_axis_scale
             ,disease_select
-            ,currency_select='usd'    # Control not yet created
+            ,currency_select='usd'
             )
 
     return barchart_fig
+
+# # Pie chart based on country seletion
+# @gbadsDash.callback(
+#     Output('case-study-amr-piechart-poplvl', 'figure'),
+#     Input('select-case-study-countries-amu', 'value'),
+#     Input('select-case-study-scenario-amu', 'value'),
+#     Input('select-case-study-diseases-amu', 'value'),
+#     Input('select-case-study-currency-amu', 'value'),
+#     )
+# def update_piechart_poplvl(
+#         country_select,
+#         scenario_select_num,
+#         disease_select,
+#         currency_select,
+#     ):
+#     if country_select == 'Denmark':
+#         piechart_fig = create_case_study_piechart_den_poplvl(
+#             scenario_select_num,
+#             disease_select,
+#             currency_select='dkk',
+#             )
+#     elif country_select == 'Ethiopia':
+#         piechart_fig = create_case_study_piechart_eth_poplvl(
+#             disease_select,
+#             currency_select='usd',
+#             )
+
+#     return piechart_fig
 
 # # Denmark AMR bar chart - farm level
 # @gbadsDash.callback(
