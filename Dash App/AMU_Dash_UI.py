@@ -1949,7 +1949,7 @@ gbadsDash.layout = html.Div([
 
                                            dbc.Row([
                                                 # Incident Scenarios
-                                                html.Div(id='select-case-study-scenario-amu-container', children=[
+                                                html.Div(id='select-scenario-den-amu-container', children=[
                                                     html.Abbr(#"Scenario (AMR incidence rate)",
                                                               "Incidence rate of resistance in PWD",
                                                               title="Scenarios correspond to different disease incidence rates for resistance in PWD.",
@@ -2571,7 +2571,7 @@ def update_currency_options_case_study(country_select):
 
 # Hide Scenario selector when Ethiopia is selected
 @gbadsDash.callback(
-    Output('select-case-study-scenario-amu-container','style'),
+    Output('select-scenario-den-amu-container','style'),
     Input('select-case-study-countries-amu', 'value'),
     )
 def toggle_scenarior_selector(country_select):
@@ -4180,7 +4180,7 @@ def update_expenditure_amu(input_json, expenditure_units):
 # # Denmark top level AHLE and AMR number printout
 # @gbadsDash.callback(
 #     Output('den-ahle-amr-totals-printout', 'children'),
-#     Input('select-case-study-scenario-amu', 'value'),
+#     Input('select-scenario-den-amu', 'value'),
 #     )
 # def update_toplevel_numbers_den_amr(scenario_select_num):
     # scenario_select = scenario_codes[scenario_select_num]
@@ -4273,7 +4273,7 @@ def update_expenditure_amu(input_json, expenditure_units):
     Input('select-case-study-amu-metric-display', 'value'),
     Input('select-case-study-amu-bar-scale', 'value'),
     Input('select-case-study-diseases-amu', 'value'),
-    Input('select-case-study-scenario-amu', 'value'),
+    Input('select-scenario-den-amu', 'value'),
     Input('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-currency-amu', 'value'),
     )
@@ -4309,7 +4309,7 @@ def update_barchart_poplvl(
 # @gbadsDash.callback(
 #     Output('case-study-amr-piechart-poplvl', 'figure'),
 #     Input('select-case-study-countries-amu', 'value'),
-#     Input('select-case-study-scenario-amu', 'value'),
+#     Input('select-scenario-den-amu', 'value'),
 #     Input('select-case-study-diseases-amu', 'value'),
 #     Input('select-case-study-currency-amu', 'value'),
 #     )
