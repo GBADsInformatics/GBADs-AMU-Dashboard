@@ -683,7 +683,7 @@ def create_barchart_poplvl_den_amr(
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=300, t=100)
+            margin=dict(r=320, t=100)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
@@ -775,7 +775,7 @@ def create_barchart_poplvl_den_amr(
             xaxis_title='Production Stage',
         	yaxis_title='% of AHLE',
             showlegend=False,  # Hide the default legend
-            margin=dict(r=300)  # Adjust right margin to account for custom legend
+            margin=dict(r=320)  # Adjust right margin to account for custom legend
         )
 
         # Add custom legend annotations with colored squares
@@ -923,7 +923,7 @@ def create_barchart_poplvl_eth_amr(
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=300, t=100)
+            margin=dict(r=320, t=100)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
@@ -1015,7 +1015,7 @@ def create_barchart_poplvl_eth_amr(
             xaxis_title='Production System',
         	yaxis_title='% of AHLE',
             showlegend=False,  # Hide the default legend
-            margin=dict(r=300)  # Adjust right margin to account for custom legend
+            margin=dict(r=320)  # Adjust right margin to account for custom legend
         )
 
         # Add custom legend annotations with colored squares
