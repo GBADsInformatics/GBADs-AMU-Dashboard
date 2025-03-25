@@ -151,7 +151,7 @@ amr_withsmry = pd.read_csv(os.path.join(DASH_DATA_FOLDER, "amr_withsmry.csv"))
 # -----------------------------------------------------------------------------
 #### -- Denmark AMR
 # -----------------------------------------------------------------------------
-# Updated data for plotting
+# Data for plotting
 den_amr_ahle_final_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_final_poplvl.pkl.gz'))
 
 # Wide format data for display
@@ -160,8 +160,9 @@ den_amr_ahle_final = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle
 # Replace column values to show in legend
 # Note order here defines order in plot
 legend_text_poplvl = {
-    "amr_health_expenditure_at_pop_level_median":"AMR health expenditure",
-    "amr_production_losses_at_pop_level_median":"AMR production losses",
+    "amr_health_expenditure_at_pop_level_median":"Health expenditure associated with AMR",
+    "amr_production_losses_at_pop_level_median":"Production losses associated with AMR",
+    "amr_total_burden_at_pop_level_median":"AMR",      # Total AMR burden is the sum of health expenditure and production losses
     "ahle_at_pop_level_withoutamr_median":"Unattributed AHLE",
     }
 den_amr_ahle_final_poplvl['metric'] = den_amr_ahle_final_poplvl['metric'].replace(legend_text_poplvl)
@@ -202,11 +203,11 @@ The current plan is not to show these, but we may use the incidence rates
 to label the selector for scenarios (worst, average, best):
     RiskPert(0.0065,0.0736,0.1942)
 '''
-den_amr_scenarios = pd.DataFrame(
-	{'Scenario':['Worst', 'Average', 'Best']
-	 ,'Disease Incidence':['0.65%', '7.36%', '19.42%']
-	}
-    )
+# den_amr_scenarios = pd.DataFrame(
+# 	{'Scenario': ['Worst', 'Average', 'Best']
+# 	 ,'Disease Incidence': ['0.65%', '7.36%', '19.42%']
+# 	}
+#     )
 
 # # OLD DATA
 # den_amr_ahle = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle.pkl.gz'))
@@ -249,9 +250,9 @@ eth_amr = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr.pkl.gz'))
 # Replace column values to show in legend
 # Note order here defines order in plot and any metrics not listed will be dropped
 legend_text_poplvl_eth = {
-    "Indirect costs due to AMR":"AMR indirect costs",
-    "Expenditure with resistant mastitis":"AMR health expenditure",
-    "Production losses due to resistant mastitis":"AMR production losses",
+    "Indirect costs due to AMR":"Indirect costs associated with AMR",
+    "Expenditure with resistant mastitis":"Health expenditure associated with AMR",
+    "Production losses due to resistant mastitis":"Production losses associated with AMR",
     "AHLE without AMR":"Unattributed AHLE",
 
     # Don't need these for plot
@@ -276,13 +277,15 @@ display_option_actual_burden = html.Abbr(
     )
 
 display_option_percent_ahle = html.Abbr(
-    "Percent of AHLE",
+    "Percentage of AHLE",
     title="AMR burden as percent of total AHLE",
     )
 
-case_study_metric_options = [{'label': display_option_actual_burden, 'value': "Total", 'disabled': False},
-                             {'label': display_option_percent_ahle, 'value': "Percent", 'disabled': False},
-                             ]
+case_study_metric_options = [
+    {'label': display_option_actual_burden, 'value': "Total", 'disabled': False},
+    {'label': display_option_percent_ahle, 'value': "Percent", 'disabled': False},
+    ]
+case_study_metric_default = 'Total'
 
 # =============================================================================
 #### User options and defaults
@@ -327,31 +330,43 @@ for i in np.sort(amr_withsmry['pathogen'].unique()):
 # Countries
 case_study_country_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Denmark",
                                                                                     "Ethiopia"]]
+case_study_country_default = 'Denmark'
 
 # Species
-case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine",
-                                                                                    "Dairy Cattle"]]
+# These are now set in a callback
+# case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine",
+#                                                                                     "Dairy Cattle"]]
 
 # Diseases
-case_study_disease_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)",
-                                                                                    "Mastitis"]]
+# These are now set in a callback
+# case_study_disease_options = [
+#     {"label":"Post-Weaning Diarrhoea (PWD)", "value":"Post-weaning diarrhea (PWD)"},
+#     {"label":"Clinical Mastitis", "value":"Mastitis"},
+#     ]
+# case_study_disease_default = "Post-weaning diarrhea (PWD)"
 
 # Scenarios
-# Define dictionary mapping scenario names from data to integers
+# This is used to create the scenario slider and in callbacks for reference
 # Key: integer whose value determines location of mark on slider
 # Value: string matching a scenario in the data
-# This is used to create the scenario slider and in callbacks for reference
 scenario_codes = {
-    0: 'Worst',
-    1: 'Average',
-    2: 'Best',
+    1: 'Worst',
+    2: 'Average',
+    3: 'Best',
     }
-scenario_code_default = 1
+# Define label for each mark on the slider
+scenario_code_marks = {
+    1: '0.65%',
+    2: '7.36%',
+    3: '19.42%',
+    }
+scenario_code_default = 2
 
 # Currency
-case_study_currency_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
-                                                                                     "USD",
-                                                                                     "Birr"]]
+# These are now set in a callback
+# case_study_currency_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
+#                                                                                      "USD",
+#                                                                                      "Birr"]]
 
 # =============================================================================
 #### Layout helper functions
@@ -552,7 +567,7 @@ def create_barchart_poplvl_den_amr(
     scenario_select = scenario_codes[scenario_select_num]
     base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
-    if currency_select == 'DKK':
+    if currency_select == 'Danish Krone (DKK)':
         value_col = 'value_dkk'
         error_high_col = 'error_high_dkk'
         error_low_col = 'error_low_dkk'
@@ -564,24 +579,43 @@ def create_barchart_poplvl_den_amr(
         currency_label = 'USD'
 
     # Get important values to show in title
-    population_amr_prod = base_df.query("farm_type == 'Overall'").query("metric == 'AMR production losses'")[value_col].item()
-    population_amr_health = base_df.query("farm_type == 'Overall'").query("metric == 'AMR health expenditure'")[value_col].item()
+    population_amr_prod = base_df.query("farm_type == 'Overall'").query("metric == 'Production losses associated with AMR'")[value_col].item()
+    population_amr_health = base_df.query("farm_type == 'Overall'").query("metric == 'Health expenditure associated with AMR'")[value_col].item()
     population_amr_total = population_amr_prod + population_amr_health
     population_unattr_ahle = base_df.query("farm_type == 'Overall'").query("metric == 'Unattributed AHLE'")[value_col].item()
     population_total_ahle = population_amr_total + population_unattr_ahle
     population_amr_prpn_ahle = population_amr_total / population_total_ahle
 
     if farmtype_select == 'total':
-        input_df = base_df.query("farm_type == 'Overall'")
-    elif farmtype_select == 'bytype':
-        input_df = base_df.query("farm_type != 'Overall'")
+        input_df = base_df.query("farm_type == 'Overall'").copy()
 
-    # Define color for each metric to use in plot
-    legend_items = [
-        {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-        {'label': 'AMR production losses', 'color': '#31bff3'},
-        {'label': 'AMR health expenditure', 'color': '#31f3be'},
-    ]
+        # Define color for each metric to use in plot
+        # This also defines metrics to use
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
+            {'label': 'Health expenditure associated with AMR', 'color': '#31f3be'},
+        ]
+
+        # Filter to appropriate metrics
+        selected_metrics = [dct['label'] for dct in legend_items]
+        _selected_rows = (input_df['metric'].isin(selected_metrics))
+        input_df = input_df.loc[_selected_rows]
+
+    elif farmtype_select == 'bytype':
+        input_df = base_df.query("farm_type != 'Overall'").copy()
+
+        # Define color for each metric to use in plot
+        # This also defines metrics to use
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'AMR', 'color': '#31bff3'},
+        ]
+
+        # Filter to appropriate metrics
+        selected_metrics = [dct['label'] for dct in legend_items]
+        _selected_rows = (input_df['metric'].isin(selected_metrics))
+        input_df = input_df.loc[_selected_rows]
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
@@ -611,7 +645,7 @@ def create_barchart_poplvl_den_amr(
                 y=metric_df[value_col],
                 marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
-                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<extra></extra>",
+                hovertemplate=f"Production Stage: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
             ))
 
             # Add error whiskers
@@ -631,7 +665,7 @@ def create_barchart_poplvl_den_amr(
                     width=5,
                 ),
                 showlegend=False,
-                hovertemplate=f"Farm Type: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_select}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_select}<extra></extra>",
+                hovertemplate=f"Production Stage: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
                 customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
@@ -642,14 +676,14 @@ def create_barchart_poplvl_den_amr(
                 y=0.95,
             ),
             barmode='stack',
-            xaxis={'title': 'Farm Type'},
+            xaxis={'title': 'Production Stage'},
             yaxis={
                 'type': layout_type,
                 'title':f'Burden ({currency_label})',
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200, t=100)
+            margin=dict(r=300, t=100)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
@@ -665,7 +699,7 @@ def create_barchart_poplvl_den_amr(
             xanchor='left'
         )
         barchart_fig.add_annotation(
-            text=f"Total AMR:    {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
+            text=f"AMR:            {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
             xref='paper',
             yref='paper',
             x=0,
@@ -738,10 +772,10 @@ def create_barchart_poplvl_den_amr(
         barchart_fig.update_layout(
             title_text=f'AHLE and the Burden of AMR in {disease_select}',
             font_size=15,
-            xaxis_title='Farm Type',
+            xaxis_title='Production Stage',
         	yaxis_title='% of AHLE',
             showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
+            margin=dict(r=300)  # Adjust right margin to account for custom legend
         )
 
         # Add custom legend annotations with colored squares
@@ -787,6 +821,8 @@ def create_barchart_poplvl_den_amr(
 
     return barchart_fig
 
+# TODO create second bar chart without total AHLE (AMR components only)
+# Idea: create a reduced version of this function that can be used for both plots (lines 868-985 will be reused unchanged)
 def create_barchart_poplvl_eth_amr(
         option_tot_pct
         ,option_axis_scale
@@ -800,16 +836,16 @@ def create_barchart_poplvl_eth_amr(
         error_high_col = 'error_high_usd'
         error_low_col = 'error_low_usd'
         currency_label = 'USD'
-    elif currency_select == 'Birr':
+    elif currency_select == 'Ethiopian Birr (ETB)':
         value_col = 'value_birr'
         error_high_col = 'error_high_birr'
         error_low_col = 'error_low_birr'
-        currency_label = 'Birr'
+        currency_label = 'ETB'
 
     # Get important values to show in title
-    population_amr_prod = input_df.query("metric == 'AMR production losses'")[value_col].item()
-    population_amr_health = input_df.query("metric == 'AMR health expenditure'")[value_col].item()
-    population_amr_indirect = input_df.query("metric == 'AMR indirect costs'")[value_col].item()
+    population_amr_prod = input_df.query("metric == 'Production losses associated with AMR'")[value_col].item()
+    population_amr_health = input_df.query("metric == 'Health expenditure associated with AMR'")[value_col].item()
+    population_amr_indirect = input_df.query("metric == 'Indirect costs associated with AMR'")[value_col].item()
     population_amr_total = population_amr_prod + population_amr_health + population_amr_indirect
     population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")[value_col].item()
     population_total_ahle = population_amr_total + population_unattr_ahle
@@ -818,12 +854,13 @@ def create_barchart_poplvl_eth_amr(
     # Define color for each metric to use in plot
     legend_items = [
         {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-        {'label': 'AMR production losses', 'color': '#31bff3'},
-        {'label': 'AMR health expenditure', 'color': '#31f3be'},
-        {'label': 'AMR indirect costs', 'color': '#c131f3'},
+        {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
+        {'label': 'Health expenditure associated with AMR', 'color': '#31f3be'},
+        {'label': 'Indirect costs associated with AMR', 'color': '#c131f3'},
     ]
 
     # Calculate cumulative values for plotly trick to overlay error bars
+    input_df = input_df.sort_values(['production_system', 'metric']).reset_index(drop=True)
     input_df['cumluative_value_over_metrics'] = input_df.groupby('production_system')[value_col].cumsum()
 
     # Set axis scaling
@@ -849,6 +886,7 @@ def create_barchart_poplvl_eth_amr(
                     color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0],
                 ),
                 showlegend=False,
+                hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
             ))
 
         # Add error whiskers
@@ -869,6 +907,7 @@ def create_barchart_poplvl_eth_amr(
                     width=5
                 ),
                 showlegend=False,
+                hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
             ))
         layout = go.Layout(
             title=dict(
@@ -884,7 +923,7 @@ def create_barchart_poplvl_eth_amr(
             },
             template='plotly_white',
             bargroupgap=0.5,
-            margin=dict(r=200, t=100)
+            margin=dict(r=300, t=100)
         )
         barchart_fig = go.Figure(data=traces, layout=layout)
 
@@ -900,7 +939,7 @@ def create_barchart_poplvl_eth_amr(
             xanchor='left'
         )
         barchart_fig.add_annotation(
-            text=f"Total AMR:    {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
+            text=f"AMR:             {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
             xref='paper',
             yref='paper',
             x=0,
@@ -973,10 +1012,10 @@ def create_barchart_poplvl_eth_amr(
         barchart_fig.update_layout(
             title_text=f'AHLE and the Burden of AMR in {disease_select}',
             font_size=15,
-            xaxis_title='Farm Type',
+            xaxis_title='Production System',
         	yaxis_title='% of AHLE',
             showlegend=False,  # Hide the default legend
-            margin=dict(r=200)  # Adjust right margin to account for custom legend
+            margin=dict(r=300)  # Adjust right margin to account for custom legend
         )
 
         # Add custom legend annotations with colored squares
@@ -1088,7 +1127,8 @@ gbadsDash.layout = html.Div([
                 ),  ### END OF USER GUIDE TAB
 
         #### ANTIMICROBIAL USAGE TAB
-        dbc.Tab(label="Global Antimicrobial Usage (AMU)",
+        dbc.Tab(#label="Global Antimicrobial Usage (AMU)",
+                label="Expenditure with antimicrobial usage (AMU)",
                 id='AMU-tab',
                 tabClassName="flex-grow-1 text-center",
                 tab_style = tab_style,
@@ -1765,10 +1805,10 @@ gbadsDash.layout = html.Div([
                                             "color": "#555555",
                                             }),
                                 dcc.Dropdown(id='select-case-study-countries-amu',
-                                      options=case_study_country_options,
-                                      value='Denmark',
-                                      clearable=False,
-                                      ),
+                                             options=case_study_country_options,
+                                             value=case_study_country_default,
+                                             clearable=False,
+                                             ),
                                 ],),
                             # Case Study Species
                             dbc.Col([
@@ -1779,10 +1819,9 @@ gbadsDash.layout = html.Div([
                                             "color": "#555555",
                                             }),
                                 dcc.Dropdown(id='select-case-study-species-amu',
-                                      options=case_study_species_options,
-                                      value='Swine',
-                                      clearable=False,
-                                      ),
+                                             # Options and value are set in a callback
+                                             clearable=False,
+                                             ),
                                 ],),
                             # Case Study Diseases
                             dbc.Col([
@@ -1793,17 +1832,16 @@ gbadsDash.layout = html.Div([
                                             "color": "#555555",
                                             }),
                                 dcc.Dropdown(id='select-case-study-diseases-amu',
-                                      options=case_study_disease_options,
-                                      value='Post-weaning diarrhea (PWD)',
-                                      clearable=False,
-                                      ),
+                                             # Options and value are set in a callback
+                                             clearable=False,
+                                             ),
                                 ],),
                         # END OF COUNTRY SELECT ROW
                         ], justify="evenly"),
 
                         html.Br(),
 
-                        #### -- COUNTRY/SPECIES TITLE
+                        #### -- PAGE TITLE
                         dbc.Row([
                             html.Div(id='case-study-amu-title'),
                             ], justify="end"),
@@ -1856,7 +1894,16 @@ gbadsDash.layout = html.Div([
                                                    html.H6("AMR metric", style=control_heading_style),
                                                    dcc.RadioItems(id='select-case-study-amu-metric-display',
                                                                   options=case_study_metric_options,
-                                                                  value='Total',
+                                                                  value=case_study_metric_default,
+                                                                  labelStyle={'display': 'block'},
+                                                                  inputStyle={"margin-right": "10px"},
+                                                                  ),
+                                                   ]),
+                                               # Population or Farm Type display
+                                               dbc.Col([
+                                                   html.H6("Display", style=control_heading_style),
+                                                   dcc.RadioItems(id='select-case-study-graphic-display-option',
+                                                                  # Options and value are set in a callback
                                                                   labelStyle={'display': 'block'},
                                                                   inputStyle={"margin-right": "10px"},
                                                                   ),
@@ -1871,15 +1918,6 @@ gbadsDash.layout = html.Div([
                                                                   inputStyle={"margin-right": "10px"},
                                                                   ),
                                                    ]),
-                                               # Population or Farm Type display
-                                               dbc.Col([
-                                                   html.H6("Display", style=control_heading_style),
-                                                   dcc.RadioItems(id='select-case-study-graphic-display-option',
-                                                                  # Options and value are set in a callback
-                                                                  labelStyle={'display': 'block'},
-                                                                  inputStyle={"margin-right": "10px"},
-                                                                  ),
-                                                   ]),
                                                ]), # END OF ROW
                                            html.Br(),
 
@@ -1888,8 +1926,7 @@ gbadsDash.layout = html.Div([
                                                 html.Div([
                                                     html.H6("Currency", style=control_heading_style),
                                                     dcc.Dropdown(id='select-case-study-currency-amu',
-                                                                 options=case_study_currency_options,
-                                                                 value='DKK',
+                                                                 # Options and value are set in a callback
                                                                  clearable=False,
                                                                  ),
                                                     ]),
@@ -1899,15 +1936,21 @@ gbadsDash.layout = html.Div([
                                            dbc.Row([
                                                 # Incident Scenarios
                                                 html.Div([
-                                                    html.Abbr("Scenario",
-                                                              title="Scenarios correspond to different disease incidence rates. See table below.",
-                                                              style=abbr_heading_style),
+                                                    html.Abbr(#"Scenario (AMR incidence rate)",
+                                                              "Incidence rate of resistance in PWD",
+                                                              title="Scenarios correspond to different disease incidence rates for resistance in PWD.",
+                                                              style=abbr_heading_style
+                                                              ),
                                                     dcc.Slider(id='select-scenario-den-amu',
-                                                               min=np.array(list(scenario_codes)).min(),
-                                                               max=np.array(list(scenario_codes)).max(),
+                                                               min=np.array(list(scenario_code_marks)).min(),
+                                                               max=np.array(list(scenario_code_marks)).max(),
                                                                step=None,
-                                                               marks=scenario_codes,
+                                                               marks=scenario_code_marks,
                                                                value=scenario_code_default,
+                                                               # tooltip={
+                                                               #     "placement": "top",
+                                                               #     "always_visible": False,
+                                                               #     },
                                                                ),
                                                     ]),
                                                ]), # END OF ROW
@@ -1992,16 +2035,16 @@ gbadsDash.layout = html.Div([
                                     ]), # END OF COL
                                 ],size="md", color="#393375", fullscreen=False), # End of Spinner
                             ]),
-                        dbc.Row([
-                            dbc.Spinner(children=[
-                                dbc.Col([
-                                    html.Div([
-                                        html.Div(id='den-scenario-table-todisplay'),
-                                        ], style={'margin-left':"20px", "width":"25%"}),
-                                    html.Br() # Space in between tables
-                                    ]), # END OF COL
-                                ],size="md", color="#393375", fullscreen=False), # End of Spinner
-                            ]),
+                        # dbc.Row([
+                        #     dbc.Spinner(children=[
+                        #         dbc.Col([
+                        #             html.Div([
+                        #                 html.Div(id='den-scenario-table-todisplay'),
+                        #                 ], style={'margin-left':"20px", "width":"25%"}),
+                        #             html.Br() # Space in between tables
+                        #             ]), # END OF COL
+                        #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                        #     ]),
                     ]),     ### END OF CASE STUDY TAB
 
         ### END OF TABS ###
@@ -2332,15 +2375,17 @@ def update_usage_price_sliders(reset_button):
 def update_species_options_case_study(country_select):
 
     if country_select.upper() == 'DENMARK':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Dairy Cattle"]]
-        value = "Swine"
-    elif country_select.upper() == 'ETHIOPIA':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Dairy Cattle"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Swine"]]
-        value = "Dairy Cattle"
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Dairy Cattle"]]
 
-    return case_study_species_options, value
+    elif country_select.upper() == 'ETHIOPIA':
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["Dairy Cattle"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Swine"]]
+
+    # Default is first value
+    default = options[0]['value']
+
+    return options, default
 
 # Update species options based on country selections
 @gbadsDash.callback(
@@ -2351,15 +2396,17 @@ def update_species_options_case_study(country_select):
 def update_diseases_options_case_study(country_select):
 
     if country_select.upper() == 'DENMARK':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-weaning diarrhea (PWD)"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Mastitis"]]
-        value = "Post-weaning diarrhea (PWD)"
-    elif country_select.upper() == 'ETHIOPIA':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Mastitis"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Post-weaning diarrhea (PWD)"]]
-        value = "Mastitis"
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["Post-Weaning Diarrhoea (PWD)"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Clinical Mastitis"]]
 
-    return case_study_species_options, value
+    elif country_select.upper() == 'ETHIOPIA':
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["Clinical Mastitis"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Post-Weaning Diarrhoea (PWD)"]]
+
+    # Default is first value
+    default = options[0]['value']
+
+    return options, default
 
 # Update Case Study Title
 @gbadsDash.callback(
@@ -2369,12 +2416,17 @@ def update_diseases_options_case_study(country_select):
     Input('select-case-study-diseases-amu','value'),
     )
 def update_page_title_case_study(country_select, species_select, disease_select):
-    # title = f"AMR in {disease_select} in {country_select} {species_select}"
+    if country_select.upper() == 'DENMARK':
+        descriptor = 'the Danish Pig Sector'
+        year = 2022
+    elif country_select.upper() == 'ETHIOPIA':
+        descriptor = 'Ethiopia Dairy Cattle'
+        year = 2021
     title = [
-        html.H3(f"AMR in {disease_select} in {country_select} {species_select}",
+        html.H3(f"Burden of Antimicrobial Resistance in {disease_select} in {descriptor}",
                 style={'text-align':'center', "color": "#555555"}
                 ),
-        html.H4('Using 2022 data',
+        html.H4(f"{year}",
                 style={'text-align':'center', "color": "#555555",}
                 )
         ]
@@ -2416,20 +2468,26 @@ def toggle_case_study_ctrls_collapse(n, is_open):
 @app.callback(
     Output("case-study-collapse-card-description", "children"),
     Input('select-case-study-countries-amu', 'value'),
-    Input('select-case-study-diseases-amu','value'),
+    Input('select-case-study-diseases-amu', 'value'),
 )
 def update_case_study_graph_description(country_select, disease_select):
 
     if country_select.upper() == 'DENMARK':
-        graph_description = f"Explore the burden of AMR in {disease_select} for three different farm types: breeding, nursery, and fatting. \
-            Burden is displayed by selected currency or percentage of Animal Health Loss Evelope (AHLE). \
-            The uncertainty in the estimate of the burden is represented by the error bars."
+        graph_description = f'''
+            Displaying the burden of AMR in {disease_select}.
+            Use the controls below to display the burden in the selected currency or
+            as a percentage of the total Animal Health Loss Envelope (AHLE).
+            When displaying the burden by stage, note that it was assumed that there
+            is no impact of AMR in PWD in the fattening stage.
+            '''
 
     elif country_select.upper() == 'ETHIOPIA':
-        graph_description = f"Explore the burden of AMR in {disease_select}. \
-            Compare {disease_select} to resistant {disease_select} with the side by side view. \
-            Burden is displayed by selected currency. \
-            The uncertainty in the estimate of the burden is represented by the error bars."
+        graph_description = f'''
+            Displaying the burden of AMR in {disease_select}.
+            Use the controls below to display the burden in the selected currency or
+            as a percentage of the total Animal Health Loss Envelope (AHLE).
+            Compare {disease_select} to resistant {disease_select} with the side by side view.
+            '''
 
     return graph_description
 
@@ -2438,22 +2496,22 @@ def update_case_study_graph_description(country_select, disease_select):
     Output('select-case-study-graphic-display-option', 'options'),
     Output('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-countries-amu', 'value'),
-    Input('select-case-study-diseases-amu','value'),
+    Input('select-case-study-diseases-amu', 'value'),
     )
 def update_graphic_display_options_case_study(country_select, disease_select):
 
     if country_select.upper() == 'DENMARK':
 
-        case_study_species_options = [{"label":'Overall', "value":"total"},
-                                      {"label":'By Farm Type', "value":"bytype"},
-                                      ]
+        options = [{"label":'Overall', "value":"total"},
+                   {"label":'By Production Stage', "value":"bytype"},
+                   ]
         value = "total"
     elif country_select.upper() == 'ETHIOPIA':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in [f"AMR {disease_select}",
-                                                                                            "Side by Side"]]
+        options = [{'label': i, 'value': i, 'disabled': False} for i in [f"AMR {disease_select}",
+                                                                         "Side by Side"]]
         value = f"AMR {disease_select}"
 
-    return case_study_species_options, value
+    return options, value
 
 # Update currency options based on country selection
 @gbadsDash.callback(
@@ -2464,17 +2522,15 @@ def update_graphic_display_options_case_study(country_select, disease_select):
 def update_currency_options_case_study(country_select):
 
     if country_select.upper() == 'DENMARK':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["DKK",
-                                                                                            "USD"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["Birr"]]
-        value = "DKK"
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["Danish Krone (DKK)", "USD"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Ethiopian Birr (ETB)"]]
+        value = "Danish Krone (DKK)"
     elif country_select.upper() == 'ETHIOPIA':
-        case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Birr",
-                                                                                            "USD"]]
-        case_study_species_options += [{'label': i, 'value': i, 'disabled': True} for i in ["DKK"]]
+        options = [{'label': i, 'value': i, 'disabled': False} for i in ["USD", "Ethiopian Birr (ETB)"]]
+        options += [{'label': i, 'value': i, 'disabled': True} for i in ["Danish Krone (DKK)"]]
         value = "USD"
 
-    return case_study_species_options, value
+    return options, value
 
 # ------------------------------------------------------------------------------
 #### -- Data
@@ -2947,26 +3003,27 @@ def update_amr_display_amu(dummy_input):
 def update_case_study_table(country_select):
     if country_select == 'Denmark':
         display_data = den_amr_ahle_final.copy()
+
         columns_to_display_with_labels = {
             'scenario':"Scenario",
-            'farm_type':"Farm Type",
+            'farm_type':"Production Stage",
             'number_of_farms':"Number of Farms",
-            'amr_production_losses_at_farm_level_median':"Farm-level AMR Production Losses (median) (DKK)",
-            'amr_production_losses_at_farm_level_5_pct_ile':"Farm-level AMR Production Losses (5%) (DKK)",
-            'amr_production_losses_at_farm_level_95_pct_ile':"Farm-level AMR Production Losses (95%) (DKK)",
-            'amr_production_losses_at_pop_level_median':"Population-level AMR Production Losses (median) (DKK)",
-            'amr_production_losses_at_pop_level_5_pct_ile':"Population-level AMR Production Losses (5%) (DKK)",
-            'amr_production_losses_at_pop_level_95_pct_ile':"Population-level AMR Production Losses (95%) (DKK)",
-            'amr_health_expenditure_at_pop_level_median':"Population-level AMR Health Expenditure (median) (DKK)",
-            'amr_health_expenditure_at_pop_level_5_pct_ile':"Population-level AMR Health Expenditure (5%) (DKK)",
-            'amr_health_expenditure_at_pop_level_95_pct_ile':"Population-level AMR Health Expenditure (95%) (DKK)",
-            'amr_total_burden_at_pop_level_median':"Population-level AMR Total Burden (median) (DKK)",
-            'amr_total_burden_at_pop_level_5_pct_ile':"Population-level AMR Total Burden (5%) (DKK)",
-            'amr_total_burden_at_pop_level_95_pct_ile':"Population-level AMR Total Burden (95%) (DKK)",
+            'amr_production_losses_at_farm_level_median':"Production losses associated with AMR at the Farm level (median) (DKK)",
+            'amr_production_losses_at_farm_level_5_pct_ile':"Production losses associated with AMR at the Farm level (5%) (DKK)",
+            'amr_production_losses_at_farm_level_95_pct_ile':"Production losses associated with AMR at the Farm level (95%) (DKK)",
+            'amr_production_losses_at_pop_level_median':"Production losses associated with AMR at the Population level (median) (DKK)",
+            'amr_production_losses_at_pop_level_5_pct_ile':"Production losses associated with AMR at the Population level (5%) (DKK)",
+            'amr_production_losses_at_pop_level_95_pct_ile':"Production losses associated with AMR at the Population level (95%) (DKK)",
+            'amr_health_expenditure_at_pop_level_median':"Health expenditure associated with AMR at the Population level (median) (DKK)",
+            'amr_health_expenditure_at_pop_level_5_pct_ile':"Health expenditure associated with AMR at the Population level (5%) (DKK)",
+            'amr_health_expenditure_at_pop_level_95_pct_ile':"Health expenditure associated with AMR at the Population level (95%) (DKK)",
+            'amr_total_burden_at_pop_level_median':"Total burden of AMR at the Population level (median) (DKK)",
+            'amr_total_burden_at_pop_level_5_pct_ile':"Total burden of AMR at the Population level (5%) (DKK)",
+            'amr_total_burden_at_pop_level_95_pct_ile':"Total burden of AMR at the Population level (95%) (DKK)",
             # 'production_stage':"",
-            'population_ahle_median':"Population-level Total AHLE (median) (DKK)",
-            'population_ahle_5_pct__percentile':"Population-level Total AHLE (5%) (DKK)",
-            'population_ahle_95_pct__percentile':"Population-level Total AHLE (95%) (DKK)",
+            'population_ahle_median':"Total AHLE at the Population level (median) (DKK)",
+            'population_ahle_5_pct__percentile':"Total AHLE at the Population level (5%) (DKK)",
+            'population_ahle_95_pct__percentile':"Total AHLE at the Population level (95%) (DKK)",
             # 'ahle_at_pop_level_withoutamr_median':"",
             # 'ahle_at_pop_level_withoutamr_errhigh':"",
             # 'ahle_at_pop_level_withoutamr_errlow':"",
@@ -2981,12 +3038,15 @@ def update_case_study_table(country_select):
             # 'amr_total_burden_at_pop_level_95pctile_pctofahle':"",
             }
 
+        # Remove rows for fattening farms as these are all zero (not estimated)
+        display_data = display_data.query("farm_type != 'Fattening'")
+
         # ------------------------------------------------------------------------------
         # Hover-over text
         # ------------------------------------------------------------------------------
         column_tooltips = {
             'scenario':"Scenario",
-            'farm_type':"Farm Type",
+            'farm_type':"Production Stage",
             'number_of_farms':"Number of Farms",
             # 'amr_production_losses_at_farm_level_median':"",
             # 'amr_production_losses_at_farm_level_5_pct_ile':"",
@@ -3056,7 +3116,7 @@ def update_case_study_table(country_select):
             'population_ahle_95_pct__percentile',
         ]
         for column in columns_to_format:
-            display_data[column] = display_data[column].apply(lambda x: f'DKK {x:,.0f}')
+            display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'DKK {x:,.0f}')
 
         # USD currency
         # columns_to_format = [
@@ -3072,16 +3132,12 @@ def update_case_study_table(country_select):
             'metric':"Metric",
 
             'value_usd':"Value (USD)",
-            # 'error_high_usd':"",
-            # 'error_low_usd':"",
             'upper_95pct_ci_usd':"Upper 95% confidence (USD)",
             'lower_95pct_ci_usd':"Lower 95% confidence (USD)",
 
-            # 'value_birr':"Value (Birr)",
-            # 'error_high_birr':"",
-            # 'error_low_birr':"",
-            # 'upper_95pct_ci_birr':"Upper 95% confidence (Birr)",
-            # 'lower_95pct_ci_birr':"Lower 95% confidence (Birr)",
+            'value_birr':"Value (Birr)",
+            'upper_95pct_ci_birr':"Upper 95% confidence (Birr)",
+            'lower_95pct_ci_birr':"Lower 95% confidence (Birr)",
             }
 
         # ------------------------------------------------------------------------------
@@ -3102,7 +3158,7 @@ def update_case_study_table(country_select):
             'lower_95pct_ci_usd',
         ]
         for column in columns_to_format:
-            display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
+            display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'$ {x:,.0f}')
 
     return [
         html.H4(f"{country_select} AMR Estimates"),
@@ -3134,50 +3190,50 @@ def update_case_study_table(country_select):
         ]
 
 # Denmark scenario table
-@gbadsDash.callback(
-    Output('den-scenario-table-todisplay', 'children'),
-    Input('select-case-study-countries-amu', 'value'),
-    )
-def update_den_scenario_table(country_select):
-    if country_select == 'Denmark':
-        display_data = den_amr_scenarios.copy()
+# @gbadsDash.callback(
+#     Output('den-scenario-table-todisplay', 'children'),
+#     Input('select-case-study-countries-amu', 'value'),
+#     )
+# def update_den_scenario_table(country_select):
+#     if country_select == 'Denmark':
+#         display_data = den_amr_scenarios.copy()
 
-        # ------------------------------------------------------------------------------
-        # Hover-over text
-        # ------------------------------------------------------------------------------
-        column_tooltips = {
-            "Scenario":"Scenario",
-            "Disease Incidence":"Disease Incidence",
-            }
+#         # ------------------------------------------------------------------------------
+#         # Hover-over text
+#         # ------------------------------------------------------------------------------
+#         column_tooltips = {
+#             "Scenario":"Scenario",
+#             "Disease Incidence":"Disease Incidence",
+#             }
 
-        return [
-            html.H4("Denmark AMR Scenarios"),
-            dash_table.DataTable(
-                data=display_data.to_dict('records'),
-                export_format="csv",
-                sort_action='native',
-                style_cell={
-                    'font-family':'sans-serif',
-                    },
-                style_table={'overflowX':'scroll',
-                              'overflowY': 'auto'},
-                page_action='none',
+#         return [
+#             html.H4("Denmark AMR Scenarios"),
+#             dash_table.DataTable(
+#                 data=display_data.to_dict('records'),
+#                 export_format="csv",
+#                 sort_action='native',
+#                 style_cell={
+#                     'font-family':'sans-serif',
+#                     },
+#                 style_table={'overflowX':'scroll',
+#                               'overflowY': 'auto'},
+#                 page_action='none',
 
-                # Hover-over for column headers
-                tooltip_header=column_tooltips,
-                tooltip_delay= 500,
-                tooltip_duration=50000,
+#                 # Hover-over for column headers
+#                 tooltip_header=column_tooltips,
+#                 tooltip_delay= 500,
+#                 tooltip_duration=50000,
 
-                # Underline columns with tooltips
-                style_header_conditional=[{
-                    'if': {'column_id': col},
-                    'textDecoration': 'underline',
-                    'textDecorationStyle': 'dotted',
-                    } for col in list(column_tooltips)],
-                )
-            ]
-    elif country_select == 'Ethiopia':
-        return []
+#                 # Underline columns with tooltips
+#                 style_header_conditional=[{
+#                     'if': {'column_id': col},
+#                     'textDecoration': 'underline',
+#                     'textDecorationStyle': 'dotted',
+#                     } for col in list(column_tooltips)],
+#                 )
+#             ]
+#     elif country_select == 'Ethiopia':
+#         return []
 
 # ------------------------------------------------------------------------------
 #### -- Figures
@@ -4099,7 +4155,7 @@ def update_expenditure_amu(input_json, expenditure_units):
 ## JR: Hiding farm-level results to focus on population-level
 # @gbadsDash.callback(
 #     Output('den-amr-treemap-farmlvl', 'figure'),
-#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+#     Input('select-expenditure-units-amu', 'value'),     # Dummy input for testing (not used)
 #     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
 #     )
 # def update_den_amr_treemap_farmlvl(dummy_input):
@@ -4114,7 +4170,7 @@ def update_expenditure_amu(input_json, expenditure_units):
 
 # @gbadsDash.callback(
 #     Output('den-amr-treemap-poplvl', 'figure'),
-#     Input('select-expenditure-units-amu', 'value'),     #!!! Dummy input for testing (not used)
+#     Input('select-expenditure-units-amu', 'value'),     # Dummy input for testing (not used)
 #     # Input('select-amr-scenario', 'value'),    # Actual input (control not yet created)
 #     )
 # def update_den_amr_treemap_poplvl(dummy_input):
