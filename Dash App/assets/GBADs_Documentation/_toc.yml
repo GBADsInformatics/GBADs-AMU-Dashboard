@@ -21,19 +21,16 @@ parts:
       - file: Tool/amu_main_table
       - file: Tool/amu_region_table
       - file: Tool/amu_amr_table
-    #- file: Analysis/amu_details
-    #  sections:
-    #  - file: Analysis/amu_dri
   - caption: Case Studies
     chapters:
     - file: Analysis/amu_case_studies_countries
     - file: Tool/amu_case_studies_readingthecharts
       sections:
-      - file: Tool/amu_case_studies_controls
-      - file: Tool/amu_case_studies_1_mosaic_charts
-      - file: Tool/amu_case_studies_2_bar_charts     
+      - file: Tool/amu_case_studies_actual_burden
+      - file: Tool/amu_case_studies_percent_of_ahle    
     - file: Tool/amu_case_studies_readingthedata
   - caption: References
     chapters:
-    - file: References/General
     - file: References/ref_amu
+    - file: References/ref_acknowledgement
+
