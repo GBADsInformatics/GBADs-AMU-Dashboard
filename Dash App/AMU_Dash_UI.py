@@ -1142,7 +1142,7 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
         dbc.Tab(#label="Global Antimicrobial Usage (AMU)",
-                label="Expenditure with antimicrobial usage (AMU)",
+                label="Expenditure with Antimicrobial Usage (AMU)",
                 id='AMU-tab',
                 tabClassName="flex-grow-1 text-center",
                 tab_style = tab_style,

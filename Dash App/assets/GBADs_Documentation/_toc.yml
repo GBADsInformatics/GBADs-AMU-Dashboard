@@ -24,6 +24,7 @@ parts:
   - caption: Case Studies
     chapters:
     - file: Analysis/amu_case_studies_countries
+    - file: Analysis/case_study_denmark_abstract
     - file: Tool/amu_case_studies_readingthecharts
       sections:
       - file: Tool/amu_case_studies_actual_burden
