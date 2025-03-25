@@ -552,63 +552,84 @@ for KEY, VALUE in exchange_vars.items():
 #### -- Fill in health expenditure for each farm type
 # Allocate population health expenditure to each type in the same proportion as production losses
 # -----------------------------------------------------------------------------
-# Get proportion of population production losses in each farm type, separately for each scenario
-keep_cols = [
-    'scenario'
-    ,'farm_type'
-    ,'amr_production_losses_at_pop_level_median'        # To get each farm types proportion of total
-    # ,'amr_production_losses_at_pop_level_5_pct_ile'
-    # ,'amr_production_losses_at_pop_level_95_pct_ile'
-    ,'amr_health_expenditure_at_pop_level_median'       # To allocate to farm types
-    ,'amr_health_expenditure_at_pop_level_5_pct_ile'    # To allocate to farm types
-    ,'amr_health_expenditure_at_pop_level_95_pct_ile'   # To allocate to farm types
-]
-totals_by_scenario = den_amr_final.query("farm_type == 'Total'")[keep_cols]
-totals_by_scenario = totals_by_scenario.set_index(keys=['scenario', 'farm_type'])
-totals_by_scenario = totals_by_scenario.add_prefix('total_')
-datainfo(totals_by_scenario)
+'''
+3/20: Sara responded to my question about this. Sounds like I'm misinterpreting the data.
+'''
+# # Get proportion of population production losses in each farm type, separately for each scenario
+# keep_cols = [
+#     'scenario'
+#     ,'farm_type'
+#     ,'amr_production_losses_at_pop_level_median'        # To get each farm types proportion of total
+#     # ,'amr_production_losses_at_pop_level_5_pct_ile'
+#     # ,'amr_production_losses_at_pop_level_95_pct_ile'
+#     ,'amr_health_expenditure_at_pop_level_median'       # To allocate to farm types
+#     ,'amr_health_expenditure_at_pop_level_5_pct_ile'    # To allocate to farm types
+#     ,'amr_health_expenditure_at_pop_level_95_pct_ile'   # To allocate to farm types
+# ]
+# totals_by_scenario = den_amr_final.query("farm_type == 'Total'")[keep_cols]
+# totals_by_scenario = totals_by_scenario.set_index(keys=['scenario', 'farm_type'])
+# totals_by_scenario = totals_by_scenario.add_prefix('total_')
+# datainfo(totals_by_scenario)
 
-den_amr_final_working = pd.merge(
-    left=den_amr_final
-    ,right=totals_by_scenario
-    ,how='left'
-    ,on='scenario'
-)
-datainfo(den_amr_final_working)
+# den_amr_final_working = pd.merge(
+#     left=den_amr_final
+#     ,right=totals_by_scenario
+#     ,how='left'
+#     ,on='scenario'
+# )
+# datainfo(den_amr_final_working)
 
-# Calculate health expenditure for each farm type by allocating population total proportionally
-den_amr_final_working = den_amr_final_working.eval(
-    f'''
-    prpn_prodloss_this_farm_type = amr_production_losses_at_pop_level_median / total_amr_production_losses_at_pop_level_median
+# # Calculate health expenditure for each farm type by allocating population total proportionally
+# den_amr_final_working = den_amr_final_working.eval(
+#     f'''
+#     prpn_prodloss_this_farm_type = amr_production_losses_at_pop_level_median / total_amr_production_losses_at_pop_level_median
 
-    amr_health_expenditure_prpn_median = total_amr_health_expenditure_at_pop_level_median * prpn_prodloss_this_farm_type
-    amr_health_expenditure_prpn_5pct = total_amr_health_expenditure_at_pop_level_5_pct_ile * prpn_prodloss_this_farm_type
-    amr_health_expenditure_prpn_95pct = total_amr_health_expenditure_at_pop_level_95_pct_ile * prpn_prodloss_this_farm_type
-    '''
-)
+#     amr_health_expenditure_prpn_median = total_amr_health_expenditure_at_pop_level_median * prpn_prodloss_this_farm_type
+#     amr_health_expenditure_prpn_5pct = total_amr_health_expenditure_at_pop_level_5_pct_ile * prpn_prodloss_this_farm_type
+#     amr_health_expenditure_prpn_95pct = total_amr_health_expenditure_at_pop_level_95_pct_ile * prpn_prodloss_this_farm_type
+#     '''
+# )
 
-# Fill in missing health expenditure with calculated value
-# Dictionary with KEY: column with missings to fill, VALUE: column with values to use
-fill_na = {
-    'amr_health_expenditure_at_pop_level_median':'amr_health_expenditure_prpn_median'
-    ,'amr_health_expenditure_at_pop_level_5_pct_ile':'amr_health_expenditure_prpn_5pct'
-    ,'amr_health_expenditure_at_pop_level_95_pct_ile':'amr_health_expenditure_prpn_95pct'
-}
-for BASE_COL, FILL_COL in fill_na.items():
-    den_amr_final_working[BASE_COL] = den_amr_final_working[BASE_COL].fillna(den_amr_final_working[FILL_COL])
+# # Fill in missing health expenditure with calculated value
+# # Dictionary with KEY: column with missings to fill, VALUE: column with values to use
+# fill_na = {
+#     'amr_health_expenditure_at_pop_level_median':'amr_health_expenditure_prpn_median'
+#     ,'amr_health_expenditure_at_pop_level_5_pct_ile':'amr_health_expenditure_prpn_5pct'
+#     ,'amr_health_expenditure_at_pop_level_95_pct_ile':'amr_health_expenditure_prpn_95pct'
+# }
+# for BASE_COL, FILL_COL in fill_na.items():
+#     den_amr_final_working[BASE_COL] = den_amr_final_working[BASE_COL].fillna(den_amr_final_working[FILL_COL])
 
-# Recalculate total burden using new health expenditure
-den_amr_final_working = den_amr_final_working.eval(
-    f'''
-    amr_total_burden_at_pop_level_median = amr_production_losses_at_pop_level_median + amr_health_expenditure_at_pop_level_median
-    amr_total_burden_at_pop_level_5_pct_ile = amr_production_losses_at_pop_level_5_pct_ile + amr_health_expenditure_at_pop_level_5_pct_ile
-    amr_total_burden_at_pop_level_95_pct_ile = amr_production_losses_at_pop_level_95_pct_ile + amr_health_expenditure_at_pop_level_95_pct_ile
-    '''
-)
+# # Recalculate total burden using new health expenditure
+# den_amr_final_working = den_amr_final_working.eval(
+#     f'''
+#     amr_total_burden_at_pop_level_median = amr_production_losses_at_pop_level_median + amr_health_expenditure_at_pop_level_median
+#     amr_total_burden_at_pop_level_5_pct_ile = amr_production_losses_at_pop_level_5_pct_ile + amr_health_expenditure_at_pop_level_5_pct_ile
+#     amr_total_burden_at_pop_level_95_pct_ile = amr_production_losses_at_pop_level_95_pct_ile + amr_health_expenditure_at_pop_level_95_pct_ile
+#     '''
+# )
 
-# Trim working columns and replace original data
-orig_cols = list(den_amr_final)
-den_amr_final = den_amr_final_working[orig_cols].copy()
+# # Trim working columns and replace original data
+# orig_cols = list(den_amr_final)
+# den_amr_final = den_amr_final_working[orig_cols].copy()
+
+# -----------------------------------------------------------------------------
+#### -- Fill in total burden for each farm type
+# -----------------------------------------------------------------------------
+'''
+Based on Sara's comment 3/20, Total AMR Burden by farm type is equal to
+production losses (there is no separate health expenditure).
+'''
+_non_total = (den_amr_final['farm_type'] != 'Total')
+
+den_amr_final.loc[_non_total, 'amr_total_burden_at_pop_level_median'] = \
+    den_amr_final.loc[_non_total, 'amr_production_losses_at_pop_level_median']
+
+den_amr_final.loc[_non_total, 'amr_total_burden_at_pop_level_95_pct_ile'] = \
+    den_amr_final.loc[_non_total, 'amr_production_losses_at_pop_level_95_pct_ile']
+
+den_amr_final.loc[_non_total, 'amr_total_burden_at_pop_level_5_pct_ile'] = \
+    den_amr_final.loc[_non_total, 'amr_production_losses_at_pop_level_5_pct_ile']
 
 # -----------------------------------------------------------------------------
 #### -- Export
@@ -702,11 +723,10 @@ datainfo(den_amr_ahle_final)
 #### -- Reshape for plotting - population level
 # -----------------------------------------------------------------------------
 # Melt and merge relies on consistent column ordering
-#!!! For plotting with log scale, want smaller value first (AMR).
 columns_inorder = [
     'amr_production_losses_at_pop_level'
     ,'amr_health_expenditure_at_pop_level'
-    # ,'amr_total_burden_at_pop_level'  # This is the sum of AMR production losses and AMR health expenditure. Should not appear in plotting data.
+    ,'amr_total_burden_at_pop_level'  # This is the sum of AMR production losses and AMR health expenditure.
     ,'ahle_at_pop_level_withoutamr'
 ]
 columns_inorder_median = [COL + '_median' for COL in columns_inorder]
@@ -768,6 +788,8 @@ den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_lo
     -Slaughter weight for DK is 114.7kg
     -17,203,200 are slaughtered in DK
     -> Total of 1,973,207,040 kg
+
+Update 3/24: Beat will incorporate average weight for SOWs to get a new total
 '''
 
 # -----------------------------------------------------------------------------
@@ -888,7 +910,7 @@ eth_pop_prodsys_imp = clean_colnames(eth_pop_prodsys_imp)
 datainfo(eth_pop_prodsys_imp)
 
 # =============================================================================
-#### Test plot
+#### Test plot 1
 # =============================================================================
 # import pandas as pd
 # import numpy as np
@@ -1011,3 +1033,147 @@ datainfo(eth_pop_prodsys_imp)
 
 # # To save the figure
 # # fig.write_html("amr_economic_impact_stacked_bar.html")
+
+# =============================================================================
+#### Test plot 2 - side by side stacked bars
+# =============================================================================
+'''
+JR Note: even when giving AMR metrics their own Y-axis, indirect costs and
+health expenditure are invisible! Log axis needed.
+'''
+import plotly.graph_objs as go
+from plotly.subplots import make_subplots
+import plotly.io as pio
+
+# Data
+data = {
+    'metric': [
+        'AMR production losses',
+        'AMR health expenditure',
+        'AMR indirect costs',
+        'Unattributed AHLE'
+    ],
+    'value_usd': [
+        685208346.2217035,
+        136823.4928812638,
+        279555.3191489362,
+        14734375274.966267
+    ]
+}
+
+# Create figure with two subplots side by side
+fig = make_subplots(
+    rows=1,
+    cols=2,
+    subplot_titles=('Full View', 'Zoomed View (AMR Metrics)'),
+    # shared_legend=True,
+    x_title='View Type',
+    specs=[[{'type':'bar'}, {'type':'bar'}]]
+)
+
+# Full view bar chart (left)
+fig.add_trace(
+    go.Bar(
+        x=['Full View'],
+        y=[data['value_usd'][0]],
+        name='AMR production losses',
+        marker_color='blue',
+        hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
+    ),
+    row=1, col=1
+)
+fig.add_trace(
+    go.Bar(
+        x=['Full View'],
+        y=[data['value_usd'][1]],
+        name='AMR health expenditure',
+        marker_color='green',
+        hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
+        base=data['value_usd'][0]
+    ),
+    row=1, col=1
+)
+fig.add_trace(
+    go.Bar(
+        x=['Full View'],
+        y=[data['value_usd'][2]],
+        name='AMR indirect costs',
+        marker_color='red',
+        hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
+        base=data['value_usd'][0] + data['value_usd'][1]
+    ),
+    row=1, col=1
+)
+fig.add_trace(
+    go.Bar(
+        x=['Full View'],
+        y=[data['value_usd'][3]],
+        name='Unattributed AHLE',
+        marker_color='purple',
+        hovertemplate='Unattributed AHLE: $%{y:,.2f}<extra></extra>',
+        base=data['value_usd'][0] + data['value_usd'][1] + data['value_usd'][2]
+    ),
+    row=1, col=1
+)
+
+# Zoomed view bar chart (right) - only AMR metrics
+fig.add_trace(
+    go.Bar(
+        x=['Zoomed View'],
+        y=[data['value_usd'][0]],
+        name='AMR production losses',
+        marker_color='blue',
+        showlegend=False,
+        hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
+    ),
+    row=1, col=2
+)
+fig.add_trace(
+    go.Bar(
+        x=['Zoomed View'],
+        y=[data['value_usd'][1]],
+        name='AMR health expenditure',
+        marker_color='green',
+        showlegend=False,
+        hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
+        base=data['value_usd'][0]
+    ),
+    row=1, col=2
+)
+fig.add_trace(
+    go.Bar(
+        x=['Zoomed View'],
+        y=[data['value_usd'][2]],
+        name='AMR indirect costs',
+        marker_color='red',
+        showlegend=False,
+        hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
+        base=data['value_usd'][0] + data['value_usd'][1]
+    ),
+    row=1, col=2
+)
+
+# Update layout
+fig.update_layout(
+    title='AMR Costs: Full View and Zoomed View',
+    barmode='stack',
+    height=600,
+    width=1200,
+    legend_title='Metrics'
+)
+
+# Customize y-axes
+fig.update_yaxes(
+    title_text='Cost (USD)',
+    tickformat='.2s',  # Scientific notation with 2 significant digits
+    row=1, col=1
+)
+fig.update_yaxes(
+    title_text='AMR Metrics Cost (USD)',
+    tickformat='.2s',  # Scientific notation with 2 significant digits
+    range=[0, sum(data['value_usd'][:3])],  # Set y-axis range for zoomed view
+    row=1, col=2
+)
+
+# Show the plot
+pio.show(fig)
