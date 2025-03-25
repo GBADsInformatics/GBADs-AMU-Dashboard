@@ -20,8 +20,8 @@ jobs:
     secrets: inherit
     with:
       IMAGE_NAME: amu-dash
-      CONTEXT: ./Dash\ App
-      DOCKERFILE: ./Dash\ App/Dockerfile
+      CONTEXT: ./Dash App
+      DOCKERFILE: ./Dash App/Dockerfile
 
 
   aws:
