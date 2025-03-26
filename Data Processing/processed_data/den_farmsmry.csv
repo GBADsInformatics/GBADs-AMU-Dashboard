@@ -1,9 +1,0 @@
-Metric,Value,Type
-farms with sows producing piglets ,760.0,Integer
-average of  sows per farm,824.0,Float
-average of  weaned piglets per sow per year,34.1,Float
-farms for weaned pigs,483.0,Integer
-average pigs produced per year,27105.0,Integer?
-farm for finishers,1116.0,Integer
-average pigs produced per year,8595.0,Integer?
-total farms,2359.0,Integer
