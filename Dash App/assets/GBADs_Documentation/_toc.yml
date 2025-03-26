@@ -32,5 +32,3 @@ parts:
   - caption: References
     chapters:
     - file: References/ref_amu
-    - file: References/ref_acknowledgement
-
