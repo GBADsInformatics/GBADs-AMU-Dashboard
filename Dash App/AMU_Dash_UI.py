@@ -550,6 +550,7 @@ def create_barchart_poplvl_den_amr(
             metric_df['error_range_low'] = metric_df['cumluative_value_over_metrics'] - metric_df[error_low_col]
             metric_df['error_range_high'] = metric_df['cumluative_value_over_metrics'] + metric_df[error_high_col]
 
+            # Create data bars
             traces.append(go.Bar(
                 name=selected_metric,
                 x=metric_df['farm_type'],
@@ -742,15 +743,15 @@ def create_barchart_poplvl_eth_amr(
     input_df = eth_amr_sorted
 
     if currency_select == 'USD':
+        currency_label = 'USD'
         value_col = 'value_usd'
         error_high_col = 'error_high_usd'
         error_low_col = 'error_low_usd'
-        currency_label = 'USD'
     elif currency_select == 'Ethiopian Birr (ETB)':
+        currency_label = 'ETB'
         value_col = 'value_birr'
         error_high_col = 'error_high_birr'
         error_low_col = 'error_low_birr'
-        currency_label = 'ETB'
 
     # Get important values to show in title
     population_amr_prod = input_df.query("metric == 'Production losses associated with AMR'")[value_col].item()
@@ -792,31 +793,32 @@ def create_barchart_poplvl_eth_amr(
         traces = []
         unique_metrics = input_df['metric'].unique()
 
-        # Create data bars
-        for i, selected_metric in enumerate(unique_metrics):
+        for selected_metric in unique_metrics:
+            metric_df = input_df.query(f"metric == '{selected_metric}'")
+            metric_df['error_range_low'] = metric_df['cumluative_value_over_metrics'] - metric_df[error_low_col]
+            metric_df['error_range_high'] = metric_df['cumluative_value_over_metrics'] + metric_df[error_high_col]
+
+            # Create data bars
             traces.append(go.Bar(
                 name=selected_metric,
-                x=input_df.query(f"metric == '{selected_metric}'")['production_system'],
-                y=input_df.query(f"metric == '{selected_metric}'")[value_col],
-                marker=dict(
-                    color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0],
-                ),
+                x=metric_df['production_system'],
+                y=metric_df[value_col],
+                marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
                 hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
             ))
 
-        # Add error whiskers
-        for i, selected_metric in enumerate(unique_metrics):
+            # Add error whiskers
             traces.append(go.Scatter(
                 name=f"{selected_metric}_error",
-                x=input_df.query(f"metric == '{selected_metric}'")['production_system'],
-                y=input_df.query(f"metric == '{selected_metric}'")['cumluative_value_over_metrics'],
+                x=metric_df['production_system'],
+                y=metric_df['cumluative_value_over_metrics'],
                 mode='markers',
                 marker=dict(color='gray'),
                 error_y=dict(
                     type='data',
-                    array=input_df.query(f"metric == '{selected_metric}'")[error_high_col],
-                    arrayminus=input_df.query(f"metric == '{selected_metric}'")[error_low_col],
+                    array=metric_df[error_high_col],
+                    arrayminus=metric_df[error_low_col],
                     visible=True,
                     color='gray',
                     thickness=2,
@@ -824,8 +826,7 @@ def create_barchart_poplvl_eth_amr(
                 ),
                 showlegend=False,
                 hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
-                #!!! Fix this
-                # customdata=input_df[['error_range_low', 'error_range_high']].values,
+                customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
