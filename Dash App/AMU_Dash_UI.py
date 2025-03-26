@@ -825,6 +825,8 @@ def create_barchart_poplvl_eth_amr(
                 ),
                 showlegend=False,
                 hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+                #!!! Fix this
+                # customdata=input_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
