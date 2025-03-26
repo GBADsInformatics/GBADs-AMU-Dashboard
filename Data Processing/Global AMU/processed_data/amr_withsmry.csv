@@ -1,0 +1,509 @@
+location_name,map_id,reporting_year,sum_isolates,overall_prev,woah_region,antimicrobial_class,pathogen,keep_year
+AUSTRIA,AUT,2018,174,0.00538876617,Europe,Aminoglycosides,E. coli,2018
+AUSTRIA,AUT,2018,174,0.04464977682,Europe,Aminopenicillins,E. coli,2018
+AUSTRIA,AUT,2018,348,0.07159360766,Europe,Fluoroquinolones,E. coli,2018
+AUSTRIA,AUT,2018,265,0.08542428999,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+AUSTRIA,AUT,2018,174,0.0,Europe,Third generation cephalosporins,E. coli,2018
+BELGIUM,BEL,2018,146,0.02654955308,Europe,Aminoglycosides,E. coli,2018
+BELGIUM,BEL,2018,146,0.20409968930000003,Europe,Aminopenicillins,E. coli,2018
+BELGIUM,BEL,2018,292,0.14436319490000002,Europe,Fluoroquinolones,E. coli,2018
+BELGIUM,BEL,2018,204,0.08906789407,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+BELGIUM,BEL,2018,292,0.03650563548,Europe,Third generation cephalosporins,E. coli,2018
+BULGARIA,BGR,2018,100,0.06853425124,Europe,Aminoglycosides,E. coli,2018
+BULGARIA,BGR,2018,100,0.2692417013,Europe,Aminopenicillins,E. coli,2018
+BULGARIA,BGR,2018,100,0.3916242928,Europe,Fluoroquinolones,E. coli,2018
+BULGARIA,BGR,2018,47,0.1354020161,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+BULGARIA,BGR,2018,100,0.0244765183,Europe,Third generation cephalosporins,E. coli,2018
+CANADA,CAN,2018,2113,0.29907386410000003,Americas,Aminoglycosides,E. coli,2018
+CANADA,CAN,2018,2113,0.16374262259999997,Americas,Aminopenicillins,E. coli,2018
+CANADA,CAN,2018,2113,0.020271759349999998,Americas,Aminopenicillins with beta-lactamase inhibitors,E. coli,2018
+CANADA,CAN,2018,2113,0.0020773418900000003,Americas,Fluoroquinolones,E. coli,2018
+CANADA,CAN,2018,1507,0.0031489394500000003,Americas,Fluoroquinolones,Non-typhoidal Salmonella,2018
+CANADA,CAN,2018,2113,0.01957224829,Americas,Third generation cephalosporins,E. coli,2018
+CHINA,CHN,2018,838,0.520869648,"Asia, Far East and Oceania",Aminoglycosides,E. coli,2018
+CHINA,CHN,2018,747,0.8055918964,"Asia, Far East and Oceania",Aminopenicillins,E. coli,2018
+CHINA,CHN,2018,963,0.4617685317,"Asia, Far East and Oceania",Fluoroquinolones,E. coli,2018
+CHINA,CHN,2018,1226,0.2679133832,"Asia, Far East and Oceania",Fluoroquinolones,Non-typhoidal Salmonella,2018
+CHINA,CHN,2018,446,0.4882997719,"Asia, Far East and Oceania",Third generation cephalosporins,E. coli,2018
+CROATIA,HRV,2018,85,0.01650842479,Europe,Aminoglycosides,E. coli,2018
+CROATIA,HRV,2018,85,0.1122572886,Europe,Aminopenicillins,E. coli,2018
+CROATIA,HRV,2018,170,0.23111794710000003,Europe,Fluoroquinolones,E. coli,2018
+CROATIA,HRV,2018,197,0.2307827507,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+CROATIA,HRV,2018,85,0.0033016849599999997,Europe,Third generation cephalosporins,E. coli,2018
+CYPRUS,CYP,2018,101,0.029890998749999998,Europe,Aminoglycosides,E. coli,2018
+CYPRUS,CYP,2018,101,0.2466007397,Europe,Aminopenicillins,E. coli,2018
+CYPRUS,CYP,2018,202,0.3213282366,Europe,Fluoroquinolones,E. coli,2018
+CYPRUS,CYP,2018,45,0.2851269159,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+CYPRUS,CYP,2018,101,0.029890998749999998,Europe,Third generation cephalosporins,E. coli,2018
+CZECHIA,CZE,2018,189,0.00575691471,Europe,Aminoglycosides,E. coli,2018
+CZECHIA,CZE,2018,189,0.1108206082,Europe,Aminopenicillins,E. coli,2018
+CZECHIA,CZE,2018,567,0.2000527862,Europe,Fluoroquinolones,E. coli,2018
+CZECHIA,CZE,2018,173,0.07746100304999999,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+CZECHIA,CZE,2018,378,0.0,Europe,Third generation cephalosporins,E. coli,2018
+DENMARK,DNK,2018,413,0.00600888791,Europe,Aminoglycosides,E. coli,2018
+DENMARK,DNK,2018,413,0.2220631709,Europe,Aminopenicillins,E. coli,2018
+DENMARK,DNK,2018,413,0.02317556562,Europe,Fluoroquinolones,E. coli,2018
+DENMARK,DNK,2018,128,0.0,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+DENMARK,DNK,2018,413,0.0,Europe,Third generation cephalosporins,E. coli,2018
+EGYPT,EGY,2015,30,0.6352607824,Africa,Aminoglycosides,E. coli,2015
+EGYPT,EGY,2015,30,0.6147684991,Africa,Aminopenicillins,E. coli,2015
+EGYPT,EGY,2015,150,0.6352607824,Africa,Fluoroquinolones,E. coli,2015
+EGYPT,EGY,2015,13,0.2107027078,Africa,Fluoroquinolones,Non-typhoidal Salmonella,2015
+EGYPT,EGY,2015,34,0.03707635951,Africa,Fluoroquinolones,S. aureus,2015
+EGYPT,EGY,2015,14,0.06651387108,Africa,Macrolides,S. aureus,2015
+ESTONIA,EST,2018,85,0.0,Europe,Aminoglycosides,E. coli,2018
+ESTONIA,EST,2018,85,0.1815855886,Europe,Aminopenicillins,E. coli,2018
+ESTONIA,EST,2018,85,0.2202841566,Europe,Fluoroquinolones,E. coli,2018
+ESTONIA,EST,2018,11,0.02785923521,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+ESTONIA,EST,2018,85,0.0,Europe,Third generation cephalosporins,E. coli,2018
+ETHIOPIA,ETH,2015,147,0.1387159306,Africa,Fluoroquinolones,Non-typhoidal Salmonella,2015
+ETHIOPIA,ETH,2015,41,0.06855063643,Africa,Fluoroquinolones,S. aureus,2015
+ETHIOPIA,ETH,2015,41,0.6659204680999999,Africa,Macrolides,S. aureus,2015
+FINLAND,FIN,2018,173,0.0033035733,Europe,Aminoglycosides,E. coli,2018
+FINLAND,FIN,2018,173,0.03799109292,Europe,Aminopenicillins,E. coli,2018
+FINLAND,FIN,2018,346,0.016517866489999998,Europe,Fluoroquinolones,E. coli,2018
+FINLAND,FIN,2018,173,0.00165178665,Europe,Third generation cephalosporins,E. coli,2018
+FRANCE,FRA,2018,221,0.00587990204,Europe,Aminoglycosides,E. coli,2018
+FRANCE,FRA,2018,221,0.08735854455,Europe,Aminopenicillins,E. coli,2018
+FRANCE,FRA,2018,663,0.07055882443,Europe,Fluoroquinolones,E. coli,2018
+FRANCE,FRA,2018,423,0.00263314762,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+FRANCE,FRA,2018,442,0.00419993003,Europe,Third generation cephalosporins,E. coli,2018
+GERMANY,DEU,2018,214,0.01152806714,Europe,Aminoglycosides,E. coli,2018
+GERMANY,DEU,2018,214,0.10682675550000001,Europe,Aminopenicillins,E. coli,2018
+GERMANY,DEU,2018,642,0.09145599928999999,Europe,Fluoroquinolones,E. coli,2018
+GERMANY,DEU,2018,178,0.03141506236,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+GERMANY,DEU,2018,428,0.00230561343,Europe,Third generation cephalosporins,E. coli,2018
+GHANA,GHA,2015,19,0.01554863511,Africa,Aminoglycosides,E. coli,2015
+GHANA,GHA,2015,19,0.1959128024,Africa,Fluoroquinolones,E. coli,2015
+GREECE,GRC,2018,170,0.1014236362,Europe,Aminoglycosides,E. coli,2018
+GREECE,GRC,2018,170,0.5221439046999999,Europe,Aminopenicillins,E. coli,2018
+GREECE,GRC,2018,510,0.5784903692000001,Europe,Fluoroquinolones,E. coli,2018
+GREECE,GRC,2018,74,0.302037355,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+GREECE,GRC,2018,340,0.00375643097,Europe,Third generation cephalosporins,E. coli,2018
+HUNGARY,HUN,2018,170,0.03587167441,Europe,Aminoglycosides,E. coli,2018
+HUNGARY,HUN,2018,170,0.2177923089,Europe,Aminopenicillins,E. coli,2018
+HUNGARY,HUN,2018,340,0.36640353140000004,Europe,Fluoroquinolones,E. coli,2018
+HUNGARY,HUN,2018,292,0.3520478418,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+HUNGARY,HUN,2018,340,0.012811312290000001,Europe,Third generation cephalosporins,E. coli,2018
+ICELAND,ISL,2018,78,0.0,Europe,Aminoglycosides,E. coli,2018
+ICELAND,ISL,2018,78,0.07134864485999999,Europe,Aminopenicillins,E. coli,2018
+ICELAND,ISL,2018,78,0.0041969791099999995,Europe,Fluoroquinolones,E. coli,2018
+ICELAND,ISL,2018,78,0.0,Europe,Third generation cephalosporins,E. coli,2018
+INDIA,IND,2018,12,0.4303160187,"Asia, Far East and Oceania",Aminoglycosides,E. coli,2018
+INDIA,IND,2018,12,0.6157970612,"Asia, Far East and Oceania",Aminopenicillins with beta-lactamase inhibitors,E. coli,2018
+INDIA,IND,2018,24,0.0,"Asia, Far East and Oceania",Fluoroquinolones,E. coli,2018
+INDIA,IND,2018,12,0.6825702364999999,"Asia, Far East and Oceania",Third generation cephalosporins,E. coli,2018
+IRELAND,IRL,2018,200,0.00038021769,Europe,Aminoglycosides,E. coli,2018
+IRELAND,IRL,2018,200,0.03421959249,Europe,Aminopenicillins,E. coli,2018
+IRELAND,IRL,2018,600,0.01939110241,Europe,Fluoroquinolones,E. coli,2018
+IRELAND,IRL,2018,22,0.0,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+IRELAND,IRL,2018,400,0.0007604353899999999,Europe,Third generation cephalosporins,E. coli,2018
+ITALY,ITA,2018,170,0.021040297090000003,Europe,Aminoglycosides,E. coli,2018
+ITALY,ITA,2018,170,0.2237922508,Europe,Aminopenicillins,E. coli,2018
+ITALY,ITA,2018,510,0.20657746230000001,Europe,Fluoroquinolones,E. coli,2018
+ITALY,ITA,2018,395,0.22876041,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+ITALY,ITA,2018,340,0.00765101712,Europe,Third generation cephalosporins,E. coli,2018
+JORDAN,JOR,2015,520,0.011791328240000001,Middle East,Aminoglycosides,E. coli,2015
+JORDAN,JOR,2015,520,0.04585516539,Middle East,Aminopenicillins,E. coli,2015
+JORDAN,JOR,2015,520,0.02489280407,Middle East,Aminopenicillins with beta-lactamase inhibitors,E. coli,2015
+JORDAN,JOR,2015,520,0.00524059033,Middle East,Fluoroquinolones,E. coli,2015
+JORDAN,JOR,2015,520,0.00393044275,Middle East,Third generation cephalosporins,E. coli,2015
+LATVIA,LVA,2018,200,0.00143987096,Europe,Aminoglycosides,E. coli,2018
+LATVIA,LVA,2018,200,0.08495238666,Europe,Aminopenicillins,E. coli,2018
+LATVIA,LVA,2018,400,0.15982567660000002,Europe,Fluoroquinolones,E. coli,2018
+LATVIA,LVA,2018,200,0.00287974192,Europe,Third generation cephalosporins,E. coli,2018
+LEBANON,LBN,2015,217,0.6008746309,Middle East,Aminoglycosides,E. coli,2015
+LEBANON,LBN,2015,217,0.8583923299,Middle East,Aminopenicillins,E. coli,2015
+LEBANON,LBN,2015,217,0.3004373155,Middle East,Aminopenicillins with beta-lactamase inhibitors,E. coli,2015
+LEBANON,LBN,2015,217,0.5322032445,Middle East,Fluoroquinolones,E. coli,2015
+LEBANON,LBN,2015,217,0.7725530969000001,Middle East,Third generation cephalosporins,E. coli,2015
+LITHUANIA,LTU,2018,93,0.05457988411,Europe,Aminoglycosides,E. coli,2018
+LITHUANIA,LTU,2018,93,0.30798648889999997,Europe,Aminopenicillins,E. coli,2018
+LITHUANIA,LTU,2018,186,0.2923922363,Europe,Fluoroquinolones,E. coli,2018
+LITHUANIA,LTU,2018,93,0.10915976819999999,Europe,Third generation cephalosporins,E. coli,2018
+MALTA,MLT,2018,85,0.04182078976,Europe,Aminoglycosides,E. coli,2018
+MALTA,MLT,2018,85,0.3084283245,Europe,Aminopenicillins,E. coli,2018
+MALTA,MLT,2018,170,0.2352419424,Europe,Fluoroquinolones,E. coli,2018
+MALTA,MLT,2018,113,0.1336969938,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+MALTA,MLT,2018,85,0.04182078976,Europe,Third generation cephalosporins,E. coli,2018
+MOROCCO,MAR,2015,28,0.17238652729999998,Africa,Fluoroquinolones,Non-typhoidal Salmonella,2015
+NETHERLANDS,NLD,2018,900,0.02877127094,Europe,Aminoglycosides,E. coli,2018
+NETHERLANDS,NLD,2018,900,0.29715061039999996,Europe,Aminopenicillins,E. coli,2018
+NETHERLANDS,NLD,2018,1800,0.08289049277,Europe,Fluoroquinolones,E. coli,2018
+NETHERLANDS,NLD,2018,43,0.1462497975,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+NETHERLANDS,NLD,2018,900,0.00551822804,Europe,Third generation cephalosporins,E. coli,2018
+NIGERIA,NGA,2015,58,0.6076710376,Africa,Aminoglycosides,E. coli,2015
+NIGERIA,NGA,2015,58,0.7192018539,Africa,Aminopenicillins,E. coli,2015
+NIGERIA,NGA,2015,10,0.05107449655,Africa,Aminopenicillins with beta-lactamase inhibitors,E. coli,2015
+NIGERIA,NGA,2015,696,0.5969007542,Africa,Fluoroquinolones,E. coli,2015
+NIGERIA,NGA,2015,58,0.8234335372,Africa,Third generation cephalosporins,E. coli,2015
+NORTH MACEDONIA,MKD,2018,87,0.04926017719,Europe,Aminoglycosides,E. coli,2018
+NORTH MACEDONIA,MKD,2018,83,0.279061297,Europe,Aminopenicillins,E. coli,2018
+NORTH MACEDONIA,MKD,2018,83,0.17987343649999998,Europe,Fluoroquinolones,E. coli,2018
+NORTH MACEDONIA,MKD,2018,15,0.0035427973,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+NORTH MACEDONIA,MKD,2018,83,0.02991048455,Europe,Third generation cephalosporins,E. coli,2018
+NORWAY,NOR,2018,278,0.0030274561500000003,Europe,Aminoglycosides,E. coli,2018
+NORWAY,NOR,2018,278,0.01110067253,Europe,Aminopenicillins,E. coli,2018
+NORWAY,NOR,2018,278,0.030274561460000002,Europe,Fluoroquinolones,E. coli,2018
+NORWAY,NOR,2018,278,0.0,Europe,Third generation cephalosporins,E. coli,2018
+POLAND,POL,2018,181,0.027093156440000002,Europe,Aminoglycosides,E. coli,2018
+POLAND,POL,2018,181,0.38176720449999996,Europe,Aminopenicillins,E. coli,2018
+POLAND,POL,2018,724,0.3743781618,Europe,Fluoroquinolones,E. coli,2018
+POLAND,POL,2018,380,0.2557516189,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+POLAND,POL,2018,362,0.00985205689,Europe,Third generation cephalosporins,E. coli,2018
+PORTUGAL,PRT,2018,161,0.03375490186,Europe,Aminoglycosides,E. coli,2018
+PORTUGAL,PRT,2018,161,0.2658198521,Europe,Aminopenicillins,E. coli,2018
+PORTUGAL,PRT,2018,322,0.28691666579999997,Europe,Fluoroquinolones,E. coli,2018
+PORTUGAL,PRT,2018,100,0.03396586999,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+PORTUGAL,PRT,2018,322,0.012658088199999999,Europe,Third generation cephalosporins,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.4732286681,"Asia, Far East and Oceania",Aminoglycosides,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.5094399573,"Asia, Far East and Oceania",Aminopenicillins,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.02475160656,"Asia, Far East and Oceania",Aminopenicillins with beta-lactamase inhibitors,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,900,0.2735696732,"Asia, Far East and Oceania",Fluoroquinolones,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,300,0.18847844760000002,"Asia, Far East and Oceania",Fluoroquinolones,E. faecalis,2018
+REPUBLIC OF KOREA,KOR,2018,300,0.27942580499999997,"Asia, Far East and Oceania",Fluoroquinolones,E. faecium,2018
+REPUBLIC OF KOREA,KOR,2018,200,0.011553660240000001,"Asia, Far East and Oceania",Fluoroquinolones,Non-typhoidal Salmonella,2018
+REPUBLIC OF KOREA,KOR,2018,150,0.2025042916,"Asia, Far East and Oceania",Fluoroquinolones,S. aureus,2018
+REPUBLIC OF KOREA,KOR,2018,150,0.20045052649999998,"Asia, Far East and Oceania",Macrolides,S. aureus,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.01228862034,"Asia, Far East and Oceania",Third generation cephalosporins,E. coli,2018
+ROMANIA,ROU,2018,170,0.10318088980000001,Europe,Aminoglycosides,E. coli,2018
+ROMANIA,ROU,2018,170,0.348994186,Europe,Aminopenicillins,E. coli,2018
+ROMANIA,ROU,2018,510,0.47341820020000003,Europe,Fluoroquinolones,E. coli,2018
+ROMANIA,ROU,2018,252,0.2886608226,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+ROMANIA,ROU,2018,340,0.02427785642,Europe,Third generation cephalosporins,E. coli,2018
+RWANDA,RWA,2015,241,0.1667764506,Africa,Aminoglycosides,E. coli,2015
+SAUDI ARABIA,SAU,2015,180,0.19020122709999998,Middle East,Aminoglycosides,E. coli,2015
+SAUDI ARABIA,SAU,2015,180,0.46191726590000004,Middle East,Aminopenicillins,E. coli,2015
+SAUDI ARABIA,SAU,2015,180,0.00905720129,Middle East,Aminopenicillins with beta-lactamase inhibitors,E. coli,2015
+SAUDI ARABIA,SAU,2015,360,0.5343748762,Middle East,Fluoroquinolones,E. coli,2015
+SAUDI ARABIA,SAU,2015,180,0.00905720129,Middle East,Third generation cephalosporins,E. coli,2015
+SLOVAKIA,SVK,2018,85,0.01667503684,Europe,Aminoglycosides,E. coli,2018
+SLOVAKIA,SVK,2018,85,0.2417880341,Europe,Aminopenicillins,E. coli,2018
+SLOVAKIA,SVK,2018,85,0.3084881814,Europe,Fluoroquinolones,E. coli,2018
+SLOVAKIA,SVK,2018,83,0.251883463,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+SLOVAKIA,SVK,2018,85,0.0,Europe,Third generation cephalosporins,E. coli,2018
+SLOVENIA,SVN,2018,85,0.011613397110000001,Europe,Aminoglycosides,E. coli,2018
+SLOVENIA,SVN,2018,85,0.2012988832,Europe,Aminopenicillins,E. coli,2018
+SLOVENIA,SVN,2018,85,0.2709792658,Europe,Fluoroquinolones,E. coli,2018
+SLOVENIA,SVN,2018,151,0.2920013091,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+SLOVENIA,SVN,2018,85,0.0,Europe,Third generation cephalosporins,E. coli,2018
+SOUTH AFRICA,ZAF,2015,30,0.00104746354,Africa,Aminoglycosides,E. coli,2015
+SOUTH AFRICA,ZAF,2015,30,0.00349154513,Africa,Aminopenicillins,E. coli,2015
+SOUTH AFRICA,ZAF,2015,30,0.01501364407,Africa,Aminopenicillins with beta-lactamase inhibitors,E. coli,2015
+SOUTH AFRICA,ZAF,2015,30,0.00104746354,Africa,Fluoroquinolones,E. coli,2015
+SOUTH AFRICA,ZAF,2015,30,0.00593562673,Africa,Third generation cephalosporins,E. coli,2015
+SPAIN,ESP,2018,170,0.054661090569999994,Europe,Aminoglycosides,E. coli,2018
+SPAIN,ESP,2018,170,0.11615481750000001,Europe,Aminopenicillins,E. coli,2018
+SPAIN,ESP,2018,340,0.185847708,Europe,Fluoroquinolones,E. coli,2018
+SPAIN,ESP,2018,427,0.07072658676,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+SPAIN,ESP,2018,340,0.008199163590000001,Europe,Third generation cephalosporins,E. coli,2018
+SWEDEN,SWE,2018,178,0.0013480857299999999,Europe,Aminoglycosides,E. coli,2018
+SWEDEN,SWE,2018,178,0.03909448622,Europe,Aminopenicillins,E. coli,2018
+SWEDEN,SWE,2018,534,0.01617702878,Europe,Fluoroquinolones,E. coli,2018
+SWEDEN,SWE,2018,356,0.0013480857299999999,Europe,Third generation cephalosporins,E. coli,2018
+SWITZERLAND,CHE,2018,214,0.00447758434,Europe,Aminoglycosides,E. coli,2018
+SWITZERLAND,CHE,2018,214,0.04925342771999999,Europe,Aminopenicillins,E. coli,2018
+SWITZERLAND,CHE,2018,214,0.08776065303,Europe,Fluoroquinolones,E. coli,2018
+SWITZERLAND,CHE,2018,214,0.0,Europe,Third generation cephalosporins,E. coli,2018
+TUNISIA,TUN,2015,37,0.747454199,Africa,Fluoroquinolones,E. coli,2015
+TUNISIA,TUN,2015,37,0.747454199,Africa,Third generation cephalosporins,E. coli,2015
+UGANDA,UGA,2015,78,0.03142899506,Africa,Fluoroquinolones,Non-typhoidal Salmonella,2015
+UNITED KINGDOM,GBR,2018,183,0.038555096999999997,Europe,Aminoglycosides,E. coli,2018
+UNITED KINGDOM,GBR,2018,183,0.1724833287,Europe,Aminopenicillins,E. coli,2018
+UNITED KINGDOM,GBR,2018,915,0.058847253339999996,Europe,Fluoroquinolones,E. coli,2018
+UNITED KINGDOM,GBR,2018,323,0.01494583278,Europe,Fluoroquinolones,Non-typhoidal Salmonella,2018
+UNITED KINGDOM,GBR,2018,549,0.00811686253,Europe,Third generation cephalosporins,E. coli,2018
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3085,0.03010564656,Africa,Aminoglycosides,E. coli,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3176,0.5171720799,Africa,Aminopenicillins,E. coli,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3072,0.014985380329999999,Africa,Fluoroquinolones,E. coli,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3163,0.03942218409,Africa,Third generation cephalosporins,E. coli,2015
+UNITED STATES OF AMERICA,USA,2018,3138,0.2284457232,Americas,Aminoglycosides,E. coli,2018
+UNITED STATES OF AMERICA,USA,2018,3138,0.1125609805,Americas,Aminopenicillins,E. coli,2018
+UNITED STATES OF AMERICA,USA,2018,3138,0.033194254810000004,Americas,Aminopenicillins with beta-lactamase inhibitors,E. coli,2018
+UNITED STATES OF AMERICA,USA,2018,3138,0.0043052365,Americas,Fluoroquinolones,E. coli,2018
+UNITED STATES OF AMERICA,USA,2018,1646,0.0015117059999999998,Americas,Fluoroquinolones,E. faecalis,2018
+UNITED STATES OF AMERICA,USA,2018,593,0.1805345388,Americas,Fluoroquinolones,E. faecium,2018
+UNITED STATES OF AMERICA,USA,2018,4183,0.0018560125,Americas,Fluoroquinolones,Non-typhoidal Salmonella,2018
+UNITED STATES OF AMERICA,USA,2018,3238,0.03030774471,Americas,Third generation cephalosporins,E. coli,2018
+ZIMBABWE,ZWE,2015,54,0.04467327515,Africa,Aminoglycosides,E. coli,2015
+ZIMBABWE,ZWE,2015,54,0.06353468376999999,Africa,Aminopenicillins,E. coli,2015
+ZIMBABWE,ZWE,2015,54,0.00302820781,Africa,Fluoroquinolones,E. coli,2015
+AUSTRIA,AUT,2018,870,0.038645151662,Europe,All,E. coli,2018
+AUSTRIA,AUT,2018,265,0.08542428999,Europe,All,Non-typhoidal Salmonella,2018
+BELGIUM,BEL,2018,876,0.09873115052333334,Europe,All,E. coli,2018
+BELGIUM,BEL,2018,204,0.08906789407,Europe,All,Non-typhoidal Salmonella,2018
+BULGARIA,BGR,2018,400,0.18846919091,Europe,All,E. coli,2018
+BULGARIA,BGR,2018,47,0.1354020161,Europe,All,Non-typhoidal Salmonella,2018
+CANADA,CAN,2018,10565,0.10094756724600001,Americas,All,E. coli,2018
+CANADA,CAN,2018,1507,0.00314893945,Americas,All,Non-typhoidal Salmonella,2018
+CHINA,CHN,2018,2994,0.5680463279656981,"Asia, Far East and Oceania",All,E. coli,2018
+CHINA,CHN,2018,1226,0.2679133832,"Asia, Far East and Oceania",All,Non-typhoidal Salmonella,2018
+CROATIA,HRV,2018,425,0.11886065851000001,Europe,All,E. coli,2018
+CROATIA,HRV,2018,197,0.2307827507,Europe,All,Non-typhoidal Salmonella,2018
+CYPRUS,CYP,2018,505,0.18980784207999998,Europe,All,E. coli,2018
+CYPRUS,CYP,2018,45,0.2851269159,Europe,All,Non-typhoidal Salmonella,2018
+CZECHIA,CZE,2018,1323,0.1023908402157143,Europe,All,E. coli,2018
+CZECHIA,CZE,2018,173,0.07746100304999999,Europe,All,Non-typhoidal Salmonella,2018
+DENMARK,DNK,2018,1652,0.0628119061075,Europe,All,E. coli,2018
+DENMARK,DNK,2018,128,0.0,Europe,All,Non-typhoidal Salmonella,2018
+EGYPT,EGY,2015,210,0.6323333133571428,Africa,All,E. coli,2015
+EGYPT,EGY,2015,13,0.2107027078,Africa,All,Non-typhoidal Salmonella,2015
+EGYPT,EGY,2015,48,0.045662300384583326,Africa,All,S. aureus,2015
+ESTONIA,EST,2018,340,0.1004674363,Europe,All,E. coli,2018
+ESTONIA,EST,2018,11,0.02785923521,Europe,All,Non-typhoidal Salmonella,2018
+ETHIOPIA,ETH,2015,147,0.1387159306,Africa,All,Non-typhoidal Salmonella,2015
+ETHIOPIA,ETH,2015,82,0.367235552265,Africa,All,S. aureus,2015
+FINLAND,FIN,2018,865,0.015196437169999997,Europe,All,E. coli,2018
+FRANCE,FRA,2018,1547,0.044759254277142856,Europe,All,E. coli,2018
+FRANCE,FRA,2018,423,0.00263314762,Europe,All,Non-typhoidal Salmonella,2018
+GERMANY,DEU,2018,1498,0.05676200676714286,Europe,All,E. coli,2018
+GERMANY,DEU,2018,178,0.03141506236,Europe,All,Non-typhoidal Salmonella,2018
+GHANA,GHA,2015,38,0.10573071875500001,Africa,All,E. coli,2015
+GREECE,GRC,2018,1190,0.3380787872057143,Europe,All,E. coli,2018
+GREECE,GRC,2018,74,0.302037355,Europe,All,Non-typhoidal Salmonella,2018
+HUNGARY,HUN,2018,1020,0.16868227844833336,Europe,All,E. coli,2018
+HUNGARY,HUN,2018,292,0.3520478418,Europe,All,Non-typhoidal Salmonella,2018
+ICELAND,ISL,2018,312,0.018886405992499997,Europe,All,E. coli,2018
+INDIA,IND,2018,60,0.34573666327999997,"Asia, Far East and Oceania",All,E. coli,2018
+IRELAND,IRL,2018,1400,0.013470569741428571,Europe,All,E. coli,2018
+IRELAND,IRL,2018,22,0.0,Europe,All,Non-typhoidal Salmonella,2018
+ITALY,ITA,2018,1190,0.12569528129000002,Europe,All,E. coli,2018
+ITALY,ITA,2018,395,0.22876041,Europe,All,Non-typhoidal Salmonella,2018
+JORDAN,JOR,2015,2600,0.018342066155999998,Middle East,All,E. coli,2015
+LATVIA,LVA,2018,1000,0.08178467054800001,Europe,All,E. coli,2018
+LEBANON,LBN,2015,1085,0.61289212354,Middle East,All,E. coli,2015
+LITHUANIA,LTU,2018,465,0.211302122762,Europe,All,E. coli,2018
+MALTA,MLT,2018,425,0.17251075776400002,Europe,All,E. coli,2018
+MALTA,MLT,2018,113,0.1336969938,Europe,All,Non-typhoidal Salmonella,2018
+MOROCCO,MAR,2015,28,0.17238652729999998,Africa,All,Non-typhoidal Salmonella,2015
+NETHERLANDS,NLD,2018,4500,0.09944421898400001,Europe,All,E. coli,2018
+NETHERLANDS,NLD,2018,43,0.1462497975,Europe,All,Non-typhoidal Salmonella,2018
+NIGERIA,NGA,2015,880,0.6143993667651136,Africa,All,E. coli,2015
+NORTH MACEDONIA,MKD,2018,336,0.13351127533833335,Europe,All,E. coli,2018
+NORTH MACEDONIA,MKD,2018,15,0.0035427973,Europe,All,Non-typhoidal Salmonella,2018
+NORWAY,NOR,2018,1112,0.011100672535,Europe,All,E. coli,2018
+POLAND,POL,2018,1448,0.24075964024,Europe,All,E. coli,2018
+POLAND,POL,2018,380,0.2557516189,Europe,All,Non-typhoidal Salmonella,2018
+PORTUGAL,PRT,2018,966,0.1497873769933333,Europe,All,E. coli,2018
+PORTUGAL,PRT,2018,100,0.03396586999,Europe,All,Non-typhoidal Salmonella,2018
+REPUBLIC OF KOREA,KOR,2018,2700,0.26114136645,"Asia, Far East and Oceania",All,E. coli,2018
+REPUBLIC OF KOREA,KOR,2018,300,0.18847844760000002,"Asia, Far East and Oceania",All,E. faecalis,2018
+REPUBLIC OF KOREA,KOR,2018,300,0.27942580499999997,"Asia, Far East and Oceania",All,E. faecium,2018
+REPUBLIC OF KOREA,KOR,2018,200,0.011553660240000001,"Asia, Far East and Oceania",All,Non-typhoidal Salmonella,2018
+REPUBLIC OF KOREA,KOR,2018,300,0.20147740905,"Asia, Far East and Oceania",All,S. aureus,2018
+ROMANIA,ROU,2018,1190,0.2744264841771428,Europe,All,E. coli,2018
+ROMANIA,ROU,2018,252,0.2886608226,Europe,All,Non-typhoidal Salmonella,2018
+RWANDA,RWA,2015,241,0.16677645059999996,Africa,All,E. coli,2015
+SAUDI ARABIA,SAU,2015,1080,0.28983044133,Middle East,All,E. coli,2015
+SLOVAKIA,SVK,2018,340,0.141737813085,Europe,All,E. coli,2018
+SLOVAKIA,SVK,2018,83,0.251883463,Europe,All,Non-typhoidal Salmonella,2018
+SLOVENIA,SVN,2018,340,0.1209728865275,Europe,All,E. coli,2018
+SLOVENIA,SVN,2018,151,0.2920013091,Europe,All,Non-typhoidal Salmonella,2018
+SOUTH AFRICA,ZAF,2015,150,0.005307148602,Africa,All,E. coli,2015
+SPAIN,ESP,2018,1020,0.09315160854166667,Europe,All,E. coli,2018
+SPAIN,ESP,2018,427,0.07072658676,Europe,All,Non-typhoidal Salmonella,2018
+SWEDEN,SWE,2018,1246,0.013095689964285714,Europe,All,E. coli,2018
+SWITZERLAND,CHE,2018,856,0.0353729162725,Europe,All,E. coli,2018
+TUNISIA,TUN,2015,74,0.747454199,Africa,All,E. coli,2015
+UGANDA,UGA,2015,78,0.03142899506,Africa,All,Non-typhoidal Salmonella,2015
+UNITED KINGDOM,GBR,2018,1830,0.052962527999,Europe,All,E. coli,2018
+UNITED KINGDOM,GBR,2018,323,0.014945832780000001,Europe,All,Non-typhoidal Salmonella,2018
+UNITED REPUBLIC OF TANZANIA,TZA,2015,12496,0.15254016501683978,Africa,All,E. coli,2015
+UNITED STATES OF AMERICA,USA,2018,15790,0.08143691686588728,Americas,All,E. coli,2018
+UNITED STATES OF AMERICA,USA,2018,1646,0.0015117059999999998,Americas,All,E. faecalis,2018
+UNITED STATES OF AMERICA,USA,2018,593,0.1805345388,Americas,All,E. faecium,2018
+UNITED STATES OF AMERICA,USA,2018,4183,0.0018560125,Americas,All,Non-typhoidal Salmonella,2018
+ZIMBABWE,ZWE,2015,162,0.03707872224333333,Africa,All,E. coli,2015
+AUSTRIA,AUT,2018,174,0.00538876617,Europe,Aminoglycosides,All,2018
+AUSTRIA,AUT,2018,174,0.04464977682,Europe,Aminopenicillins,All,2018
+AUSTRIA,AUT,2018,613,0.07757261388748778,Europe,Fluoroquinolones,All,2018
+AUSTRIA,AUT,2018,174,0.0,Europe,Third generation cephalosporins,All,2018
+BELGIUM,BEL,2018,146,0.02654955308,Europe,Aminoglycosides,All,2018
+BELGIUM,BEL,2018,146,0.20409968930000003,Europe,Aminopenicillins,All,2018
+BELGIUM,BEL,2018,496,0.1216207727844355,Europe,Fluoroquinolones,All,2018
+BELGIUM,BEL,2018,292,0.03650563548,Europe,Third generation cephalosporins,All,2018
+BULGARIA,BGR,2018,100,0.06853425124,Europe,Aminoglycosides,All,2018
+BULGARIA,BGR,2018,100,0.2692417013,Europe,Aminopenicillins,All,2018
+BULGARIA,BGR,2018,147,0.30970288460340134,Europe,Fluoroquinolones,All,2018
+BULGARIA,BGR,2018,100,0.0244765183,Europe,Third generation cephalosporins,All,2018
+CANADA,CAN,2018,2113,0.29907386410000003,Americas,Aminoglycosides,All,2018
+CANADA,CAN,2018,2113,0.16374262259999997,Americas,Aminopenicillins,All,2018
+CANADA,CAN,2018,2113,0.020271759349999998,Americas,Aminopenicillins with beta-lactamase inhibitors,All,2018
+CANADA,CAN,2018,3620,0.0025234461780994475,Americas,Fluoroquinolones,All,2018
+CANADA,CAN,2018,2113,0.01957224829,Americas,Third generation cephalosporins,All,2018
+CHINA,CHN,2018,838,0.520869648,"Asia, Far East and Oceania",Aminoglycosides,All,2018
+CHINA,CHN,2018,747,0.8055918964,"Asia, Far East and Oceania",Aminopenicillins,All,2018
+CHINA,CHN,2018,2189,0.3531954791367291,"Asia, Far East and Oceania",Fluoroquinolones,All,2018
+CHINA,CHN,2018,446,0.4882997719,"Asia, Far East and Oceania",Third generation cephalosporins,All,2018
+CROATIA,HRV,2018,85,0.01650842479,Europe,Aminoglycosides,All,2018
+CROATIA,HRV,2018,85,0.11225728859999999,Europe,Aminopenicillins,All,2018
+CROATIA,HRV,2018,367,0.23093801878719347,Europe,Fluoroquinolones,All,2018
+CROATIA,HRV,2018,85,0.00330168496,Europe,Third generation cephalosporins,All,2018
+CYPRUS,CYP,2018,101,0.029890998749999998,Europe,Aminoglycosides,All,2018
+CYPRUS,CYP,2018,101,0.2466007397,Europe,Aminopenicillins,All,2018
+CYPRUS,CYP,2018,247,0.3147328542862348,Europe,Fluoroquinolones,All,2018
+CYPRUS,CYP,2018,101,0.029890998749999998,Europe,Third generation cephalosporins,All,2018
+CZECHIA,CZE,2018,189,0.00575691471,Europe,Aminoglycosides,All,2018
+CZECHIA,CZE,2018,189,0.1108206082,Europe,Aminopenicillins,All,2018
+CZECHIA,CZE,2018,740,0.17139281527439187,Europe,Fluoroquinolones,All,2018
+CZECHIA,CZE,2018,378,0.0,Europe,Third generation cephalosporins,All,2018
+DENMARK,DNK,2018,413,0.00600888791,Europe,Aminoglycosides,All,2018
+DENMARK,DNK,2018,413,0.2220631709,Europe,Aminopenicillins,All,2018
+DENMARK,DNK,2018,541,0.017692252497338266,Europe,Fluoroquinolones,All,2018
+DENMARK,DNK,2018,413,0.0,Europe,Third generation cephalosporins,All,2018
+EGYPT,EGY,2015,30,0.6352607824,Africa,Aminoglycosides,All,2015
+EGYPT,EGY,2015,30,0.6147684991,Africa,Aminopenicillins,All,2015
+EGYPT,EGY,2015,197,0.5040043085519796,Africa,Fluoroquinolones,All,2015
+EGYPT,EGY,2015,14,0.06651387108,Africa,Macrolides,All,2015
+ESTONIA,EST,2018,85,0.0,Europe,Aminoglycosides,All,2018
+ESTONIA,EST,2018,85,0.1815855886,Europe,Aminopenicillins,All,2018
+ESTONIA,EST,2018,96,0.1982354676907292,Europe,Fluoroquinolones,All,2018
+ESTONIA,EST,2018,85,0.0,Europe,Third generation cephalosporins,All,2018
+ETHIOPIA,ETH,2015,188,0.12341392495654258,Africa,Fluoroquinolones,All,2015
+ETHIOPIA,ETH,2015,41,0.6659204680999999,Africa,Macrolides,All,2015
+FINLAND,FIN,2018,173,0.0033035733,Europe,Aminoglycosides,All,2018
+FINLAND,FIN,2018,173,0.03799109292,Europe,Aminopenicillins,All,2018
+FINLAND,FIN,2018,346,0.016517866489999998,Europe,Fluoroquinolones,All,2018
+FINLAND,FIN,2018,173,0.00165178665,Europe,Third generation cephalosporins,All,2018
+FRANCE,FRA,2018,221,0.00587990204,Europe,Aminoglycosides,All,2018
+FRANCE,FRA,2018,221,0.08735854455,Europe,Aminopenicillins,All,2018
+FRANCE,FRA,2018,1086,0.04410158567251381,Europe,Fluoroquinolones,All,2018
+FRANCE,FRA,2018,442,0.00419993003,Europe,Third generation cephalosporins,All,2018
+GERMANY,DEU,2018,214,0.01152806714,Europe,Aminoglycosides,All,2018
+GERMANY,DEU,2018,214,0.10682675550000001,Europe,Aminopenicillins,All,2018
+GERMANY,DEU,2018,820,0.07842272273690243,Europe,Fluoroquinolones,All,2018
+GERMANY,DEU,2018,428,0.00230561343,Europe,Third generation cephalosporins,All,2018
+GHANA,GHA,2015,19,0.01554863511,Africa,Aminoglycosides,All,2015
+GHANA,GHA,2015,19,0.1959128024,Africa,Fluoroquinolones,All,2015
+GREECE,GRC,2018,170,0.1014236362,Europe,Aminoglycosides,All,2018
+GREECE,GRC,2018,170,0.5221439046999999,Europe,Aminopenicillins,All,2018
+GREECE,GRC,2018,584,0.5434603639760275,Europe,Fluoroquinolones,All,2018
+GREECE,GRC,2018,340,0.00375643097,Europe,Third generation cephalosporins,All,2018
+HUNGARY,HUN,2018,170,0.03587167441,Europe,Aminoglycosides,All,2018
+HUNGARY,HUN,2018,170,0.21779230890000004,Europe,Aminopenicillins,All,2018
+HUNGARY,HUN,2018,632,0.3597708393696203,Europe,Fluoroquinolones,All,2018
+HUNGARY,HUN,2018,340,0.012811312290000001,Europe,Third generation cephalosporins,All,2018
+ICELAND,ISL,2018,78,0.0,Europe,Aminoglycosides,All,2018
+ICELAND,ISL,2018,78,0.07134864485999999,Europe,Aminopenicillins,All,2018
+ICELAND,ISL,2018,78,0.0041969791099999995,Europe,Fluoroquinolones,All,2018
+ICELAND,ISL,2018,78,0.0,Europe,Third generation cephalosporins,All,2018
+INDIA,IND,2018,12,0.43031601869999997,"Asia, Far East and Oceania",Aminoglycosides,All,2018
+INDIA,IND,2018,12,0.6157970612,"Asia, Far East and Oceania",Aminopenicillins with beta-lactamase inhibitors,All,2018
+INDIA,IND,2018,24,0.0,"Asia, Far East and Oceania",Fluoroquinolones,All,2018
+INDIA,IND,2018,12,0.6825702364999998,"Asia, Far East and Oceania",Third generation cephalosporins,All,2018
+IRELAND,IRL,2018,200,0.00038021769,Europe,Aminoglycosides,All,2018
+IRELAND,IRL,2018,200,0.03421959249,Europe,Aminopenicillins,All,2018
+IRELAND,IRL,2018,622,0.01870524348231511,Europe,Fluoroquinolones,All,2018
+IRELAND,IRL,2018,400,0.0007604353899999999,Europe,Third generation cephalosporins,All,2018
+ITALY,ITA,2018,170,0.021040297090000003,Europe,Aminoglycosides,All,2018
+ITALY,ITA,2018,170,0.22379225080000004,Europe,Aminopenicillins,All,2018
+ITALY,ITA,2018,905,0.21625952234585635,Europe,Fluoroquinolones,All,2018
+ITALY,ITA,2018,340,0.007651017119999999,Europe,Third generation cephalosporins,All,2018
+JORDAN,JOR,2015,520,0.011791328240000001,Middle East,Aminoglycosides,All,2015
+JORDAN,JOR,2015,520,0.04585516539,Middle East,Aminopenicillins,All,2015
+JORDAN,JOR,2015,520,0.02489280407,Middle East,Aminopenicillins with beta-lactamase inhibitors,All,2015
+JORDAN,JOR,2015,520,0.00524059033,Middle East,Fluoroquinolones,All,2015
+JORDAN,JOR,2015,520,0.00393044275,Middle East,Third generation cephalosporins,All,2015
+LATVIA,LVA,2018,200,0.00143987096,Europe,Aminoglycosides,All,2018
+LATVIA,LVA,2018,200,0.08495238666,Europe,Aminopenicillins,All,2018
+LATVIA,LVA,2018,400,0.15982567660000002,Europe,Fluoroquinolones,All,2018
+LATVIA,LVA,2018,200,0.00287974192,Europe,Third generation cephalosporins,All,2018
+LEBANON,LBN,2015,217,0.6008746309000002,Middle East,Aminoglycosides,All,2015
+LEBANON,LBN,2015,217,0.8583923299,Middle East,Aminopenicillins,All,2015
+LEBANON,LBN,2015,217,0.30043731549999997,Middle East,Aminopenicillins with beta-lactamase inhibitors,All,2015
+LEBANON,LBN,2015,217,0.5322032445,Middle East,Fluoroquinolones,All,2015
+LEBANON,LBN,2015,217,0.7725530969000001,Middle East,Third generation cephalosporins,All,2015
+LITHUANIA,LTU,2018,93,0.054579884110000004,Europe,Aminoglycosides,All,2018
+LITHUANIA,LTU,2018,93,0.30798648889999997,Europe,Aminopenicillins,All,2018
+LITHUANIA,LTU,2018,186,0.2923922363,Europe,Fluoroquinolones,All,2018
+LITHUANIA,LTU,2018,93,0.1091597682,Europe,Third generation cephalosporins,All,2018
+MALTA,MLT,2018,85,0.04182078976,Europe,Aminoglycosides,All,2018
+MALTA,MLT,2018,85,0.3084283245,Europe,Aminopenicillins,All,2018
+MALTA,MLT,2018,283,0.1946957261745583,Europe,Fluoroquinolones,All,2018
+MALTA,MLT,2018,85,0.04182078976,Europe,Third generation cephalosporins,All,2018
+MOROCCO,MAR,2015,28,0.17238652729999998,Africa,Fluoroquinolones,All,2015
+NETHERLANDS,NLD,2018,900,0.02877127094,Europe,Aminoglycosides,All,2018
+NETHERLANDS,NLD,2018,900,0.29715061039999996,Europe,Aminopenicillins,All,2018
+NETHERLANDS,NLD,2018,1843,0.08436876195252306,Europe,Fluoroquinolones,All,2018
+NETHERLANDS,NLD,2018,900,0.00551822804,Europe,Third generation cephalosporins,All,2018
+NIGERIA,NGA,2015,58,0.6076710376000001,Africa,Aminoglycosides,All,2015
+NIGERIA,NGA,2015,58,0.7192018539,Africa,Aminopenicillins,All,2015
+NIGERIA,NGA,2015,10,0.05107449655,Africa,Aminopenicillins with beta-lactamase inhibitors,All,2015
+NIGERIA,NGA,2015,696,0.5969007542,Africa,Fluoroquinolones,All,2015
+NIGERIA,NGA,2015,58,0.8234335372,Africa,Third generation cephalosporins,All,2015
+NORTH MACEDONIA,MKD,2018,87,0.04926017719,Europe,Aminoglycosides,All,2018
+NORTH MACEDONIA,MKD,2018,83,0.279061297,Europe,Aminopenicillins,All,2018
+NORTH MACEDONIA,MKD,2018,98,0.15288405294897958,Europe,Fluoroquinolones,All,2018
+NORTH MACEDONIA,MKD,2018,83,0.02991048455,Europe,Third generation cephalosporins,All,2018
+NORWAY,NOR,2018,278,0.0030274561500000003,Europe,Aminoglycosides,All,2018
+NORWAY,NOR,2018,278,0.01110067253,Europe,Aminopenicillins,All,2018
+NORWAY,NOR,2018,278,0.030274561460000002,Europe,Fluoroquinolones,All,2018
+NORWAY,NOR,2018,278,0.0,Europe,Third generation cephalosporins,All,2018
+POLAND,POL,2018,181,0.027093156440000002,Europe,Aminoglycosides,All,2018
+POLAND,POL,2018,181,0.3817672044999999,Europe,Aminopenicillins,All,2018
+POLAND,POL,2018,1104,0.3335465618887681,Europe,Fluoroquinolones,All,2018
+POLAND,POL,2018,362,0.00985205689,Europe,Third generation cephalosporins,All,2018
+PORTUGAL,PRT,2018,161,0.03375490186,Europe,Aminoglycosides,All,2018
+PORTUGAL,PRT,2018,161,0.2658198521,Europe,Aminopenicillins,All,2018
+PORTUGAL,PRT,2018,422,0.22697571892559237,Europe,Fluoroquinolones,All,2018
+PORTUGAL,PRT,2018,322,0.012658088199999999,Europe,Third generation cephalosporins,All,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.47322866809999997,"Asia, Far East and Oceania",Aminoglycosides,All,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.5094399573,"Asia, Far East and Oceania",Aminopenicillins,All,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.02475160656,"Asia, Far East and Oceania",Aminopenicillins with beta-lactamase inhibitors,All,2018
+REPUBLIC OF KOREA,KOR,2018,1850,0.22663262564756756,"Asia, Far East and Oceania",Fluoroquinolones,All,2018
+REPUBLIC OF KOREA,KOR,2018,150,0.20045052649999998,"Asia, Far East and Oceania",Macrolides,All,2018
+REPUBLIC OF KOREA,KOR,2018,450,0.01228862034,"Asia, Far East and Oceania",Third generation cephalosporins,All,2018
+ROMANIA,ROU,2018,170,0.10318088980000001,Europe,Aminoglycosides,All,2018
+ROMANIA,ROU,2018,170,0.348994186,Europe,Aminopenicillins,All,2018
+ROMANIA,ROU,2018,762,0.41231733516692914,Europe,Fluoroquinolones,All,2018
+ROMANIA,ROU,2018,340,0.02427785642,Europe,Third generation cephalosporins,All,2018
+RWANDA,RWA,2015,241,0.16677645059999996,Africa,Aminoglycosides,All,2015
+SAUDI ARABIA,SAU,2015,180,0.19020122709999998,Middle East,Aminoglycosides,All,2015
+SAUDI ARABIA,SAU,2015,180,0.46191726590000004,Middle East,Aminopenicillins,All,2015
+SAUDI ARABIA,SAU,2015,180,0.00905720129,Middle East,Aminopenicillins with beta-lactamase inhibitors,All,2015
+SAUDI ARABIA,SAU,2015,360,0.5343748762,Middle East,Fluoroquinolones,All,2015
+SAUDI ARABIA,SAU,2015,180,0.00905720129,Middle East,Third generation cephalosporins,All,2015
+SLOVAKIA,SVK,2018,85,0.01667503684,Europe,Aminoglycosides,All,2018
+SLOVAKIA,SVK,2018,85,0.2417880341,Europe,Aminopenicillins,All,2018
+SLOVAKIA,SVK,2018,168,0.28052275504761903,Europe,Fluoroquinolones,All,2018
+SLOVAKIA,SVK,2018,85,0.0,Europe,Third generation cephalosporins,All,2018
+SLOVENIA,SVN,2018,85,0.011613397110000001,Europe,Aminoglycosides,All,2018
+SLOVENIA,SVN,2018,85,0.2012988832,Europe,Aminopenicillins,All,2018
+SLOVENIA,SVN,2018,236,0.28442981045381355,Europe,Fluoroquinolones,All,2018
+SLOVENIA,SVN,2018,85,0.0,Europe,Third generation cephalosporins,All,2018
+SOUTH AFRICA,ZAF,2015,30,0.00104746354,Africa,Aminoglycosides,All,2015
+SOUTH AFRICA,ZAF,2015,30,0.00349154513,Africa,Aminopenicillins,All,2015
+SOUTH AFRICA,ZAF,2015,30,0.01501364407,Africa,Aminopenicillins with beta-lactamase inhibitors,All,2015
+SOUTH AFRICA,ZAF,2015,30,0.00104746354,Africa,Fluoroquinolones,All,2015
+SOUTH AFRICA,ZAF,2015,30,0.00593562673,Africa,Third generation cephalosporins,All,2015
+SPAIN,ESP,2018,170,0.054661090569999994,Europe,Aminoglycosides,All,2018
+SPAIN,ESP,2018,170,0.11615481750000001,Europe,Aminopenicillins,All,2018
+SPAIN,ESP,2018,767,0.12175811377642763,Europe,Fluoroquinolones,All,2018
+SPAIN,ESP,2018,340,0.008199163590000001,Europe,Third generation cephalosporins,All,2018
+SWEDEN,SWE,2018,178,0.0013480857299999999,Europe,Aminoglycosides,All,2018
+SWEDEN,SWE,2018,178,0.03909448622,Europe,Aminopenicillins,All,2018
+SWEDEN,SWE,2018,534,0.01617702878,Europe,Fluoroquinolones,All,2018
+SWEDEN,SWE,2018,356,0.0013480857299999999,Europe,Third generation cephalosporins,All,2018
+SWITZERLAND,CHE,2018,214,0.00447758434,Europe,Aminoglycosides,All,2018
+SWITZERLAND,CHE,2018,214,0.04925342771999999,Europe,Aminopenicillins,All,2018
+SWITZERLAND,CHE,2018,214,0.08776065303,Europe,Fluoroquinolones,All,2018
+SWITZERLAND,CHE,2018,214,0.0,Europe,Third generation cephalosporins,All,2018
+TUNISIA,TUN,2015,37,0.747454199,Africa,Fluoroquinolones,All,2015
+TUNISIA,TUN,2015,37,0.747454199,Africa,Third generation cephalosporins,All,2015
+UGANDA,UGA,2015,78,0.03142899506,Africa,Fluoroquinolones,All,2015
+UNITED KINGDOM,GBR,2018,183,0.038555096999999997,Europe,Aminoglycosides,All,2018
+UNITED KINGDOM,GBR,2018,183,0.1724833287,Europe,Aminopenicillins,All,2018
+UNITED KINGDOM,GBR,2018,1238,0.04739316703880452,Europe,Fluoroquinolones,All,2018
+UNITED KINGDOM,GBR,2018,549,0.00811686253,Europe,Third generation cephalosporins,All,2018
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3085,0.03010564656,Africa,Aminoglycosides,All,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3176,0.5171720799,Africa,Aminopenicillins,All,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3072,0.014985380329999999,Africa,Fluoroquinolones,All,2015
+UNITED REPUBLIC OF TANZANIA,TZA,2015,3163,0.03942218409,Africa,Third generation cephalosporins,All,2015
+UNITED STATES OF AMERICA,USA,2018,3138,0.22844572319999998,Americas,Aminoglycosides,All,2018
+UNITED STATES OF AMERICA,USA,2018,3138,0.11256098049999999,Americas,Aminopenicillins,All,2018
+UNITED STATES OF AMERICA,USA,2018,3138,0.033194254810000004,Americas,Aminopenicillins with beta-lactamase inhibitors,All,2018
+UNITED STATES OF AMERICA,USA,2018,9560,0.013683973013483263,Americas,Fluoroquinolones,All,2018
+UNITED STATES OF AMERICA,USA,2018,3238,0.03030774471,Americas,Third generation cephalosporins,All,2018
+ZIMBABWE,ZWE,2015,54,0.04467327515,Africa,Aminoglycosides,All,2015
+ZIMBABWE,ZWE,2015,54,0.06353468376999999,Africa,Aminopenicillins,All,2015
+ZIMBABWE,ZWE,2015,54,0.00302820781,Africa,Fluoroquinolones,All,2015

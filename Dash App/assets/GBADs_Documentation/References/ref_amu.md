@@ -1,4 +1,4 @@
-# Antimicrobial Usage
+# Global Antimicrobial Usage
 
 <h3>Antimicrobial Usage and Price</h3>
 

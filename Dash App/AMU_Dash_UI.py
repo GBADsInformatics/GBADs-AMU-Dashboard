@@ -246,27 +246,29 @@ to label the selector for scenarios (worst, average, best):
 # -----------------------------------------------------------------------------
 eth_amr = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr.pkl.gz'))
 
-# Replace column values to show in legend
+# Rename metrics for display
 # Note order here defines order in plot and any metrics not listed will be dropped
 legend_text_poplvl_eth = {
+    # Used for plot
     "Indirect costs due to AMR":"Indirect costs associated with AMR",
     "Expenditure with resistant mastitis":"Health expenditure associated with AMR",
     "Production losses due to resistant mastitis":"Production losses associated with AMR",
     "AHLE without AMR":"Unattributed AHLE",
 
-    # Don't need these for plot
-    # "Production losses due to mastitis":"",
-    # "Expenditure with mastitis":"",
-    # "AHLE - cattle":"",
-    # "Expenditure in cattle":"",
-    # "Total AMR burden":"",
+    # Shown in data table
+    "Production losses due to mastitis":"Production losses due to mastitis",
+    "Expenditure with mastitis":"Health expenditure due to mastitis",
+    "AHLE - cattle":"Total AHLE",
+    "Expenditure in cattle":"Total expenditure in cattle",
+    "Total AMR burden":"Total AMR burden",
     }
 eth_amr['metric'] = eth_amr['metric'].replace(legend_text_poplvl_eth)
 
 keep_metrics_in_order = legend_text_poplvl_eth.values()     # Use ordering from dictionary
-_row_select = (eth_amr['metric'].isin(keep_metrics_in_order))
-eth_amr_toplot = eth_amr.loc[_row_select].copy()
-eth_amr_toplot['metric'] = pd.Categorical(eth_amr_toplot['metric'], categories=keep_metrics_in_order, ordered=True)
+# _row_select = (eth_amr['metric'].isin(keep_metrics_in_order))
+# eth_amr_sorted = eth_amr.loc[_row_select].copy()
+eth_amr_sorted = eth_amr.copy()
+eth_amr_sorted['metric'] = pd.Categorical(eth_amr_sorted['metric'], categories=keep_metrics_in_order, ordered=True)
 
 # AMR metric
 # Set each option to have hover over explanation
@@ -729,7 +731,7 @@ def create_barchart_poplvl_den_amr(
 
     return barchart_fig
 
-# TODO create second bar chart without total AHLE (AMR components only)
+# TODO create second bar showing Mastitis expenditure (instead of resistant Mastitis)
 # Idea: create a reduced version of this function that can be used for both plots (lines 868-985 will be reused unchanged)
 def create_barchart_poplvl_eth_amr(
         option_tot_pct
@@ -737,7 +739,7 @@ def create_barchart_poplvl_eth_amr(
         ,disease_select
         ,currency_select
     ):
-    input_df = eth_amr_toplot
+    input_df = eth_amr_sorted
 
     if currency_select == 'USD':
         value_col = 'value_usd'
@@ -760,12 +762,18 @@ def create_barchart_poplvl_eth_amr(
     population_amr_prpn_ahle = population_amr_total / population_total_ahle
 
     # Define color for each metric to use in plot
+    # This also defines metrics to use
     legend_items = [
         {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
         {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
         {'label': 'Health expenditure associated with AMR', 'color': '#31f3be'},
         {'label': 'Indirect costs associated with AMR', 'color': '#c131f3'},
     ]
+
+    # Filter to appropriate metrics
+    selected_metrics = [dct['label'] for dct in legend_items]
+    _selected_rows = (input_df['metric'].isin(selected_metrics))
+    input_df = input_df.loc[_selected_rows]
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['production_system', 'metric']).reset_index(drop=True)
@@ -816,6 +824,8 @@ def create_barchart_poplvl_eth_amr(
                 ),
                 showlegend=False,
                 hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+                #!!! Fix this
+                # customdata=input_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
@@ -1174,7 +1184,7 @@ gbadsDash.layout = html.Div([
 
         #### ANTIMICROBIAL USAGE TAB
         dbc.Tab(#label="Global Antimicrobial Usage (AMU)",
-                label="Expenditure with antimicrobial usage (AMU)",
+                label="Expenditure with Antimicrobial Usage (AMU)",
                 id='AMU-tab',
                 tabClassName="flex-grow-1 text-center",
                 tab_style = tab_style,
@@ -3226,7 +3236,6 @@ def update_case_study_table(country_select):
         # ------------------------------------------------------------------------------
         column_tooltips = {
             'production_system':"Production System",
-            'metric':"Metric",
             }
 
         # ------------------------------------------------------------------------------
@@ -3240,6 +3249,15 @@ def update_case_study_table(country_select):
         ]
         for column in columns_to_format:
             display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'$ {x:,.0f}')
+
+        # Birr currency
+        columns_to_format = [
+            'value_birr',
+            'upper_95pct_ci_birr',
+            'lower_95pct_ci_birr',
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'{x:,.0f}')
 
     return [
         html.H4(f"{country_select} AMR Estimates"),
