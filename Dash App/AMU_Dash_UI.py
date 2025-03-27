@@ -244,11 +244,12 @@ to label the selector for scenarios (worst, average, best):
 # -----------------------------------------------------------------------------
 #### -- Ethiopia AMR
 # -----------------------------------------------------------------------------
+# Overall data
 eth_amr = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr.pkl.gz'))
 
 # Rename metrics for display
-# Note order here defines order in plot and any metrics not listed will be dropped
-legend_text_poplvl_eth = {
+# Note order here defines order in plot
+legend_text_eth = {
     # Used for plot
     "Indirect costs due to AMR":"Indirect costs associated with AMR",
     "Expenditure with resistant mastitis":"Health expenditure associated with AMR",
@@ -262,31 +263,42 @@ legend_text_poplvl_eth = {
     "Expenditure in cattle":"Total expenditure in cattle",
     "Total AMR burden":"Total AMR burden",
     }
-eth_amr['metric'] = eth_amr['metric'].replace(legend_text_poplvl_eth)
+eth_amr['metric'] = eth_amr['metric'].replace(legend_text_eth)
 
-keep_metrics_in_order = legend_text_poplvl_eth.values()     # Use ordering from dictionary
-# _row_select = (eth_amr['metric'].isin(keep_metrics_in_order))
-# eth_amr_sorted = eth_amr.loc[_row_select].copy()
+metric_order = legend_text_eth.values()     # Use ordering from dictionary
 eth_amr_sorted = eth_amr.copy()
-eth_amr_sorted['metric'] = pd.Categorical(eth_amr_sorted['metric'], categories=keep_metrics_in_order, ordered=True)
+eth_amr_sorted['metric'] = pd.Categorical(eth_amr_sorted['metric'], categories=metric_order, ordered=True)
 
-# AMR metric
-# Set each option to have hover over explanation
-display_option_actual_burden = html.Abbr(
-    "Actual burden",
-    title="Actual value of production losses and health expenditure due to antimicrobial resistance",
-    )
+# Data BY production system
+eth_amr_prodsys_p_melt = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr_prodsys_p_melt.pkl.gz'))
 
-display_option_percent_ahle = html.Abbr(
-    "Percentage of AHLE",
-    title="AMR burden as percent of total AHLE",
-    )
+# Wide format data for display
+eth_amr_prodsys_p = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'eth_amr_prodsys_p.pkl.gz'))
 
-case_study_metric_options = [
-    {'label': display_option_actual_burden, 'value': "Total", 'disabled': False},
-    {'label': display_option_percent_ahle, 'value': "Percent", 'disabled': False},
-    ]
-case_study_metric_default = 'Total'
+# Rename metrics for display
+# Note order here defines order in plot
+legend_text_eth = {
+    "amr_production_losses_median":"Production losses associated with AMR",
+    "ahle_withoutamr_mean":"Unattributed AHLE",
+    }
+eth_amr_prodsys_p_melt['metric'] = eth_amr_prodsys_p_melt['metric'].replace(legend_text_eth)
+
+label_prodsys = {
+    "Crop-Livestock mixed":"Crop-Livestock Mixed"
+    ,"Pastoral":"Pastoral"
+    ,"Peri-urban (specialised dairy)":"Peri-Urban"
+    ,"Overall":"Overall"
+    }
+eth_amr_prodsys_p_melt['production_system'] = eth_amr_prodsys_p_melt['production_system'].replace(label_prodsys)
+eth_amr_prodsys_p['production_system'] = eth_amr_prodsys_p['production_system'].replace(label_prodsys)
+
+# Define custom sort order for columns
+metric_order = legend_text_eth.values()     # Use ordering from dictionary
+prodsys_order = label_prodsys.values()
+
+eth_amr_prodsys_p_melt_sorted = eth_amr_prodsys_p_melt.copy()
+eth_amr_prodsys_p_melt_sorted['metric'] = pd.Categorical(eth_amr_prodsys_p_melt_sorted['metric'], categories=metric_order, ordered=True)
+eth_amr_prodsys_p_melt_sorted['production_system'] = pd.Categorical(eth_amr_prodsys_p_melt_sorted['production_system'], categories=prodsys_order, ordered=True)
 
 # =============================================================================
 #### User options and defaults
@@ -333,6 +345,22 @@ case_study_country_options = [{'label': i, 'value': i, 'disabled': False} for i 
                                                                                     "Ethiopia"]]
 case_study_country_default = 'Denmark'
 
+# AMR metric
+# Set each option to have hover over explanation
+metric_option_actual_burden = html.Abbr(
+    "Actual burden",
+    title="Actual value of production losses and health expenditure due to antimicrobial resistance",
+    )
+metric_option_percent_ahle = html.Abbr(
+    "Percentage of AHLE",
+    title="AMR burden as percent of total AHLE",
+    )
+case_study_metric_options = [
+    {'label': metric_option_actual_burden, 'value': "Total", 'disabled': False},
+    {'label': metric_option_percent_ahle, 'value': "Percent", 'disabled': False},
+    ]
+case_study_metric_default = 'Total'
+
 # Species
 # These are now set in a callback
 # case_study_species_options = [{'label': i, 'value': i, 'disabled': False} for i in ["Swine",
@@ -351,9 +379,9 @@ case_study_country_default = 'Denmark'
 # Key: integer whose value determines location of mark on slider
 # Value: string matching a scenario in the data
 scenario_codes = {
-    1: 'Worst',
+    1: 'Best',
     2: 'Average',
-    3: 'Best',
+    3: 'Worst',
     }
 # Define label for each mark on the slider
 scenario_code_marks = {
@@ -476,6 +504,7 @@ def create_barchart_poplvl_den_amr(
         ,currency_select
     ):
     scenario_select = scenario_codes[scenario_select_num]
+    scenario_rate = scenario_code_marks[scenario_select_num]
     base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
     if currency_select == 'Danish Krone (DKK)':
@@ -513,6 +542,9 @@ def create_barchart_poplvl_den_amr(
         _selected_rows = (input_df['metric'].isin(selected_metrics))
         input_df = input_df.loc[_selected_rows]
 
+        # Plot title
+        main_title = f"<b>AHLE and the Burden of AMR in {disease_select}</b>"
+
     elif farmtype_select == 'bytype':
         input_df = base_df.query("farm_type != 'Overall'").copy()
 
@@ -520,13 +552,17 @@ def create_barchart_poplvl_den_amr(
         # This also defines metrics to use
         legend_items = [
             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            {'label': 'AMR', 'color': '#31bff3'},
+            # {'label': 'AMR', 'color': '#31bff3'},
+            {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
         ]
 
         # Filter to appropriate metrics
         selected_metrics = [dct['label'] for dct in legend_items]
         _selected_rows = (input_df['metric'].isin(selected_metrics))
         input_df = input_df.loc[_selected_rows]
+
+        # Plot title
+        main_title = f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b>"
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['scenario', 'farm_type', 'metric']).reset_index(drop=True)
@@ -577,13 +613,13 @@ def create_barchart_poplvl_den_amr(
                     width=5,
                 ),
                 showlegend=False,
-                hovertemplate=f"Production Stage: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+                hovertemplate=f"Production Stage: %{{x}}<br>Cumulative Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
                 customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
-                text=f"AHLE and the Burden of AMR in {disease_select}<br>" \
-                    + f"{scenario_select} scenario<br>",
+                text=f"{main_title}<br>" \
+                    + f"<i><sup>{scenario_select} scenario ({scenario_rate} rate of resistance)</sup></i>",
                 font=dict(size=20),
                 y=0.95,
             ),
@@ -634,7 +670,7 @@ def create_barchart_poplvl_den_amr(
             y=y_pos + 0.05,
             xref="paper",
             yref="paper",
-            text="Source of Burden",
+            text="<b>Source of Burden</b>",
             showarrow=False,
             font=dict(size=16, color="black"),
             xanchor="left",
@@ -732,15 +768,14 @@ def create_barchart_poplvl_den_amr(
 
     return barchart_fig
 
-# TODO create second bar showing Mastitis expenditure (instead of resistant Mastitis)
-# Idea: create a reduced version of this function that can be used for both plots (lines 868-985 will be reused unchanged)
 def create_barchart_poplvl_eth_amr(
         option_tot_pct
         ,option_axis_scale
         ,disease_select
+        ,farmtype_select
         ,currency_select
     ):
-    input_df = eth_amr_sorted
+    overall_df = eth_amr_sorted
 
     if currency_select == 'USD':
         currency_label = 'USD'
@@ -754,27 +789,51 @@ def create_barchart_poplvl_eth_amr(
         error_low_col = 'error_low_birr'
 
     # Get important values to show in title
-    population_amr_prod = input_df.query("metric == 'Production losses associated with AMR'")[value_col].item()
-    population_amr_health = input_df.query("metric == 'Health expenditure associated with AMR'")[value_col].item()
-    population_amr_indirect = input_df.query("metric == 'Indirect costs associated with AMR'")[value_col].item()
+    population_amr_prod = overall_df.query("metric == 'Production losses associated with AMR'")[value_col].item()
+    population_amr_health = overall_df.query("metric == 'Health expenditure associated with AMR'")[value_col].item()
+    population_amr_indirect = overall_df.query("metric == 'Indirect costs associated with AMR'")[value_col].item()
     population_amr_total = population_amr_prod + population_amr_health + population_amr_indirect
-    population_unattr_ahle = input_df.query("metric == 'Unattributed AHLE'")[value_col].item()
+    population_unattr_ahle = overall_df.query("metric == 'Unattributed AHLE'")[value_col].item()
     population_total_ahle = population_amr_total + population_unattr_ahle
     population_amr_prpn_ahle = population_amr_total / population_total_ahle
 
-    # Define color for each metric to use in plot
-    # This also defines metrics to use
-    legend_items = [
-        {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-        {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
-        {'label': 'Health expenditure associated with AMR', 'color': '#31f3be'},
-        {'label': 'Indirect costs associated with AMR', 'color': '#c131f3'},
-    ]
+    if farmtype_select == 'total':
+        input_df = eth_amr_sorted.copy()
 
-    # Filter to appropriate metrics
-    selected_metrics = [dct['label'] for dct in legend_items]
-    _selected_rows = (input_df['metric'].isin(selected_metrics))
-    input_df = input_df.loc[_selected_rows]
+        # Define color for each metric to use in plot
+        # This also defines metrics to use
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
+            {'label': 'Health expenditure associated with AMR', 'color': '#31f3be'},
+            {'label': 'Indirect costs associated with AMR', 'color': '#c131f3'},
+        ]
+
+        # Filter to appropriate metrics
+        selected_metrics = [dct['label'] for dct in legend_items]
+        _selected_rows = (input_df['metric'].isin(selected_metrics))
+        input_df = input_df.loc[_selected_rows]
+
+        # Plot title
+        main_title = f"<b>AHLE and the Burden of AMR in {disease_select}</b>"
+
+    elif farmtype_select == 'bytype':
+        input_df = eth_amr_prodsys_p_melt_sorted.copy()
+
+        # Define color for each metric to use in plot
+        # This also defines metrics to use
+        legend_items = [
+            {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
+            {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
+        ]
+
+        # Filter to appropriate metrics
+        selected_metrics = [dct['label'] for dct in legend_items]
+        _selected_rows = (input_df['metric'].isin(selected_metrics))
+        input_df = input_df.loc[_selected_rows]
+
+        # Plot title
+        main_title = f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b>"
 
     # Calculate cumulative values for plotly trick to overlay error bars
     input_df = input_df.sort_values(['production_system', 'metric']).reset_index(drop=True)
@@ -805,7 +864,7 @@ def create_barchart_poplvl_eth_amr(
                 y=metric_df[value_col],
                 marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
-                hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
+                hovertemplate=f"Production System: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
             ))
 
             # Add error whiskers
@@ -825,12 +884,12 @@ def create_barchart_poplvl_eth_amr(
                     width=5
                 ),
                 showlegend=False,
-                hovertemplate=f"Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+                hovertemplate=f"Production System: %{{x}}<br>Cumulative Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
                 customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
             title=dict(
-                text=f"AHLE and the Burden of AMR in {disease_select}",
+                text=f"{main_title}",
                 font=dict(size=20),
                 y=0.95,
             ),
@@ -881,7 +940,7 @@ def create_barchart_poplvl_eth_amr(
             y=y_pos + 0.05,
             xref="paper",
             yref="paper",
-            text="Source of Burden",
+            text="<b>Source of Burden</b>",
             showarrow=False,
             font=dict(size=16, color="black"),
             xanchor="left",
@@ -924,7 +983,7 @@ def create_barchart_poplvl_eth_amr(
             color='metric',
             color_discrete_map={legend_item_dct['label']:legend_item_dct['color'] for legend_item_dct in legend_items},
             barnorm='percent',
-            # pattern_shape='production_system',
+            pattern_shape='production_system',
             # pattern_shape_sequence=[".", "\\", "|"],
             text_auto='.1f',
             )
@@ -2576,20 +2635,34 @@ def update_case_study_graph_description(country_select, disease_select):
     Output('select-case-study-graphic-display-option', 'options'),
     Output('select-case-study-graphic-display-option', 'value'),
     Input('select-case-study-countries-amu', 'value'),
-    Input('select-case-study-diseases-amu', 'value'),
     )
-def update_graphic_display_options_case_study(country_select, disease_select):
+def update_graphic_display_options_case_study(country_select):
 
     if country_select.upper() == 'DENMARK':
-
-        options = [{"label":'Overall', "value":"total"},
-                   {"label":'By Production Stage', "value":"bytype"},
-                   ]
-        value = "total"
+        # Display options with hover over
+        label_option_overall = html.Abbr(
+            "Overall",
+            title="Show burden of AMR for whole population, broken out by production losses and health expenditure",
+            )
+        label_option_bytype = html.Abbr(
+            "By Production Stage",
+            title="Show production losses due to AMR for each production stage",
+            )
     elif country_select.upper() == 'ETHIOPIA':
-        options = [{'label': i, 'value': i, 'disabled': False} for i in [f"AMR {disease_select}",
-                                                                         "Side by Side"]]
-        value = f"AMR {disease_select}"
+        # Display options with hover over
+        label_option_overall = html.Abbr(
+            "Overall",
+            title="Show burden of AMR for whole population, broken out by production losses, health expenditure, and indirect costs",
+            )
+        label_option_bytype = html.Abbr(
+            "By Production System",
+            title="Show production losses due to AMR for each production system",
+            )
+
+    options = [{"label":label_option_overall, "value":"total"},
+               {"label":label_option_bytype, "value":"bytype"},
+               ]
+    value = "total"
 
     return options, value
 
@@ -3091,8 +3164,9 @@ def update_amr_display_amu(dummy_input):
 @gbadsDash.callback(
     Output('AMU-case-study-data-todisplay', 'children'),
     Input('select-case-study-countries-amu', 'value'),
+    Input('select-case-study-diseases-amu', 'value'),
     )
-def update_case_study_table(country_select):
+def update_case_study_table(country_select, disease_select):
     if country_select == 'Denmark':
         display_data = den_amr_ahle_final.copy()
 
@@ -3261,7 +3335,7 @@ def update_case_study_table(country_select):
             display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'{x:,.0f}')
 
     return [
-        html.H4(f"{country_select} AMR Estimates"),
+        html.H4(f"{country_select} AMR in {disease_select}"),
         dash_table.DataTable(
             columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
             # fixed_rows={'headers': True, 'data': 0},
@@ -4351,6 +4425,7 @@ def update_barchart_poplvl(
             option_tot_pct
             ,option_axis_scale
             ,disease_select
+            ,farmtype_select
             ,currency_select
             )
 

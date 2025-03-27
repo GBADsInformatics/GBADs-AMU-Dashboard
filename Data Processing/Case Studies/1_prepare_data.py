@@ -666,6 +666,9 @@ den_ahle_bern_final = clean_colnames(den_ahle_bern_final)
 # =============================================================================
 #### AMR and AHLE combo
 # =============================================================================
+# -----------------------------------------------------------------------------
+#### -- Combine
+# -----------------------------------------------------------------------------
 # Using AHLE from UoL - not broken out by farm type!
 # den_amr_ahle_final = pd.merge(
 #     left=den_amr_final
@@ -899,6 +902,103 @@ eth_amr_prodsys_imp = pd.read_excel(
 eth_amr_prodsys_imp = clean_colnames(eth_amr_prodsys_imp)
 datainfo(eth_amr_prodsys_imp)
 
+# Pivot metrics into columns
+eth_amr_prodsys_imp['combined_metric'] = eth_amr_prodsys_imp['attributable_burden'].astype(str) + '_' + eth_amr_prodsys_imp['parameter']
+eth_amr_prodsys_p = eth_amr_prodsys_imp.pivot(
+	index='production_system'
+	,columns='combined_metric'
+# 	,values=['min_', '5th_centile', '1st_qu_', 'median', 'mean', '3rd_qu_', '95th_centile', 'max_']
+	,values=['5th_centile', 'median', 'mean', '95th_centile']
+)
+eth_amr_prodsys_p = colnames_from_index(eth_amr_prodsys_p)
+eth_amr_prodsys_p = eth_amr_prodsys_p.reset_index()
+eth_amr_prodsys_p = clean_colnames(eth_amr_prodsys_p)
+
+# Add total row
+# eth_amr_prodsys_p.loc['column_total'] = eth_amr_prodsys_p.sum(numeric_only=True, axis=0)
+# eth_amr_prodsys_p.loc['column_total', 'production_system'] = 'Overall'
+# eth_amr_prodsys_p = eth_amr_prodsys_p.reset_index(drop=True)
+
+datainfo(eth_amr_prodsys_p)
+
+# Add calcs
+## Note these require df['col'] syntax due to column names starting with numbers
+eth_amr_prodsys_p['amr_production_losses_median_usd'] = (eth_amr_prodsys_p['median_antimicrobial_resistant_in_mastitis_morbidity__billion_us_dol__'] + eth_amr_prodsys_p['median_antimicrobial_resistant_in_mastitis_mortality__billion_us_dol__']) * 1e9
+eth_amr_prodsys_p['amr_production_losses_5pctl_usd'] = (eth_amr_prodsys_p['5th_centile_antimicrobial_resistant_in_mastitis_morbidity__billion_us_dol__'] + eth_amr_prodsys_p['5th_centile_antimicrobial_resistant_in_mastitis_mortality__billion_us_dol__']) * 1e9
+eth_amr_prodsys_p['amr_production_losses_95pctl_usd'] = (eth_amr_prodsys_p['95th_centile_antimicrobial_resistant_in_mastitis_morbidity__billion_us_dol__'] + eth_amr_prodsys_p['95th_centile_antimicrobial_resistant_in_mastitis_mortality__billion_us_dol__']) * 1e9
+
+# Note "unattributed ahle" in this data matches total AHLE in overall data, so I'm naming it as such
+eth_amr_prodsys_p['total_ahle_mean_usd'] = eth_amr_prodsys_p['mean_unnatributted_ahle__billion_us_dol__'] * 1e9
+eth_amr_prodsys_p['total_ahle_5pctl_usd'] = eth_amr_prodsys_p['5th_centile_unnatributted_ahle__billion_us_dol__'] * 1e9
+eth_amr_prodsys_p['total_ahle_95pctl_usd'] = eth_amr_prodsys_p['95th_centile_unnatributted_ahle__billion_us_dol__'] * 1e9
+
+# Calcs 2
+eth_amr_prodsys_p = eth_amr_prodsys_p.eval(
+    f'''
+    ahle_withoutamr_mean_usd = total_ahle_mean_usd - amr_production_losses_median_usd
+    ahle_withoutamr_errhigh_usd = total_ahle_95pctl_usd - total_ahle_mean_usd
+    ahle_withoutamr_errlow_usd = total_ahle_mean_usd - total_ahle_5pctl_usd
+
+    amr_production_losses_errhigh_usd = amr_production_losses_95pctl_usd - amr_production_losses_median_usd
+    amr_production_losses_errlow_usd = amr_production_losses_median_usd - amr_production_losses_5pctl_usd
+    '''
+)
+
+# -----------------------------------------------------------------------------
+#### -- Export
+# -----------------------------------------------------------------------------
+datainfo(eth_amr_prodsys_p)
+export_dataframe(eth_amr_prodsys_p, PRODATA_FOLDER)
+export_dataframe(eth_amr_prodsys_p, DASHDATA_FOLDER)
+
+# -----------------------------------------------------------------------------
+#### -- Reshape for plotting
+# -----------------------------------------------------------------------------
+# Melt and merge relies on consistent column ordering
+# Medians
+eth_amr_prodsys_p_median = eth_amr_prodsys_p.melt(
+	id_vars='production_system'
+	,value_vars=['amr_production_losses_median_usd', 'ahle_withoutamr_mean_usd']
+	,var_name='metric'
+	,value_name='value_usd'
+)
+
+# Errors
+eth_amr_prodsys_p_errhigh = eth_amr_prodsys_p.melt(
+	id_vars='production_system'
+	,value_vars=['amr_production_losses_errhigh_usd', 'ahle_withoutamr_errhigh_usd']
+	,var_name='metric'
+	,value_name='error_high_usd'
+)
+eth_amr_prodsys_p_errlow = eth_amr_prodsys_p.melt(
+	id_vars='production_system'
+	,value_vars=['amr_production_losses_errlow_usd', 'ahle_withoutamr_errlow_usd']
+	,var_name='metric'
+	,value_name='error_low_usd'
+)
+
+# Put them together
+eth_amr_prodsys_p_melt = eth_amr_prodsys_p_median.copy()
+eth_amr_prodsys_p_melt['error_high_usd'] = eth_amr_prodsys_p_errhigh['error_high_usd']
+eth_amr_prodsys_p_melt['error_low_usd'] = eth_amr_prodsys_p_errlow['error_low_usd']
+
+# Currency is in column name, drop from metric
+eth_amr_prodsys_p_melt['metric'] = eth_amr_prodsys_p_melt['metric'].str.replace('_usd', '', regex=False)
+
+# -----------------------------------------------------------------------------
+#### -- Add exchange rate
+# -----------------------------------------------------------------------------
+eth_amr_prodsys_p_melt['value_birr'] = eth_amr_prodsys_p_melt['value_usd'] * birr_per_usd_2021
+eth_amr_prodsys_p_melt['error_high_birr'] = eth_amr_prodsys_p_melt['error_high_usd'] * birr_per_usd_2021
+eth_amr_prodsys_p_melt['error_low_birr'] = eth_amr_prodsys_p_melt['error_low_usd'] * birr_per_usd_2021
+
+# -----------------------------------------------------------------------------
+#### -- Export
+# -----------------------------------------------------------------------------
+datainfo(eth_amr_prodsys_p_melt)
+export_dataframe(eth_amr_prodsys_p_melt, PRODATA_FOLDER)
+export_dataframe(eth_amr_prodsys_p_melt, DASHDATA_FOLDER)
+
 # -----------------------------------------------------------------------------
 #### -- Population by Production System
 # -----------------------------------------------------------------------------
@@ -1037,143 +1137,143 @@ datainfo(eth_pop_prodsys_imp)
 # =============================================================================
 #### Test plot 2 - side by side stacked bars
 # =============================================================================
-'''
-JR Note: even when giving AMR metrics their own Y-axis, indirect costs and
-health expenditure are invisible! Log axis needed.
-'''
-import plotly.graph_objs as go
-from plotly.subplots import make_subplots
-import plotly.io as pio
+# '''
+# JR Note: even when giving AMR metrics their own Y-axis, indirect costs and
+# health expenditure are invisible! Log axis needed.
+# '''
+# import plotly.graph_objs as go
+# from plotly.subplots import make_subplots
+# import plotly.io as pio
 
-# Data
-data = {
-    'metric': [
-        'AMR production losses',
-        'AMR health expenditure',
-        'AMR indirect costs',
-        'Unattributed AHLE'
-    ],
-    'value_usd': [
-        685208346.2217035,
-        136823.4928812638,
-        279555.3191489362,
-        14734375274.966267
-    ]
-}
+# # Data
+# data = {
+#     'metric': [
+#         'AMR production losses',
+#         'AMR health expenditure',
+#         'AMR indirect costs',
+#         'Unattributed AHLE'
+#     ],
+#     'value_usd': [
+#         685208346.2217035,
+#         136823.4928812638,
+#         279555.3191489362,
+#         14734375274.966267
+#     ]
+# }
 
-# Create figure with two subplots side by side
-fig = make_subplots(
-    rows=1,
-    cols=2,
-    subplot_titles=('Full View', 'Zoomed View (AMR Metrics)'),
-    # shared_legend=True,
-    x_title='View Type',
-    specs=[[{'type':'bar'}, {'type':'bar'}]]
-)
+# # Create figure with two subplots side by side
+# fig = make_subplots(
+#     rows=1,
+#     cols=2,
+#     subplot_titles=('Full View', 'Zoomed View (AMR Metrics)'),
+#     # shared_legend=True,
+#     x_title='View Type',
+#     specs=[[{'type':'bar'}, {'type':'bar'}]]
+# )
 
-# Full view bar chart (left)
-fig.add_trace(
-    go.Bar(
-        x=['Full View'],
-        y=[data['value_usd'][0]],
-        name='AMR production losses',
-        marker_color='blue',
-        hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
-    ),
-    row=1, col=1
-)
-fig.add_trace(
-    go.Bar(
-        x=['Full View'],
-        y=[data['value_usd'][1]],
-        name='AMR health expenditure',
-        marker_color='green',
-        hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
-        base=data['value_usd'][0]
-    ),
-    row=1, col=1
-)
-fig.add_trace(
-    go.Bar(
-        x=['Full View'],
-        y=[data['value_usd'][2]],
-        name='AMR indirect costs',
-        marker_color='red',
-        hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
-        base=data['value_usd'][0] + data['value_usd'][1]
-    ),
-    row=1, col=1
-)
-fig.add_trace(
-    go.Bar(
-        x=['Full View'],
-        y=[data['value_usd'][3]],
-        name='Unattributed AHLE',
-        marker_color='purple',
-        hovertemplate='Unattributed AHLE: $%{y:,.2f}<extra></extra>',
-        base=data['value_usd'][0] + data['value_usd'][1] + data['value_usd'][2]
-    ),
-    row=1, col=1
-)
+# # Full view bar chart (left)
+# fig.add_trace(
+#     go.Bar(
+#         x=['Full View'],
+#         y=[data['value_usd'][0]],
+#         name='AMR production losses',
+#         marker_color='blue',
+#         hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
+#     ),
+#     row=1, col=1
+# )
+# fig.add_trace(
+#     go.Bar(
+#         x=['Full View'],
+#         y=[data['value_usd'][1]],
+#         name='AMR health expenditure',
+#         marker_color='green',
+#         hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
+#         base=data['value_usd'][0]
+#     ),
+#     row=1, col=1
+# )
+# fig.add_trace(
+#     go.Bar(
+#         x=['Full View'],
+#         y=[data['value_usd'][2]],
+#         name='AMR indirect costs',
+#         marker_color='red',
+#         hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
+#         base=data['value_usd'][0] + data['value_usd'][1]
+#     ),
+#     row=1, col=1
+# )
+# fig.add_trace(
+#     go.Bar(
+#         x=['Full View'],
+#         y=[data['value_usd'][3]],
+#         name='Unattributed AHLE',
+#         marker_color='purple',
+#         hovertemplate='Unattributed AHLE: $%{y:,.2f}<extra></extra>',
+#         base=data['value_usd'][0] + data['value_usd'][1] + data['value_usd'][2]
+#     ),
+#     row=1, col=1
+# )
 
-# Zoomed view bar chart (right) - only AMR metrics
-fig.add_trace(
-    go.Bar(
-        x=['Zoomed View'],
-        y=[data['value_usd'][0]],
-        name='AMR production losses',
-        marker_color='blue',
-        showlegend=False,
-        hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
-    ),
-    row=1, col=2
-)
-fig.add_trace(
-    go.Bar(
-        x=['Zoomed View'],
-        y=[data['value_usd'][1]],
-        name='AMR health expenditure',
-        marker_color='green',
-        showlegend=False,
-        hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
-        base=data['value_usd'][0]
-    ),
-    row=1, col=2
-)
-fig.add_trace(
-    go.Bar(
-        x=['Zoomed View'],
-        y=[data['value_usd'][2]],
-        name='AMR indirect costs',
-        marker_color='red',
-        showlegend=False,
-        hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
-        base=data['value_usd'][0] + data['value_usd'][1]
-    ),
-    row=1, col=2
-)
+# # Zoomed view bar chart (right) - only AMR metrics
+# fig.add_trace(
+#     go.Bar(
+#         x=['Zoomed View'],
+#         y=[data['value_usd'][0]],
+#         name='AMR production losses',
+#         marker_color='blue',
+#         showlegend=False,
+#         hovertemplate='AMR production losses: $%{y:,.2f}<extra></extra>'
+#     ),
+#     row=1, col=2
+# )
+# fig.add_trace(
+#     go.Bar(
+#         x=['Zoomed View'],
+#         y=[data['value_usd'][1]],
+#         name='AMR health expenditure',
+#         marker_color='green',
+#         showlegend=False,
+#         hovertemplate='AMR health expenditure: $%{y:,.2f}<extra></extra>',
+#         base=data['value_usd'][0]
+#     ),
+#     row=1, col=2
+# )
+# fig.add_trace(
+#     go.Bar(
+#         x=['Zoomed View'],
+#         y=[data['value_usd'][2]],
+#         name='AMR indirect costs',
+#         marker_color='red',
+#         showlegend=False,
+#         hovertemplate='AMR indirect costs: $%{y:,.2f}<extra></extra>',
+#         base=data['value_usd'][0] + data['value_usd'][1]
+#     ),
+#     row=1, col=2
+# )
 
-# Update layout
-fig.update_layout(
-    title='AMR Costs: Full View and Zoomed View',
-    barmode='stack',
-    height=600,
-    width=1200,
-    legend_title='Metrics'
-)
+# # Update layout
+# fig.update_layout(
+#     title='AMR Costs: Full View and Zoomed View',
+#     barmode='stack',
+#     height=600,
+#     width=1200,
+#     legend_title='Metrics'
+# )
 
-# Customize y-axes
-fig.update_yaxes(
-    title_text='Cost (USD)',
-    tickformat='.2s',  # Scientific notation with 2 significant digits
-    row=1, col=1
-)
-fig.update_yaxes(
-    title_text='AMR Metrics Cost (USD)',
-    tickformat='.2s',  # Scientific notation with 2 significant digits
-    range=[0, sum(data['value_usd'][:3])],  # Set y-axis range for zoomed view
-    row=1, col=2
-)
+# # Customize y-axes
+# fig.update_yaxes(
+#     title_text='Cost (USD)',
+#     tickformat='.2s',  # Scientific notation with 2 significant digits
+#     row=1, col=1
+# )
+# fig.update_yaxes(
+#     title_text='AMR Metrics Cost (USD)',
+#     tickformat='.2s',  # Scientific notation with 2 significant digits
+#     range=[0, sum(data['value_usd'][:3])],  # Set y-axis range for zoomed view
+#     row=1, col=2
+# )
 
-# Show the plot
-pio.show(fig)
+# # Show the plot
+# pio.show(fig)
