@@ -306,7 +306,6 @@ export_dataframe(den_amr_ahle_farmlvl, DASHDATA_FOLDER)
 # Median estimates
 den_amr_ahle_poplvl = den_amr_ahle.melt(
 	id_vars=['scenario', 'farm_type', 'number_of_farms']
-    #!!! Ordering matters for plotting with log scale. Want smaller value first (AMR).
 	,value_vars=[
         'burden_of_amr_at_pop_level_median'
         ,'ahle_at_pop_level_median_withoutamr'
@@ -657,11 +656,20 @@ export_dataframe(den_ahle_final, PRODATA_FOLDER)
 # =============================================================================
 #### AHLE from Bern
 # =============================================================================
+# Full version
+#!!! Clean this up for display in the dashboard
 den_ahle_bern_final = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results AHLE Dashboard.xlsx')
+    ,sheet_name='Results AHLE Dashboard'
+)
+den_ahle_bern_final = clean_colnames(den_ahle_bern_final)
+
+# Trimmed version from data organizer
+den_ahle_bern_final_jr = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
     ,sheet_name='AHLE from U Bern'
 )
-den_ahle_bern_final = clean_colnames(den_ahle_bern_final)
+den_ahle_bern_final_jr = clean_colnames(den_ahle_bern_final_jr)
 
 # =============================================================================
 #### AMR and AHLE combo
@@ -687,7 +695,7 @@ recode_farmtype = {
 den_amr_final['production_stage'] = den_amr_final['farm_type'].replace(recode_farmtype)
 den_amr_ahle_final = pd.merge(
     left=den_amr_final
-    ,right=den_ahle_bern_final.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
+    ,right=den_ahle_bern_final_jr.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
     ,on='production_stage'
     ,how='left'
 )

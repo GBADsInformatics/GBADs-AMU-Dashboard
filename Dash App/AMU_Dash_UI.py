@@ -156,6 +156,9 @@ den_amr_ahle_final_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_a
 # Wide format data for display
 den_amr_ahle_final = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_final.pkl.gz'))
 
+# AHLE data for reference
+# den_ahle_ref = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, '.pkl.gz'))
+
 # Replace column values to show in legend
 # Note order here defines order in plot
 legend_text_poplvl = {
@@ -2184,6 +2187,16 @@ gbadsDash.layout = html.Div([
                         #             ]), # END OF COL
                         #         ],size="md", color="#393375", fullscreen=False), # End of Spinner
                         #     ]),
+                        dbc.Row([
+                            dbc.Spinner(children=[
+                                dbc.Col([
+                                    html.Div([
+                                        html.Div(id='den-ahle-table-todisplay'),
+                                        ], style={'margin-left':"20px", "width":"25%"}),
+                                    html.Br() # Space in between tables
+                                    ]), # END OF COL
+                                ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            ]),
                     ]),     ### END OF CASE STUDY TAB
 
         ### END OF TABS ###
@@ -3255,14 +3268,6 @@ def update_case_study_table(country_select, disease_select):
         for column in columns_to_format:
             display_data[column] = display_data[column].apply(lambda x: f'{x:,.0f}')
 
-        # Percent
-        # columns_to_format = [
-        #     'prpn_change_2018to2020',
-        #     'resistance_rate_wtavg',
-        # ]
-        # for column in columns_to_format:
-        #     display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0%}')
-
         # DKK currency
         columns_to_format = [
             'amr_production_losses_at_farm_level_median',
@@ -3283,13 +3288,6 @@ def update_case_study_table(country_select, disease_select):
         ]
         for column in columns_to_format:
             display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'DKK {x:,.0f}')
-
-        # USD currency
-        # columns_to_format = [
-        #     'value_usd',
-        # ]
-        # for column in columns_to_format:
-        #     display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
 
     elif country_select == 'Ethiopia':
         display_data = eth_amr.copy()
@@ -3408,6 +3406,44 @@ def update_case_study_table(country_select, disease_select):
 #             ]
 #     elif country_select == 'Ethiopia':
 #         return []
+
+# Denmark AHLE reference table
+@gbadsDash.callback(
+    Output('den-ahle-table-todisplay', 'children'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_den_ahle_table(country_select):
+    # if country_select == 'Denmark':
+    #     display_data = den_ahle_bern_final.copy()
+    #     return [
+    #         html.H4("Denmark AHLE Details"),
+    #         dash_table.DataTable(
+    #             data=display_data.to_dict('records'),
+    #             export_format="csv",
+    #             sort_action='native',
+    #             style_cell={
+    #                 'font-family':'sans-serif',
+    #                 },
+    #             style_table={'overflowX':'scroll',
+    #                           'overflowY': 'auto'},
+    #             page_action='none',
+
+    #             # Hover-over for column headers
+    #             tooltip_header=column_tooltips,
+    #             tooltip_delay= 500,
+    #             tooltip_duration=50000,
+
+    #             # Underline columns with tooltips
+    #             style_header_conditional=[{
+    #                 'if': {'column_id': col},
+    #                 'textDecoration': 'underline',
+    #                 'textDecorationStyle': 'dotted',
+    #                 } for col in list(column_tooltips)],
+    #             )
+    #         ]
+    # elif country_select == 'Ethiopia':
+    #     return []
+    return []
 
 # ------------------------------------------------------------------------------
 #### -- Figures
