@@ -1,6 +1,6 @@
 # Welcome to the Antimicrobial Usage and Resistance interactive dashboard
 
-This interactive dashboard shows estimates of expenditure with antimicrobial usage (AMU) on a global scale and of the burden antimicrobial resistance (AMR) and how it relates to the animal health loss envelope (AHLE) for livestock in selected case studies
+This interactive dashboard shows estimates of expenditure with antimicrobial usage (AMU) on a global scale and of the burden antimicrobial resistance (AMR) and how it relates to the animal health loss envelope (AHLE) for livestock in selected case studies.
 
 This is part of the Global Burden of Animal Diseases (GBADs) project. To learn more see [the GBADs webpage](https://animalhealthmetrics.org/). 
 To browse other dashboards and data sources hosted by the GBADs Informatics theme, see [the GBADs Knowledge Engine](http://gbadske.org/).

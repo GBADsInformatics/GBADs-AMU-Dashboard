@@ -1,1 +1,57 @@
-# Actual Burden of Antimicrobial Resistance
+# Absolute Burden of Antimicrobial Resistance
+
+The absolute burden of Antimicrobial Resistance (AMR) chart presents the financial burden associated with AMR and Animal Health Loss Envelope (AHLE) within a specific disease context, under a given incident rate of resistance for that disease. 
+The chart visually represents the total AHLE and is partitioned into the AMR contributing components and the remaining portion, label as the unattributed AHLE. 
+Error bars are included to indicate the range of uncertainty associated with these estimates. 
+The data reflects the overall economic burden at a specific production stage, offering insight into the financial implications of AMR and AHLE within this scenario.
+
+The controls for the absolute burden chart are:
+
+**Display**<br />
+Adjust the level of detail displayed. Select 'Overall' for a summary view or 'By Production Stage' to see the data broken down for each production stage.
+```{figure} ../Images/amu_case_study_graphic_display_option.png
+---
+#height: 100px
+name: amu_case_study_graphic_display_option
+---
+Display options for absolute burden
+```
+
+```{figure} ../Images/Den_overall_AHLE_abs_burden.png
+---
+#height: 700px
+name: Denmark_overall_AHLE_absolute_burden
+---
+Showing absolute AMR burden as a summary by production stage
+```
+
+```{figure} ../Images/Den_prod_sys_AHLE_abs_burden.png
+---
+#height: 700px
+name: Denmark_production_stage_AHLE_absolute_burden
+---
+Showing absolute AMR burden over all production stages
+```
+
+**Axis Scale**<br />
+Switch between a linear (unit) scale and a logarithmic (log) scale for the chart's Y-axis.
+```{figure} ../Images/amu_case_study_axis_scale_option.png
+---
+#height: 100px
+name: amu_case_study_axis_scale_option
+---
+Axis scale options for absolute AMR burden
+```
+
+**Currency**<br />
+Determines the currency to display. Currency exchange rate is from the World Bank and is specific to the displayed year.
+
+**Incident rate of resistance**<br />
+Scenarios represent varying disease incident rates. Use this control to see how different rates influence the data.
+```{figure} ../Images/amu_case_study_incident_rate_option.png
+---
+#height: 100px
+name: amu_case_study_incident_rate_option
+---
+Incident rate slider
+```

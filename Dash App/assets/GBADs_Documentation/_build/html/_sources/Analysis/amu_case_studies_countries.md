@@ -32,7 +32,7 @@ The case study for Ethiopia is exploring the burden of antimicrobial resistance 
 This is shown as a total across all production systems, as well as broken down by production system.
 <p>
 he estimate of the burden of antimicrobial resistance is broken out by three loss pathways: production losses, health expenditure, and indirect costs. 
-The uncertainty in the estimate is displayed in the graphics with error bars..
+The uncertainty in the estimate is displayed in the graphics with error bars.
 </p>
 </p>
 

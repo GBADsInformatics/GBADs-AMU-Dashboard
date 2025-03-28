@@ -1,6 +1,6 @@
 # Reading the charts
 <p>
-Interactive charts for the case studies are organized into 3 sections:
+Interactive charts for the case studies are organized into 2 sections:
 <ul>
 	<li>Actual Burden of Antimicrobial Resistance</li>
 	<li>Percent of the Animal Health Loss Envelope</li>
