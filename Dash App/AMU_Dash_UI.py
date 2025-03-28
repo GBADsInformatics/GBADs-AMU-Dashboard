@@ -1050,7 +1050,7 @@ def create_case_study_piechart_den_poplvl(
     ):
     scenario_select = scenario_codes[scenario_select_num]
     base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
-    base_df = base_df.query("farm_type == 'Overall'")
+
 
     if currency_select == 'Danish Krone (DKK)':
         value_col = 'value_dkk'
@@ -1059,25 +1059,27 @@ def create_case_study_piechart_den_poplvl(
         value_col = 'value_usd'
         currency_label = 'USD'
 
-    # Define color for each metric to use in plot
-    legend_items = {
-        'Unattributed AHLE': '#fbc98e',
-        'Production losses associated with AMR': '#31bff3',
-        'Health expenditure associated with AMR': '#31f3be',
-    }
-    # Filter to appropriate metrics
-    selected_metrics = list(legend_items.keys())  # Get the keys from the dictionary
-    _selected_rows = (base_df['metric'].isin(selected_metrics))
-    base_df = base_df.loc[_selected_rows]
-
     if farmtype_select == 'total':
         base_df = base_df.query("farm_type == 'Overall'")
+
+        # Define color for each metric to use in plot
+        legend_items = {
+            'Unattributed AHLE': '#fbc98e',
+            'Production losses associated with AMR': '#31bff3',
+            'Health expenditure associated with AMR': '#31f3be',
+        }
+        # Filter to appropriate metrics
+        selected_metrics = list(legend_items.keys())
+        _selected_rows = (base_df['metric'].isin(selected_metrics))
+        base_df = base_df.loc[_selected_rows]
+
         # Create pie chart
         piechart_fig = go.Figure(data=[
             go.Pie(
                 labels=base_df['metric'],
                 values=base_df[value_col],
                 textinfo='label+percent',
+                hovertemplate=f"%{{label}} <br>%{{value}} {currency_label}<br>%{{percent}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in base_df['metric']],
@@ -1085,100 +1087,240 @@ def create_case_study_piechart_den_poplvl(
             )
         ])
 
-    # elif farmtype_select == 'bytype':
-    #     piechart_fig = make_subplots(rows=1, cols=3, specs=[[{'type':'domain'}, {'type':'domain'}]])
-
-    #     piechart_fig.add_trace(go.Figure(data=[
-    #         go.Pie(
-    #             labels=base_df['metric'],
-    #             values=base_df[value_col],
-    #             textinfo='label+percent',
-    #             rotation = -90,
-    #             marker=dict(
-    #                 colors=[legend_items[label] for label in base_df['metric']],
-    #             ),
-    #         )
-    #     ]),
-    #         1,1)
-
-    #     piechart_fig.add_trace(go.Figure(data=[
-    #         go.Pie(
-    #             labels=base_df['metric'],
-    #             values=base_df[value_col],
-    #             textinfo='label+percent',
-    #             rotation = -90,
-    #             marker=dict(
-    #                 colors=[legend_items[label] for label in base_df['metric']],
-    #             ),
-    #         )
-    #     ]),
-    #         1,2)
-
-    #     piechart_fig.add_trace(go.Figure(data=[
-    #         go.Pie(
-    #             labels=base_df['metric'],
-    #             values=base_df[value_col],
-    #             textinfo='label+percent',
-    #             rotation = -90,
-    #             marker=dict(
-    #                 colors=[legend_items[label] for label in base_df['metric']],
-    #             ),
-    #         )
-    #     ]),
-    #         1,3)
-
-    piechart_fig.update_layout(
-        title=dict(
-            text=f"AHLE and the Burden of AMR in {disease_select}<br>" \
-                + f"{scenario_select} scenario<br>",
-            font=dict(size=20),
-                )
-            )
-
-    return piechart_fig
-
-def create_case_study_piechart_eth_poplvl(
-        disease_select,
-        currency_select,
-    ):
-    input_df = eth_amr_toplot
-
-    if currency_select == 'USD':
-        value_col = 'value_usd'
-        currency_label = 'USD'
-    elif currency_select == 'Ethiopian Birr (ETB)':
-        value_col = 'value_birr'
-        currency_label = 'ETB'
-
-    # Define color for each metric to use in plot
-    legend_items = {
-        'Unattributed AHLE': '#fbc98e',
-        'Production losses associated with AMR': '#31bff3',
-        'Health expenditure associated with AMR': '#31f3be',
-        'Indirect costs associated with AMR': '#c131f3',
-    }
-
-    # Create pie chart
-    piechart_fig = go.Figure(data=[
-        go.Pie(
-            labels=input_df['metric'],
-            values=input_df[value_col],
-            textinfo='label+percent',
-            rotation = -90,
-            marker=dict(
-                colors=[legend_items[label] for label in input_df['metric']],
+        piechart_fig.update_layout(
+            title=dict(
+                text=f"<b>AHLE and the Burden of AMR in {disease_select}</b><br>" \
+                    + f"{scenario_select} scenario<br>",
+                font=dict(size=20),
             ),
         )
-    ])
 
-    piechart_fig.update_layout(
-        title=dict(
-            text=f"AHLE and the Burden of AMR in {disease_select}<br>",
-            font=dict(size=20),
-            )
+    elif farmtype_select == 'bytype':
+        base_df = base_df.query("farm_type != 'Overall'").copy()
+
+        # Define color for each metric to use in plot
+        # This also defines metrics to use
+        legend_items = {
+            'Unattributed AHLE': '#fbc98e',
+            'AMR': '#31bff3',
+        }
+        # Filter to appropriate metrics
+        selected_metrics = list(legend_items.keys())
+        _selected_rows = (base_df['metric'].isin(selected_metrics))
+        base_df = base_df.loc[_selected_rows]
+
+        # Establish subplot structure
+        piechart_fig = make_subplots(
+            rows=3,
+            cols=1,
+            specs=[[{'type': 'domain'}], [{'type': 'domain'}], [{'type': 'domain'}]],
+            subplot_titles=("Breeding", "Nursery", "Fattening")
         )
 
+        piechart_fig.add_trace(
+            go.Pie(
+                labels=base_df.query("farm_type == 'Breeding'")['metric'],
+                values=base_df.query("farm_type == 'Breeding'")[value_col],
+                name="Breeding",
+                textinfo='label+percent',
+                rotation=-90,
+                marker=dict(
+                    colors=[legend_items[label] for label in base_df.query("farm_type == 'Breeding'")['metric']],
+                ),
+            ),
+            1,1)
+
+        piechart_fig.add_trace(
+            go.Pie(
+                labels=base_df.query("farm_type == 'Nursery'")['metric'],
+                values=base_df.query("farm_type == 'Nursery'")[value_col],
+                name="Nursery",
+                textinfo='label+percent',
+                rotation = -90,
+                marker=dict(
+                    colors=[legend_items[label] for label in base_df.query("farm_type == 'Nursery'")['metric']],
+                ),
+            ),
+            2,1)
+
+        piechart_fig.add_trace(
+            go.Pie(
+                labels=base_df.query("farm_type == 'Fattening'")['metric'],
+                values=base_df.query("farm_type == 'Fattening'")[value_col],
+                name="Fattening",
+                textinfo='label+percent',
+                rotation = -90,
+                marker=dict(
+                    colors=[legend_items[label] for label in base_df.query("farm_type == 'Fattening'")['metric']],
+                ),
+            ),
+            3,1)
+
+        piechart_fig.update_layout(
+            title=dict(
+                text=f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b><br>" \
+                    + f"{scenario_select} scenario<br>",
+                font=dict(size=20),
+            ),)
+
+    # Legend title
+    piechart_fig.update_layout(
+        annotations=[
+        *piechart_fig.layout.annotations,  # This preserves existing subplot titles
+        dict(
+            text="Source of Burden",
+            showarrow=False,
+            xref="paper",
+            yref="paper",
+            x=1.06,
+            y=1.05,
+            xanchor="left",
+            yanchor="top",
+            font=dict(size=16),
+        )
+        ]
+    )
+
     return piechart_fig
+
+# def create_case_study_piechart_eth_poplvl(
+#         disease_select,
+#         currency_select,
+#         farmtype_select,
+#     ):
+
+#     if currency_select == 'USD':
+#         value_col = 'value_usd'
+#         currency_label = 'USD'
+#     elif currency_select == 'Ethiopian Birr (ETB)':
+#         value_col = 'value_birr'
+#         currency_label = 'ETB'
+
+#     if farmtype_select == 'total':
+#         input_df = eth_amr_sorted
+#         input_df = input_df.query("farm_type == 'Overall'")
+
+#         # Define color for each metric to use in plot
+#         legend_items = {
+#             'Unattributed AHLE': '#fbc98e',
+#             'Production losses associated with AMR': '#31bff3',
+#             'Health expenditure associated with AMR': '#31f3be',
+#             'Indirect costs associated with AMR': '#c131f3',
+#         }
+
+#         # Filter to appropriate metrics
+#         selected_metrics = [dct['label'] for dct in legend_items]
+#         _selected_rows = (input_df['metric'].isin(selected_metrics))
+#         input_df = input_df.loc[_selected_rows]
+
+#         # Create pie chart
+#         piechart_fig = go.Figure(data=[
+#             go.Pie(
+#                 labels=input_df['metric'],
+#                 values=input_df[value_col],
+#                 textinfo='label+percent',
+#                 hovertemplate=f"%{{label}} <br>%{{value}} {currency_label}<br>%{{percent}}<extra></extra>",
+#                 rotation = -90,
+#                 marker=dict(
+#                     colors=[legend_items[label] for label in input_df['metric']],
+#                     ),
+#             )
+#         ])
+
+#         piechart_fig.update_layout(
+#             title=dict(
+#                 text=f"<b>AHLE and the Burden of AMR in {disease_select}</b><br>",
+#                 font=dict(size=20),
+#             ),
+#         )
+
+#     # elif farmtype_select == 'bytype':
+#     #     input_df = eth_amr_prodsys_p_melt_sorted.copy()
+
+#     #     # Define color for each metric to use in plot
+#     #     # This also defines metrics to use
+#     #     legend_items = {
+#     #         'Unattributed AHLE': '#fbc98e',
+#     #         'Production losses associated with AMR': '#31bff3',
+#     #     }
+
+#     #     # Filter to appropriate metrics
+#     #     selected_metrics = [dct['label'] for dct in legend_items]
+#     #     _selected_rows = (input_df['metric'].isin(selected_metrics))
+#     #     input_df = input_df.loc[_selected_rows]
+
+#     #     # Establish subplot structure
+#     #     piechart_fig = make_subplots(
+#     #         rows=3,
+#     #         cols=1,
+#     #         specs=[[{'type': 'domain'}], [{'type': 'domain'}], [{'type': 'domain'}]],
+#     #         subplot_titles=("Crop-Livestock Mixed", "Pastoral", "Peri-Urban")
+#     #     )
+
+#     #     piechart_fig.add_trace(
+#     #         go.Pie(
+#     #             labels=input_df.query("farm_type == 'Crop-Livestock Mixed'")['metric'],
+#     #             values=input_df.query("farm_type == 'Crop-Livestock Mixed'")[value_col],
+#     #             name="Crop-Livestock Mixed",
+#     #             textinfo='label+percent',
+#     #             rotation=-90,
+#     #             marker=dict(
+#     #                 colors=[legend_items[label] for label in input_df.query("farm_type == 'Crop-Livestock Mixed'")['metric']],
+#     #             ),
+#     #         ),
+#     #         1,1)
+
+#     #     piechart_fig.add_trace(
+#     #         go.Pie(
+#     #             labels=input_df.query("farm_type == 'Pastoral'")['metric'],
+#     #             values=input_df.query("farm_type == 'Pastoral'")[value_col],
+#     #             name="Pastoral",
+#     #             textinfo='label+percent',
+#     #             rotation = -90,
+#     #             marker=dict(
+#     #                 colors=[legend_items[label] for label in input_df.query("farm_type == 'Pastoral'")['metric']],
+#     #             ),
+#     #         ),
+#     #         2,1)
+
+#     #     piechart_fig.add_trace(
+#     #         go.Pie(
+#     #             labels=input_df.query("farm_type == 'Peri-Urban'")['metric'],
+#     #             values=input_df.query("farm_type == 'Peri-Urban'")[value_col],
+#     #             name="Peri-Urban",
+#     #             textinfo='label+percent',
+#     #             rotation = -90,
+#     #             marker=dict(
+#     #                 colors=[legend_items[label] for label in input_df.query("farm_type == 'Peri-Urban'")['metric']],
+#     #             ),
+#     #         ),
+#     #         3,1)
+
+#     #     piechart_fig.update_layout(
+#     #         title=dict(
+#     #             text=f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b><br>",
+#     #             font=dict(size=20),
+#     #         ),)
+
+#     # Legend title
+#     piechart_fig.update_layout(
+#         annotations=[
+#         *piechart_fig.layout.annotations,  # This preserves existing subplot titles
+#         dict(
+#             text="Source of Burden",
+#             showarrow=False,
+#             xref="paper",
+#             yref="paper",
+#             x=1.06,
+#             y=1.05,
+#             xanchor="left",
+#             yanchor="top",
+#             font=dict(size=16),
+#         )
+#         ]
+#     )
+
+#     return piechart_fig
 
 #%% 4. LAYOUT
 ##################################################################################################
@@ -2140,28 +2282,16 @@ gbadsDash.layout = html.Div([
                         #     ),
 
 
-                        # #### -- TESTING GRAPH ALTERNATIVES
-                        # html.Hr(style={'margin-right':'10px',}),
-                        # html.H3("Testing visuals", id="AMU-case-study-data-export"),
-                        # dbc.Row([
-                        #     dbc.Col([ # Pie Chart
-                        #         dbc.Spinner(children=[
-                        #             dcc_graph_element(ID='case-study-amr-piechart-poplvl', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
-                        #             ], size="md", color="#393375", fullscreen=False),   # End of Spinner
-                        #         ]),
-
-                        #     # dbc.Col([ # Waterfall Chart
-                        #     #     dbc.Spinner(children=[
-                        #     #         dcc_graph_element(ID='case-study-amr-waterfall-poplvl', DL_FILENAME='GBADs_AMU_Donut', HEIGHT=650)
-                        #     #         ],size="md", color="#393375", fullscreen=False),    # End of Spinner
-                        #     #     ]),
-
-                        #     # dbc.Col([ # Bubble Plot
-                        #     #     dbc.Spinner(children=[
-                        #     #         dcc_graph_element(ID='case-study-amr-bubbleplot-poplvl', DL_FILENAME='GBADs_AMU_Bubble', HEIGHT=650)
-                        #     #         ],size="md", color="#393375", fullscreen=False),    # End of Spinner
-                        #     #     ]),
-                        #     ]), # END OF ROW
+                        #### -- TESTING GRAPH ALTERNATIVES
+                        html.Hr(style={'margin-right':'10px',}),
+                        html.H3("Testing visuals"),
+                        dbc.Row([
+                            dbc.Col([ # Pie Chart
+                                dbc.Spinner(children=[
+                                    dcc_graph_element(ID='case-study-amr-piechart-poplvl', DL_FILENAME='GBADs_AMU_Stacked_Bar', HEIGHT=650)
+                                    ], size="md", color="#393375", fullscreen=False),   # End of Spinner
+                                ]),
+                            ]), # END OF ROW
 
                         #### -- DATATABLES
                         html.Hr(style={'margin-right':'10px',}),
@@ -4467,36 +4597,37 @@ def update_barchart_poplvl(
 
     return barchart_fig
 
-# # Pie chart based on country seletion
-# @gbadsDash.callback(
-#     Output('case-study-amr-piechart-poplvl', 'figure'),
-#     Input('select-case-study-countries-amu', 'value'),
-#     Input('select-scenario-den-amu', 'value'),
-#     Input('select-case-study-diseases-amu', 'value'),
-#     Input('select-case-study-currency-amu', 'value'),
-#     Input('select-case-study-graphic-display-option', 'value'),
-#     )
-# def update_piechart_poplvl(
-#         country_select,
-#         scenario_select_num,
-#         disease_select,
-#         currency_select,
-#         farmtype_select,
-#     ):
-#     if country_select == 'Denmark':
-#         piechart_fig = create_case_study_piechart_den_poplvl(
-#             scenario_select_num,
-#             disease_select,
-#             currency_select,
-#             farmtype_select,
-#             )
-#     elif country_select == 'Ethiopia':
-#         piechart_fig = create_case_study_piechart_eth_poplvl(
-#             disease_select,
-#             currency_select,
-#             )
+# Pie chart based on country seletion
+@gbadsDash.callback(
+    Output('case-study-amr-piechart-poplvl', 'figure'),
+    Input('select-case-study-countries-amu', 'value'),
+    Input('select-scenario-den-amu', 'value'),
+    Input('select-case-study-diseases-amu', 'value'),
+    Input('select-case-study-currency-amu', 'value'),
+    Input('select-case-study-graphic-display-option', 'value'),
+    )
+def update_piechart_poplvl(
+        country_select,
+        scenario_select_num,
+        disease_select,
+        currency_select,
+        farmtype_select,
+    ):
+    if country_select == 'Denmark':
+        piechart_fig = create_case_study_piechart_den_poplvl(
+            scenario_select_num,
+            disease_select,
+            currency_select,
+            farmtype_select,
+            )
+    elif country_select == 'Ethiopia':
+        piechart_fig = create_case_study_piechart_eth_poplvl(
+            disease_select,
+            currency_select,
+            farmtype_select,
+            )
 
-#     return piechart_fig
+    return piechart_fig
 
 # # Denmark AMR bar chart - farm level
 # @gbadsDash.callback(
