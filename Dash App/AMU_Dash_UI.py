@@ -157,7 +157,9 @@ den_amr_ahle_final_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_a
 den_amr_ahle_final = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_amr_ahle_final.pkl.gz'))
 
 # AHLE data for reference
-# den_ahle_ref = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, '.pkl.gz'))
+den_ahle_bern_farmlvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_ahle_bern_farmlvl.pkl.gz'))
+den_ahle_bern_poplvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_ahle_bern_poplvl.pkl.gz'))
+# den_ahle_bern_animallvl = pd.read_pickle(os.path.join(DASH_DATA_FOLDER, 'den_ahle_bern_animallvl.pkl.gz'))
 
 # Replace column values to show in legend
 # Note order here defines order in plot
@@ -2321,8 +2323,18 @@ gbadsDash.layout = html.Div([
                             dbc.Spinner(children=[
                                 dbc.Col([
                                     html.Div([
-                                        html.Div(id='den-ahle-table-todisplay'),
-                                        ], style={'margin-left':"20px", "width":"25%"}),
+                                        html.Div(id='den-ahle-table-poplvl'),
+                                        ], style={'margin-left':"20px", "width":"75%"}),
+                                    html.Br() # Space in between tables
+                                    ]), # END OF COL
+                                ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            ]),
+                        dbc.Row([
+                            dbc.Spinner(children=[
+                                dbc.Col([
+                                    html.Div([
+                                        html.Div(id='den-ahle-table-farmlvl'),
+                                        ], style={'margin-left':"20px", "width":"75%"}),
                                     html.Br() # Space in between tables
                                     ]), # END OF COL
                                 ],size="md", color="#393375", fullscreen=False), # End of Spinner
@@ -3537,43 +3549,155 @@ def update_case_study_table(country_select, disease_select):
 #     elif country_select == 'Ethiopia':
 #         return []
 
-# Denmark AHLE reference table
+# Denmark AHLE reference table - population level
 @gbadsDash.callback(
-    Output('den-ahle-table-todisplay', 'children'),
+    Output('den-ahle-table-poplvl', 'children'),
     Input('select-case-study-countries-amu', 'value'),
     )
-def update_den_ahle_table(country_select):
-    # if country_select == 'Denmark':
-    #     display_data = den_ahle_bern_final.copy()
-    #     return [
-    #         html.H4("Denmark AHLE Details"),
-    #         dash_table.DataTable(
-    #             data=display_data.to_dict('records'),
-    #             export_format="csv",
-    #             sort_action='native',
-    #             style_cell={
-    #                 'font-family':'sans-serif',
-    #                 },
-    #             style_table={'overflowX':'scroll',
-    #                           'overflowY': 'auto'},
-    #             page_action='none',
+def update_den_ahle_table_poplvl(country_select):
+    if country_select == 'Denmark':
+        display_data = den_ahle_bern_poplvl.copy()
+        columns_to_display_with_labels = {
+            "population_segment":"Population Segment"
+            ,"median_dkk":"Median (DKK)"
+            ,"pctl5_dkk":"5%ile (DKK)"
+            ,"pctl95_dkk":"95%ile (DKK)"
+            ,"median_usd":"Median (USD)"
+            ,"pctl5_usd":"5%ile (USD)"
+            ,"pctl95_usd":"95%ile (USD)"
+            }
 
-    #             # Hover-over for column headers
-    #             tooltip_header=column_tooltips,
-    #             tooltip_delay= 500,
-    #             tooltip_duration=50000,
+        # ------------------------------------------------------------------------------
+        # Hover-over text
+        # ------------------------------------------------------------------------------
+        column_tooltips = {
+            }
 
-    #             # Underline columns with tooltips
-    #             style_header_conditional=[{
-    #                 'if': {'column_id': col},
-    #                 'textDecoration': 'underline',
-    #                 'textDecorationStyle': 'dotted',
-    #                 } for col in list(column_tooltips)],
-    #             )
-    #         ]
-    # elif country_select == 'Ethiopia':
-    #     return []
-    return []
+        # ------------------------------------------------------------------------------
+        # Format data to display in the table
+        # ------------------------------------------------------------------------------
+        # DKK
+        columns_to_format = [
+            "median_dkk"
+            ,"pctl5_dkk"
+            ,"pctl95_dkk"
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'DKK {x:,.0f}')
+
+        # USD
+        columns_to_format = [
+            "median_usd"
+            ,"pctl5_usd"
+            ,"pctl95_usd"
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'$USD {x:,.0f}')
+
+        return [
+            html.H4("Denmark AHLE Reference - Population level"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=display_data.to_dict('records'),
+                export_format="csv",
+                sort_action='native',
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX':'scroll',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # # Hover-over for column headers
+                # tooltip_header=column_tooltips,
+                # tooltip_delay= 500,
+                # tooltip_duration=50000,
+
+                # # Underline columns with tooltips
+                # style_header_conditional=[{
+                #     'if': {'column_id': col},
+                #     'textDecoration': 'underline',
+                #     'textDecorationStyle': 'dotted',
+                #     } for col in list(column_tooltips)],
+                )
+            ]
+    elif country_select == 'Ethiopia':
+        return []
+
+# Denmark AHLE reference table - farm level
+@gbadsDash.callback(
+    Output('den-ahle-table-farmlvl', 'children'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_den_ahle_table_farmlvl(country_select):
+    if country_select == 'Denmark':
+        display_data = den_ahle_bern_farmlvl.copy()
+        columns_to_display_with_labels = {
+            "farm_type__size_":"Farm Type (Size)"
+            ,"median_dkk":"Median (DKK)"
+            ,"pctl5_dkk":"5%ile (DKK)"
+            ,"pctl95_dkk":"95%ile (DKK)"
+            ,"median_usd":"Median (USD)"
+            ,"pctl5_usd":"5%ile (USD)"
+            ,"pctl95_usd":"95%ile (USD)"
+            }
+
+        # ------------------------------------------------------------------------------
+        # Hover-over text
+        # ------------------------------------------------------------------------------
+        column_tooltips = {
+            }
+
+        # ------------------------------------------------------------------------------
+        # Format data to display in the table
+        # ------------------------------------------------------------------------------
+        # DKK
+        columns_to_format = [
+            "median_dkk"
+            ,"pctl5_dkk"
+            ,"pctl95_dkk"
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'DKK {x:,.0f}')
+
+        # USD
+        columns_to_format = [
+            "median_usd"
+            ,"pctl5_usd"
+            ,"pctl95_usd"
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'$USD {x:,.0f}')
+
+        return [
+            html.H4("Denmark AHLE Reference - Farm level"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=display_data.to_dict('records'),
+                export_format="csv",
+                sort_action='native',
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX':'scroll',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # # Hover-over for column headers
+                # tooltip_header=column_tooltips,
+                # tooltip_delay= 500,
+                # tooltip_duration=50000,
+
+                # # Underline columns with tooltips
+                # style_header_conditional=[{
+                #     'if': {'column_id': col},
+                #     'textDecoration': 'underline',
+                #     'textDecorationStyle': 'dotted',
+                #     } for col in list(column_tooltips)],
+                )
+            ]
+    elif country_select == 'Ethiopia':
+        return []
 
 # ------------------------------------------------------------------------------
 #### -- Figures
