@@ -156,6 +156,21 @@ RAWDATA_FOLDER = os.path.join(CURRENT_FOLDER, 'raw_data')
 PRODATA_FOLDER = os.path.join(CURRENT_FOLDER, 'processed_data')
 DASHDATA_FOLDER = os.path.join(GRANDPARENT_FOLDER, 'Dash App', 'data')
 
+# =============================================================================
+#### Exchange rates
+# =============================================================================
+'''
+From Sara 3/13/2025:
+    For our Danish dashboard, please use the exchange rate 1 Danish Krone = 0.1416 US Dollar (average exchange rate for 2022).
+'''
+usd_per_dkk = 0.1416
+
+# https://data.worldbank.org/indicator/PA.NUS.FCRF?end=2023&start=2023&view=bar
+birr_per_usd_2023 = 54.60
+birr_per_usd_2022 = 51.76
+birr_per_usd_2021 = 43.73
+birr_per_usd_2020 = 34.93
+
 #%% DENMARK INITIAL DATA
 # *****************************************************************************
 # =============================================================================
@@ -639,37 +654,138 @@ export_dataframe(den_amr_final, PRODATA_FOLDER)
 # =============================================================================
 #### AHLE from UoL
 # =============================================================================
-den_ahle_final = pd.read_excel(
+den_ahle_uol = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
     ,sheet_name='AHLE'
 )
-den_ahle_final = clean_colnames(den_ahle_final)
+den_ahle_uol = clean_colnames(den_ahle_uol)
 
 # # Make AHLE numbers positive for graphing
-# numeric_cols = list(den_ahle_final.select_dtypes('number'))
+# numeric_cols = list(den_ahle_uol.select_dtypes('number'))
 # for COL in numeric_cols:
-#     den_ahle_final[COL] = abs(den_ahle_final[COL])
+#     den_ahle_uol[COL] = abs(den_ahle_uol[COL])
 
-datainfo(den_ahle_final)
-export_dataframe(den_ahle_final, PRODATA_FOLDER)
+datainfo(den_ahle_uol)
+export_dataframe(den_ahle_uol, PRODATA_FOLDER)
 
 # =============================================================================
 #### AHLE from Bern
 # =============================================================================
-# Full version
-#!!! Clean this up for display in the dashboard
-den_ahle_bern_final = pd.read_excel(
-    os.path.join(RAWDATA_FOLDER, 'Results AHLE Dashboard.xlsx')
-    ,sheet_name='Results AHLE Dashboard'
-)
-den_ahle_bern_final = clean_colnames(den_ahle_bern_final)
-
-# Trimmed version from data organizer
-den_ahle_bern_final_jr = pd.read_excel(
+# -----------------------------------------------------------------------------
+#### -- Trimmed version from data organizer
+# -----------------------------------------------------------------------------
+den_ahle_bern_jr = pd.read_excel(
     os.path.join(RAWDATA_FOLDER, 'Denmark AMR data organizer JR - March 5 update.xlsx')
     ,sheet_name='AHLE from U Bern'
 )
-den_ahle_bern_final_jr = clean_colnames(den_ahle_bern_final_jr)
+den_ahle_bern_jr = clean_colnames(den_ahle_bern_jr)
+
+# -----------------------------------------------------------------------------
+#### -- Farm level
+# -----------------------------------------------------------------------------
+den_ahle_bern_farmlvl = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results AHLE Dashboard.xlsx')
+    ,sheet_name='Results AHLE Dashboard'
+    ,header=3
+    ,nrows=4
+    ,usecols='c:f'
+)
+den_ahle_bern_farmlvl = clean_colnames(den_ahle_bern_farmlvl)
+rename_cols = {
+    "farm_type__size_":"farm_type__size_"
+    ,"median":"median_dkk"
+    ,"5_pct_ile":"pctl5_dkk"
+    ,"95_pct_ile":"pctl95_dkk"
+}
+den_ahle_bern_farmlvl = den_ahle_bern_farmlvl.rename(columns=rename_cols)
+
+# Add exchange rate
+den_ahle_bern_farmlvl = den_ahle_bern_farmlvl.eval(
+    f'''
+    median_usd = median_dkk * {usd_per_dkk}
+    pctl5_usd = pctl5_dkk * {usd_per_dkk}
+    pctl95_usd = pctl95_dkk * {usd_per_dkk}
+    '''
+)
+
+# Export
+export_dataframe(den_ahle_bern_farmlvl, PRODATA_FOLDER)
+export_dataframe(den_ahle_bern_farmlvl, DASHDATA_FOLDER)
+
+# -----------------------------------------------------------------------------
+#### -- Animal level
+# -----------------------------------------------------------------------------
+den_ahle_bern_animallvl = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results AHLE Dashboard.xlsx')
+    ,sheet_name='Results AHLE Dashboard'
+    ,header=12
+    ,nrows=5
+    ,usecols='c:d'
+)
+den_ahle_bern_animallvl = clean_colnames(den_ahle_bern_animallvl)
+rename_cols = {
+    "pig_type":"pig_type"
+    ,"median":"median_dkk"
+}
+den_ahle_bern_animallvl = den_ahle_bern_animallvl.rename(columns=rename_cols)
+
+# Add exchange rate
+den_ahle_bern_animallvl = den_ahle_bern_animallvl.eval(
+    f'''
+    median_usd = median_dkk * {usd_per_dkk}
+    '''
+)
+
+# Export
+export_dataframe(den_ahle_bern_animallvl, PRODATA_FOLDER)
+export_dataframe(den_ahle_bern_animallvl, DASHDATA_FOLDER)
+
+# -----------------------------------------------------------------------------
+#### -- Population level
+# -----------------------------------------------------------------------------
+den_ahle_bern_poplvl = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Results AHLE Dashboard.xlsx')
+    ,sheet_name='Results AHLE Dashboard'
+    ,header=20
+    ,nrows=5
+    ,usecols='c:f'
+)
+den_ahle_bern_poplvl = clean_colnames(den_ahle_bern_poplvl)
+rename_cols = {
+    "unnamed:_2":"population_segment"
+    ,"median":"median_dkk"
+    ,"0_05":"pctl5_dkk"
+    ,"0_95":"pctl95_dkk"
+}
+den_ahle_bern_poplvl = den_ahle_bern_poplvl.rename(columns=rename_cols)
+
+# Add exchange rate
+den_ahle_bern_poplvl = den_ahle_bern_poplvl.eval(
+    f'''
+    median_usd = median_dkk * {usd_per_dkk}
+    pctl5_usd = pctl5_dkk * {usd_per_dkk}
+    pctl95_usd = pctl95_dkk * {usd_per_dkk}
+    '''
+)
+
+# Export
+export_dataframe(den_ahle_bern_poplvl, PRODATA_FOLDER)
+export_dataframe(den_ahle_bern_poplvl, DASHDATA_FOLDER)
+
+# -----------------------------------------------------------------------------
+#### -- Update with biomass
+# -----------------------------------------------------------------------------
+'''
+From Beat 3/28:
+    As Denmark is exporting 45% of its weaners, I could not apply the approach discussed in the meeting (accounting only for breeding sows and fatteners).
+    However, I used a different approach (therefore AHLE estimates are different from the ones reported last time, but you do not need to change these).
+'''
+den_ahle_bern_withbiomass = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'AHLE by production stage with head count and biomass.xlsx')
+    ,header=1
+)
+den_ahle_bern_withbiomass = clean_colnames(den_ahle_bern_withbiomass)
+export_dataframe(den_ahle_bern_withbiomass, PRODATA_FOLDER)
 
 # =============================================================================
 #### AMR and AHLE combo
@@ -680,7 +796,7 @@ den_ahle_bern_final_jr = clean_colnames(den_ahle_bern_final_jr)
 # Using AHLE from UoL - not broken out by farm type!
 # den_amr_ahle_final = pd.merge(
 #     left=den_amr_final
-#     ,right=den_ahle_final.drop(columns='number_of_farms')
+#     ,right=den_ahle_uol.drop(columns='number_of_farms')
 #     ,on='farm_type'
 #     ,how='left'
 # )
@@ -695,7 +811,7 @@ recode_farmtype = {
 den_amr_final['production_stage'] = den_amr_final['farm_type'].replace(recode_farmtype)
 den_amr_ahle_final = pd.merge(
     left=den_amr_final
-    ,right=den_ahle_bern_final_jr.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
+    ,right=den_ahle_bern_jr.drop(columns=['number_of_farms_affected', 'delta_gm_per_farm'])
     ,on='production_stage'
     ,how='left'
 )
@@ -774,12 +890,6 @@ den_amr_ahle_final_poplvl['error_low'] = den_amr_ahle_final_poplvl_errlow['error
 # -----------------------------------------------------------------------------
 #### -- Add exchange rate
 # -----------------------------------------------------------------------------
-'''
-From Sara 3/13/2025:
-    For our Danish dashboard, please use the exchange rate 1 Danish Krone = 0.1416 US Dollar (average exchange rate for 2022).
-'''
-usd_per_dkk = 0.1416
-
 rename_cols = {
     "value":"value_dkk"
     ,"error_high":"error_high_dkk"
@@ -795,13 +905,47 @@ den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_lo
 #### -- Add biomass
 # -----------------------------------------------------------------------------
 '''
-#!!! From Beat 3/13:
+From Beat 3/13:
     -Slaughter weight for DK is 114.7kg
     -17,203,200 are slaughtered in DK
     -> Total of 1,973,207,040 kg
 
 Update 3/24: Beat will incorporate average weight for SOWs to get a new total
+
+From Beat 3/28: The three important figures are:
+    Burden per kg breeding sow: DKK 20.02
+    Burden per kg slaughter pig: DKK 1.52
+    Average burden per kg biomass (over all pig categories): DKK 2.98
+
+JR: I want the biomass numbers by stage, which are:
+Stage                       Biomass (kg)
+AHLE Breeding Population	207'117'087
+AHLE Rearing Population*	423'993'600
+AHLE Fattening Population	1'973'207'040
+TOTAL	                      2'604'317'727
 '''
+biomass_by_stage = pd.DataFrame(
+	{'farm_type':['Breed', 'Nurse', 'Fat', 'Total']
+	 ,'biomass_kg':[207117087, 423993600, 1973207040, 2604317727]
+	}
+)
+den_amr_ahle_final_poplvl = pd.merge(
+    left=den_amr_ahle_final_poplvl
+    ,right=biomass_by_stage
+    ,on='farm_type'
+    ,how='left'
+)
+den_amr_ahle_final_poplvl = den_amr_ahle_final_poplvl.eval(
+    f'''
+    value_dkk_perkg = value_dkk / biomass_kg
+    error_high_dkk_perkg = error_high_dkk / biomass_kg
+    error_low_dkk_perkg = error_low_dkk / biomass_kg
+
+    value_usd_perkg = value_usd / biomass_kg
+    error_high_usd_perkg = error_high_usd / biomass_kg
+    error_low_usd_perkg = error_low_usd / biomass_kg
+    '''
+)
 
 # -----------------------------------------------------------------------------
 #### -- Export
@@ -877,13 +1021,6 @@ eth_amr['production_system'] = 'Overall'
 # -----------------------------------------------------------------------------
 #### -- Add exchange rate
 # -----------------------------------------------------------------------------
-# Bring in 2021 rate from Ethiopia dashboard. Confirm with Joao that this is the correct year.
-# https://data.worldbank.org/indicator/PA.NUS.FCRF?end=2023&start=2023&view=bar
-birr_per_usd_2023 = 54.60
-birr_per_usd_2022 = 51.76
-birr_per_usd_2021 = 43.73
-birr_per_usd_2020 = 34.93
-
 eth_amr['value_birr'] = eth_amr['value_usd'] * birr_per_usd_2021
 eth_amr['error_high_birr'] = eth_amr['error_high_usd'] * birr_per_usd_2021
 eth_amr['error_low_birr'] = eth_amr['error_low_usd'] * birr_per_usd_2021
