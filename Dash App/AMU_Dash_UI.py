@@ -2909,7 +2909,7 @@ def toggle_scenarior_selector(country_select):
     )
 def toggle_axis_scale_selector(axis_select):
 
-    if axis_select.upper() == 'TOTAL':
+    if axis_select.upper() == 'TOTAL' or axis_select.upper() == 'PERKG':
         return {'display':'block'}
     else:
         return {'display':'none'}
@@ -4765,7 +4765,7 @@ def update_case_study_graphic_poplvl(
         ,currency_select
     ):
     if country_select == 'Denmark':
-        if option_tot_pct == 'Total':
+        if option_tot_pct == 'Total' or option_tot_pct == 'perkg':
             case_study_fig = create_barchart_poplvl_den_amr(
                 option_tot_pct
                 ,option_axis_scale
@@ -4785,8 +4785,7 @@ def update_case_study_graphic_poplvl(
     elif country_select == 'Ethiopia':
         if option_tot_pct == 'Total':
             case_study_fig = create_barchart_poplvl_eth_amr(
-                option_tot_pct
-                ,option_axis_scale
+                option_axis_scale
                 ,disease_select
                 ,farmtype_select
                 ,currency_select
