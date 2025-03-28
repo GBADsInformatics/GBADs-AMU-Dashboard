@@ -2795,21 +2795,21 @@ def update_case_study_graph_description(country_select, disease_select):
     Input('select-case-study-countries-amu', 'value'),
     )
 def update_metric_options_case_study(country_select):
+    # Display options with hover over
+    metric_option_actual_burden = html.Abbr(
+        "Absolute burden",
+        title="Actual value of production losses and health expenditure due to antimicrobial resistance",
+        )
+    metric_option_burden_perkg = html.Abbr(
+        "Burden per kg biomass",
+        title="Production losses and health expenditure in terms of burden per kg biomass",
+        )
+    metric_option_percent_ahle = html.Abbr(
+        "Percentage of AHLE",
+        title="AMR burden as percent of total AHLE",
+        )
 
     if country_select.upper() == 'DENMARK':
-        # Display options with hover over
-        metric_option_actual_burden = html.Abbr(
-            "Actual burden",
-            title="Actual value of production losses and health expenditure due to antimicrobial resistance",
-            )
-        metric_option_burden_perkg = html.Abbr(
-            "Burden per kg biomass",
-            title="Production losses and health expenditure in terms of burden per kg biomass",
-            )
-        metric_option_percent_ahle = html.Abbr(
-            "Percentage of AHLE",
-            title="AMR burden as percent of total AHLE",
-            )
         options = [
             {'label': metric_option_actual_burden, 'value': "Total"},
             {'label': metric_option_burden_perkg, 'value': "perkg"},
@@ -2818,15 +2818,6 @@ def update_metric_options_case_study(country_select):
         value = 'Total'
 
     elif country_select.upper() == 'ETHIOPIA':
-        # Display options with hover over
-        metric_option_actual_burden = html.Abbr(
-            "Actual burden",
-            title="Actual value of production losses and health expenditure due to antimicrobial resistance",
-            )
-        metric_option_percent_ahle = html.Abbr(
-            "Percentage of AHLE",
-            title="AMR burden as percent of total AHLE",
-            )
         options = [
             {'label': metric_option_actual_burden, 'value': "Total"},
             {'label': metric_option_percent_ahle, 'value': "Percent"},
