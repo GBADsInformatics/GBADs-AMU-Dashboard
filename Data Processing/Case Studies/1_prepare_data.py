@@ -772,6 +772,21 @@ den_ahle_bern_poplvl = den_ahle_bern_poplvl.eval(
 export_dataframe(den_ahle_bern_poplvl, PRODATA_FOLDER)
 export_dataframe(den_ahle_bern_poplvl, DASHDATA_FOLDER)
 
+# -----------------------------------------------------------------------------
+#### -- Update with biomass
+# -----------------------------------------------------------------------------
+'''
+From Beat 3/28:
+    As Denmark is exporting 45% of its weaners, I could not apply the approach discussed in the meeting (accounting only for breeding sows and fatteners).
+    However, I used a different approach (therefore AHLE estimates are different from the ones reported last time, but you do not need to change these).
+'''
+den_ahle_bern_withbiomass = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'AHLE by production stage with head count and biomass.xlsx')
+    ,header=1
+)
+den_ahle_bern_withbiomass = clean_colnames(den_ahle_bern_withbiomass)
+export_dataframe(den_ahle_bern_withbiomass, PRODATA_FOLDER)
+
 # =============================================================================
 #### AMR and AHLE combo
 # =============================================================================
@@ -890,7 +905,7 @@ den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_lo
 #### -- Add biomass
 # -----------------------------------------------------------------------------
 '''
-#!!! From Beat 3/13:
+From Beat 3/13:
     -Slaughter weight for DK is 114.7kg
     -17,203,200 are slaughtered in DK
     -> Total of 1,973,207,040 kg
@@ -901,7 +916,36 @@ From Beat 3/28: The three important figures are:
     Burden per kg breeding sow: DKK 20.02
     Burden per kg slaughter pig: DKK 1.52
     Average burden per kg biomass (over all pig categories): DKK 2.98
+
+JR: I want the biomass numbers by stage, which are:
+Stage                       Biomass (kg)
+AHLE Breeding Population	207'117'087
+AHLE Rearing Population*	423'993'600
+AHLE Fattening Population	1'973'207'040
+TOTAL	                      2'604'317'727
 '''
+biomass_by_stage = pd.DataFrame(
+	{'farm_type':['Breed', 'Nurse', 'Fat', 'Total']
+	 ,'biomass_kg':[207117087, 423993600, 1973207040, 2604317727]
+	}
+)
+den_amr_ahle_final_poplvl = pd.merge(
+    left=den_amr_ahle_final_poplvl
+    ,right=biomass_by_stage
+    ,on='farm_type'
+    ,how='left'
+)
+den_amr_ahle_final_poplvl = den_amr_ahle_final_poplvl.eval(
+    f'''
+    value_dkk_perkg = value_dkk / biomass_kg
+    error_high_dkk_perkg = error_high_dkk / biomass_kg
+    error_low_dkk_perkg = error_low_dkk / biomass_kg
+
+    value_usd_perkg = value_usd / biomass_kg
+    error_high_usd_perkg = error_high_usd / biomass_kg
+    error_low_usd_perkg = error_low_usd / biomass_kg
+    '''
+)
 
 # -----------------------------------------------------------------------------
 #### -- Export

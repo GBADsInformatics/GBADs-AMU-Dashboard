@@ -352,19 +352,20 @@ case_study_country_default = 'Denmark'
 
 # AMR metric
 # Set each option to have hover over explanation
-metric_option_actual_burden = html.Abbr(
-    "Actual burden",
-    title="Actual value of production losses and health expenditure due to antimicrobial resistance",
-    )
-metric_option_percent_ahle = html.Abbr(
-    "Percentage of AHLE",
-    title="AMR burden as percent of total AHLE",
-    )
-case_study_metric_options = [
-    {'label': metric_option_actual_burden, 'value': "Total", 'disabled': False},
-    {'label': metric_option_percent_ahle, 'value': "Percent", 'disabled': False},
-    ]
-case_study_metric_default = 'Total'
+# These are now set in a callback
+# metric_option_actual_burden = html.Abbr(
+#     "Actual burden",
+#     title="Actual value of production losses and health expenditure due to antimicrobial resistance",
+#     )
+# metric_option_percent_ahle = html.Abbr(
+#     "Percentage of AHLE",
+#     title="AMR burden as percent of total AHLE",
+#     )
+# case_study_metric_options = [
+#     {'label': metric_option_actual_burden, 'value': "Total", 'disabled': False},
+#     {'label': metric_option_percent_ahle, 'value': "Percent", 'disabled': False},
+#     ]
+# case_study_metric_default = 'Total'
 
 # Species
 # These are now set in a callback
@@ -510,29 +511,49 @@ def create_barchart_poplvl_den_amr(
     ):
     scenario_select = scenario_codes[scenario_select_num]
     scenario_rate = scenario_code_marks[scenario_select_num]
-    base_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
+    scenario_df = den_amr_ahle_final_poplvl_sorted.query(f"scenario == '{scenario_select}'")
 
     if currency_select == 'Danish Krone (DKK)':
-        value_col = 'value_dkk'
-        error_high_col = 'error_high_dkk'
-        error_low_col = 'error_low_dkk'
-        currency_label = 'DKK'
+        if option_tot_pct == 'Total':
+            value_col = 'value_dkk'
+            error_high_col = 'error_high_dkk'
+            error_low_col = 'error_low_dkk'
+            currency_label = 'DKK'
+            currency_format = ',.0f'
+            percent_format = '.1%'
+        elif option_tot_pct == 'perkg':
+            value_col = 'value_dkk_perkg'
+            error_high_col = 'error_high_dkk_perkg'
+            error_low_col = 'error_low_dkk_perkg'
+            currency_label = 'DKK per kg'
+            currency_format = ',.2f'
+            percent_format = '.1%'
     elif currency_select == 'USD':
-        value_col = 'value_usd'
-        error_high_col = 'error_high_usd'
-        error_low_col = 'error_low_usd'
-        currency_label = 'USD'
+        if option_tot_pct == 'Total':
+            value_col = 'value_usd'
+            error_high_col = 'error_high_usd'
+            error_low_col = 'error_low_usd'
+            currency_label = 'USD'
+            currency_format = ',.0f'
+            percent_format = '.1%'
+        elif option_tot_pct == 'perkg':
+            value_col = 'value_usd_perkg'
+            error_high_col = 'error_high_usd_perkg'
+            error_low_col = 'error_low_usd_perkg'
+            currency_label = 'USD per kg'
+            currency_format = ',.2f'
+            percent_format = '.1%'
 
     # Get important values to show in title
-    population_amr_prod = base_df.query("farm_type == 'Overall'").query("metric == 'Production losses associated with AMR'")[value_col].item()
-    population_amr_health = base_df.query("farm_type == 'Overall'").query("metric == 'Health expenditure associated with AMR'")[value_col].item()
+    population_amr_prod = scenario_df.query("farm_type == 'Overall'").query("metric == 'Production losses associated with AMR'")[value_col].item()
+    population_amr_health = scenario_df.query("farm_type == 'Overall'").query("metric == 'Health expenditure associated with AMR'")[value_col].item()
     population_amr_total = population_amr_prod + population_amr_health
-    population_unattr_ahle = base_df.query("farm_type == 'Overall'").query("metric == 'Unattributed AHLE'")[value_col].item()
+    population_unattr_ahle = scenario_df.query("farm_type == 'Overall'").query("metric == 'Unattributed AHLE'")[value_col].item()
     population_total_ahle = population_amr_total + population_unattr_ahle
     population_amr_prpn_ahle = population_amr_total / population_total_ahle
 
     if farmtype_select == 'total':
-        input_df = base_df.query("farm_type == 'Overall'").copy()
+        input_df = scenario_df.query("farm_type == 'Overall'").copy()
 
         # Define color for each metric to use in plot
         # This also defines metrics to use
@@ -551,7 +572,7 @@ def create_barchart_poplvl_den_amr(
         main_title = f"<b>AHLE and the Burden of AMR in {disease_select}</b>"
 
     elif farmtype_select == 'bytype':
-        input_df = base_df.query("farm_type != 'Overall'").copy()
+        input_df = scenario_df.query("farm_type != 'Overall'").copy()
 
         # Define color for each metric to use in plot
         # This also defines metrics to use
@@ -582,7 +603,7 @@ def create_barchart_poplvl_den_amr(
         layout_type = None
 
     # Plot actual burden (currency)
-    if option_tot_pct == 'Total':
+    if option_tot_pct == 'Total' or option_tot_pct == 'perkg':
         traces = []
         unique_metrics = input_df['metric'].unique()
 
@@ -598,7 +619,7 @@ def create_barchart_poplvl_den_amr(
                 y=metric_df[value_col],
                 marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
                 showlegend=False,
-                hovertemplate=f"Production Stage: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
+                hovertemplate=f"Production Stage: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:{currency_format}}} {currency_label}<extra></extra>",
             ))
 
             # Add error whiskers
@@ -618,7 +639,7 @@ def create_barchart_poplvl_den_amr(
                     width=5,
                 ),
                 showlegend=False,
-                hovertemplate=f"Production Stage: %{{x}}<br>Cumulative Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+                hovertemplate=f"Production Stage: %{{x}}<br>Cumulative Value: %{{y:{currency_format}}} {currency_label}<br>Error Range: [%{{customdata[0]:{currency_format}}}, %{{customdata[1]:{currency_format}}}] {currency_label}<extra></extra>",
                 customdata=metric_df[['error_range_low', 'error_range_high']].values,
             ))
         layout = go.Layout(
@@ -642,7 +663,7 @@ def create_barchart_poplvl_den_amr(
 
         # Add total AHLE and AMR message
         barchart_fig.add_annotation(
-            text=f"Total AHLE: {population_total_ahle:>16,.0f} {currency_label}",
+            text=f"Total AHLE: {population_total_ahle:>16{currency_format}} {currency_label}",
             xref='paper',
             yref='paper',
             x=0,
@@ -652,7 +673,7 @@ def create_barchart_poplvl_den_amr(
             xanchor='left'
         )
         barchart_fig.add_annotation(
-            text=f"AMR:            {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
+            text=f"AMR:            {population_amr_total:>16{currency_format}} {currency_label}  ({population_amr_prpn_ahle:{percent_format}} of AHLE)",
             xref='paper',
             yref='paper',
             x=0,
@@ -2156,8 +2177,7 @@ gbadsDash.layout = html.Div([
                                                dbc.Col([
                                                    html.H6("AMR metric", style=control_heading_style),
                                                    dcc.RadioItems(id='select-case-study-amu-metric-display',
-                                                                  options=case_study_metric_options,
-                                                                  value=case_study_metric_default,
+                                                                  # Options and value are set in a callback
                                                                   labelStyle={'display': 'block'},
                                                                   inputStyle={"margin-right": "10px"},
                                                                   ),
@@ -2784,6 +2804,53 @@ def update_case_study_graph_description(country_select, disease_select):
             '''
 
     return graph_description
+
+# Update metric options based on country selection
+@gbadsDash.callback(
+    Output('select-case-study-amu-metric-display', 'options'),
+    Output('select-case-study-amu-metric-display', 'value'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_metric_options_case_study(country_select):
+
+    if country_select.upper() == 'DENMARK':
+        # Display options with hover over
+        metric_option_actual_burden = html.Abbr(
+            "Actual burden",
+            title="Actual value of production losses and health expenditure due to antimicrobial resistance",
+            )
+        metric_option_burden_perkg = html.Abbr(
+            "Burden per kg biomass",
+            title="Production losses and health expenditure in terms of burden per kg biomass",
+            )
+        metric_option_percent_ahle = html.Abbr(
+            "Percentage of AHLE",
+            title="AMR burden as percent of total AHLE",
+            )
+        options = [
+            {'label': metric_option_actual_burden, 'value': "Total"},
+            {'label': metric_option_burden_perkg, 'value': "perkg"},
+            {'label': metric_option_percent_ahle, 'value': "Percent"},
+            ]
+        value = 'Total'
+
+    elif country_select.upper() == 'ETHIOPIA':
+        # Display options with hover over
+        metric_option_actual_burden = html.Abbr(
+            "Actual burden",
+            title="Actual value of production losses and health expenditure due to antimicrobial resistance",
+            )
+        metric_option_percent_ahle = html.Abbr(
+            "Percentage of AHLE",
+            title="AMR burden as percent of total AHLE",
+            )
+        options = [
+            {'label': metric_option_actual_burden, 'value': "Total"},
+            {'label': metric_option_percent_ahle, 'value': "Percent"},
+            ]
+        value = 'Total'
+
+    return options, value
 
 # Update display graph options based on country selection
 @gbadsDash.callback(
