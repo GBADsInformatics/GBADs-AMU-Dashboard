@@ -1123,7 +1123,8 @@ def create_case_study_piechart_den_poplvl(
                 labels=base_df['metric'],
                 values=base_df[value_col],
                 textinfo='label+percent',
-                hovertemplate=f"%{{label}} <br>%{{value}} {currency_label}<br>%{{percent}}<extra></extra>",
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in base_df['metric']],
@@ -1167,6 +1168,8 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Breeding'")[value_col],
                 name="Breeding",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation=-90,
                 marker=dict(
                     colors=[legend_items[label] for label in base_df.query("farm_type == 'Breeding'")['metric']],
@@ -1180,6 +1183,8 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Nursery'")[value_col],
                 name="Nursery",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in base_df.query("farm_type == 'Nursery'")['metric']],
@@ -1193,6 +1198,8 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Fattening'")[value_col],
                 name="Fattening",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in base_df.query("farm_type == 'Fattening'")['metric']],
@@ -1257,17 +1264,61 @@ def create_case_study_piechart_eth_poplvl(
         _selected_rows = (input_df['metric'].isin(selected_metrics))
         input_df = input_df.loc[_selected_rows]
 
+        # Calculate percentages for custom formatting
+        total_value = input_df[value_col].sum()
+        input_df['percent'] = input_df[value_col] / total_value
+
+        # Create custom text template based on the metric
+        def get_custom_text(row):
+            metric = row['metric']
+            percent = row['percent']
+
+            if metric == 'Indirect costs associated with AMR':
+                return f"{metric}<br>{percent:.3%}"
+            elif metric == 'Health expenditure associated with AMR':
+                if percent < 0.001:
+                    return f"{metric}<br><.001%"
+                else:
+                    return f"{metric}<br>{percent:.1%}"
+            else:
+                return f"{metric}<br>{percent:.1%}"
+
+        # Apply custom text formatting
+        input_df['custom_text'] = input_df.apply(get_custom_text, axis=1)
+
+        # Custom hover template function
+        def get_custom_hover(row):
+            metric = row['metric']
+            percent = row['percent']
+            value = row[value_col]
+
+            if metric == 'Indirect costs associated with AMR':
+                return f"{metric}<br>{value} {currency_label}<br>{percent:.3%}"
+            elif metric == 'Health expenditure associated with AMR':
+                if percent < 0.001:
+                    return f"{metric}<br>{value:,.2f} {currency_label}<br><.001%"
+                else:
+                    return f"{metric}<br>{value:,.2f} {currency_label}<br>{percent:.1%}"
+            else:
+                return f"{metric}<br>{value:,.2f} {currency_label}<br>{percent:.1%}"
+
+        # Apply custom hover formatting
+        input_df['custom_hover'] = input_df.apply(get_custom_hover, axis=1)
+
         # Create pie chart
         piechart_fig = go.Figure(data=[
             go.Pie(
                 labels=input_df['metric'],
                 values=input_df[value_col],
-                textinfo='label+percent',
-                hovertemplate=f"%{{label}} <br>%{{value}} {currency_label}<br>%{{percent}}<extra></extra>",
+                textinfo='none',  # Disable default text
+                customdata=input_df[['custom_hover']].values,
+                text=input_df['custom_text'],
+                hovertemplate="%{customdata[0]}<extra></extra>",
+                texttemplate="%{text}",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in input_df['metric']],
-                    ),
+                ),
             )
         ])
 
@@ -1307,6 +1358,8 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Crop-Livestock Mixed'")[value_col],
                 name="Crop-Livestock Mixed",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation=-90,
                 marker=dict(
                     colors=[legend_items[label] for label in input_df.query("production_system == 'Crop-Livestock Mixed'")['metric']],
@@ -1320,6 +1373,8 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Pastoral'")[value_col],
                 name="Pastoral",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in input_df.query("production_system == 'Pastoral'")['metric']],
@@ -1333,6 +1388,8 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Peri-Urban'")[value_col],
                 name="Peri-Urban",
                 textinfo='label+percent',
+                texttemplate='%{label}<br>%{percent:.1%}',
+                hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in input_df.query("production_system == 'Peri-Urban'")['metric']],
