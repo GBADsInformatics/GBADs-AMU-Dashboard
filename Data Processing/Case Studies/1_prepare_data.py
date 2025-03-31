@@ -503,6 +503,35 @@ NO LONGER USED. JOAO SENT A CORRECTED FILE ON MARCH 5.
 #%% DENMARK DATA MARCH 5
 # *****************************************************************************
 # =============================================================================
+#### Biomass from Bern
+# =============================================================================
+'''
+From Beat 3/13:
+    -Slaughter weight for DK is 114.7kg
+    -17,203,200 are slaughtered in DK
+    -> Total of 1,973,207,040 kg
+
+Update 3/24: Beat will incorporate average weight for SOWs to get a new total
+
+From Beat 3/28: The three important figures are:
+    Burden per kg breeding sow: DKK 20.02
+    Burden per kg slaughter pig: DKK 1.52
+    Average burden per kg biomass (over all pig categories): DKK 2.98
+
+JR: I want the biomass numbers by stage, which are:
+Stage                       Biomass (kg)
+AHLE Breeding Population	207'117'087
+AHLE Rearing Population*	423'993'600
+AHLE Fattening Population	1'973'207'040
+TOTAL	                      2'604'317'727
+'''
+den_biomass_by_stage = pd.DataFrame(
+	{'farm_type':['Breed', 'Nurse', 'Fat', 'Total']
+	 ,'biomass_kg':[207117087, 423993600, 1973207040, 2604317727]
+	}
+)
+
+# =============================================================================
 #### AMR from UoL
 # =============================================================================
 # -----------------------------------------------------------------------------
@@ -860,6 +889,17 @@ den_amr_ahle_final = den_amr_ahle_final.eval(
     amr_total_burden_at_pop_level_95pctile_pctofahle = amr_total_burden_at_pop_level_95_pct_ile / population_ahle_median
     '''
 )
+
+# -----------------------------------------------------------------------------
+#### -- Add biomass
+# -----------------------------------------------------------------------------
+den_amr_ahle_final = pd.merge(
+    left=den_amr_ahle_final
+    ,right=den_biomass_by_stage
+    ,on='farm_type'
+    ,how='left'
+)
+
 export_dataframe(den_amr_ahle_final, PRODATA_FOLDER)
 export_dataframe(den_amr_ahle_final, DASHDATA_FOLDER)
 datainfo(den_amr_ahle_final)
@@ -922,34 +962,9 @@ den_amr_ahle_final_poplvl['error_low_usd'] = den_amr_ahle_final_poplvl['error_lo
 # -----------------------------------------------------------------------------
 #### -- Add biomass
 # -----------------------------------------------------------------------------
-'''
-From Beat 3/13:
-    -Slaughter weight for DK is 114.7kg
-    -17,203,200 are slaughtered in DK
-    -> Total of 1,973,207,040 kg
-
-Update 3/24: Beat will incorporate average weight for SOWs to get a new total
-
-From Beat 3/28: The three important figures are:
-    Burden per kg breeding sow: DKK 20.02
-    Burden per kg slaughter pig: DKK 1.52
-    Average burden per kg biomass (over all pig categories): DKK 2.98
-
-JR: I want the biomass numbers by stage, which are:
-Stage                       Biomass (kg)
-AHLE Breeding Population	207'117'087
-AHLE Rearing Population*	423'993'600
-AHLE Fattening Population	1'973'207'040
-TOTAL	                      2'604'317'727
-'''
-biomass_by_stage = pd.DataFrame(
-	{'farm_type':['Breed', 'Nurse', 'Fat', 'Total']
-	 ,'biomass_kg':[207117087, 423993600, 1973207040, 2604317727]
-	}
-)
 den_amr_ahle_final_poplvl = pd.merge(
     left=den_amr_ahle_final_poplvl
-    ,right=biomass_by_stage
+    ,right=den_biomass_by_stage
     ,on='farm_type'
     ,how='left'
 )

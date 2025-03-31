@@ -2364,6 +2364,16 @@ gbadsDash.layout = html.Div([
                                     ]), # END OF COL
                                 ],size="md", color="#393375", fullscreen=False), # End of Spinner
                             ]),
+                        dbc.Row([
+                            dbc.Spinner(children=[
+                                dbc.Col([
+                                    html.Div([
+                                        html.Div(id='eth-amr-prodlvl'),
+                                        ], style={'margin-left':"20px", "width":"75%"}),
+                                    html.Br() # Space in between tables
+                                    ]), # END OF COL
+                                ],size="md", color="#393375", fullscreen=False), # End of Spinner
+                            ]),
                     ]),     ### END OF CASE STUDY TAB
 
         ### END OF TABS ###
@@ -3114,19 +3124,19 @@ def update_regional_display_amu(input_json):
     # Order does not matter in these lists
     # Zero decimal places
     columns_to_format = [
-    'number_of_countries',
-    'biomass_total_kg_reporting',
-    'biomass_total_kg_region',
-    'biomass_terr_kg_reporting',
-    'biomass_terr_kg_region',
-    'total_antimicrobials_tonnes',
-    'terr_amu_tonnes_reporting',
-    'terr_amu_tonnes_reporting_2020',
-    'terr_amu_tonnes_region_2020',
-    'terr_amu_tonnes_mulch_2020'
+        'number_of_countries',
+        'biomass_total_kg_reporting',
+        'biomass_total_kg_region',
+        'biomass_terr_kg_reporting',
+        'biomass_terr_kg_region',
+        'total_antimicrobials_tonnes',
+        'terr_amu_tonnes_reporting',
+        'terr_amu_tonnes_reporting_2020',
+        'terr_amu_tonnes_region_2020',
+        'terr_amu_tonnes_mulch_2020'
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
+        display_data[column] = display_data[column].apply(lambda x: f'{x:,.0f}')
 
     # One decimal place
     # display_data.update(display_data[[
@@ -3134,20 +3144,20 @@ def update_regional_display_amu(input_json):
 
     # Two decimal places
     columns_to_format = [
-    'drug_resistance_index',
-    'biomass_terr_prpn_reporting',
-    'biomass_terr_reporting_prpnofregion'
+        'drug_resistance_index',
+        'biomass_terr_prpn_reporting',
+        'biomass_terr_reporting_prpnofregion'
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.2f}')
+        display_data[column] = display_data[column].apply(lambda x: f'{x:,.2f}')
 
     # Percent
     columns_to_format = [
-    'prpn_change_2018to2020',
-    'resistance_rate_wtavg',
+        'prpn_change_2018to2020',
+        'resistance_rate_wtavg',
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0%}')
+        display_data[column] = display_data[column].apply(lambda x: f'{x:,.0%}')
 
     # Euro currency
     # display_data.update(display_data[[
@@ -3159,13 +3169,13 @@ def update_regional_display_amu(input_json):
 
     # USD currency
     columns_to_format = [
-    'am_price_usdpertonne_low',
-    'am_price_usdpertonne_mid',
-    'am_price_usdpertonne_high',
-    'am_expenditure_usd_selected'
+        'am_price_usdpertonne_low',
+        'am_price_usdpertonne_mid',
+        'am_price_usdpertonne_high',
+        'am_expenditure_usd_selected'
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
+        display_data[column] = display_data[column].apply(lambda x: f'${x:,.0f}')
 
     return [
             html.H4("Extended Regional Data"),
@@ -3235,7 +3245,7 @@ def update_amr_display_amu(dummy_input):
         'sum_isolates',
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.0f}')
+        display_data[column] = display_data[column].apply(lambda x: f'{x:,.0f}')
 
     # One decimal place
     # display_data.update(display_data[[
@@ -3250,7 +3260,7 @@ def update_amr_display_amu(dummy_input):
         'overall_prev',
     ]
     for column in columns_to_format:
-        display_data[column] = display_data[column].apply(lambda x: f'$ {x:,.1%}')
+        display_data[column] = display_data[column].apply(lambda x: f'{x:,.1%}')
 
     return [
             html.H4("Antimicrobial Resistance Data"),
@@ -3406,6 +3416,7 @@ def update_case_study_table(country_select, disease_select):
             'scenario':"Scenario",
             'farm_type':"Production Stage",
             'number_of_farms':"Number of Farms",
+            'biomass_kg':"Biomass (kg)",
             'amr_production_losses_at_farm_level_median':"Production losses associated with AMR at the Farm level (median) (DKK)",
             'amr_production_losses_at_farm_level_5_pct_ile':"Production losses associated with AMR at the Farm level (5%) (DKK)",
             'amr_production_losses_at_farm_level_95_pct_ile':"Production losses associated with AMR at the Farm level (95%) (DKK)",
@@ -3442,39 +3453,11 @@ def update_case_study_table(country_select, disease_select):
         # ------------------------------------------------------------------------------
         # Hover-over text
         # ------------------------------------------------------------------------------
-        column_tooltips = {
-            'scenario':"Scenario",
-            'farm_type':"Production Stage",
-            'number_of_farms':"Number of Farms",
-            # 'amr_production_losses_at_farm_level_median':"",
-            # 'amr_production_losses_at_farm_level_5_pct_ile':"",
-            # 'amr_production_losses_at_farm_level_95_pct_ile':"",
-            # 'amr_production_losses_at_pop_level_median':"",
-            # 'amr_production_losses_at_pop_level_5_pct_ile':"",
-            # 'amr_production_losses_at_pop_level_95_pct_ile':"",
-            # 'amr_health_expenditure_at_pop_level_median':"",
-            # 'amr_health_expenditure_at_pop_level_5_pct_ile':"",
-            # 'amr_health_expenditure_at_pop_level_95_pct_ile':"",
-            # 'amr_total_burden_at_pop_level_median':"",
-            # 'amr_total_burden_at_pop_level_5_pct_ile':"",
-            # 'amr_total_burden_at_pop_level_95_pct_ile':"",
-            # 'production_stage':"",
-            # 'population_ahle_median':"",
-            # 'population_ahle_5_pct__percentile':"",
-            # 'population_ahle_95_pct__percentile':"",
-            # 'ahle_at_pop_level_withoutamr_median':"",
-            # 'ahle_at_pop_level_withoutamr_errhigh':"",
-            # 'ahle_at_pop_level_withoutamr_errlow':"",
-            # 'amr_production_losses_at_pop_level_errhigh':"",
-            # 'amr_production_losses_at_pop_level_errlow':"",
-            # 'amr_health_expenditure_at_pop_level_errhigh':"",
-            # 'amr_health_expenditure_at_pop_level_errlow':"",
-            # 'amr_total_burden_at_pop_level_errhigh':"",
-            # 'amr_total_burden_at_pop_level_errlow':"",
-            # 'amr_total_burden_at_pop_level_median_pctofahle':"",
-            # 'amr_total_burden_at_pop_level_5pctile_pctofahle':"",
-            # 'amr_total_burden_at_pop_level_95pctile_pctofahle':"",
-            }
+        # column_tooltips = {
+        #     'scenario':"Scenario",
+        #     'farm_type':"Production Stage",
+        #     'number_of_farms':"Number of Farms",
+        #     }
 
         # ------------------------------------------------------------------------------
         # Format data to display in the table
@@ -3483,6 +3466,7 @@ def update_case_study_table(country_select, disease_select):
         # Zero decimal places
         columns_to_format = [
             'number_of_farms',
+            'biomass_kg',
         ]
         for column in columns_to_format:
             display_data[column] = display_data[column].apply(lambda x: f'{x:,.0f}')
@@ -3512,7 +3496,6 @@ def update_case_study_table(country_select, disease_select):
         display_data = eth_amr.copy()
         columns_to_display_with_labels = {
             'production_system':"Production System",
-            'total_biomass_kg':"Total Biomass (kg)",
             'metric':"Metric",
             'value_usd':"Value (USD)",
             'upper_95pct_ci_usd':"Upper 95% confidence (USD)",
@@ -3520,14 +3503,15 @@ def update_case_study_table(country_select, disease_select):
             'value_birr':"Value (Birr)",
             'upper_95pct_ci_birr':"Upper 95% confidence (Birr)",
             'lower_95pct_ci_birr':"Lower 95% confidence (Birr)",
+            'total_biomass_kg':"Total Biomass (kg)",
             }
 
         # ------------------------------------------------------------------------------
         # Hover-over text
         # ------------------------------------------------------------------------------
-        column_tooltips = {
-            'production_system':"Production System",
-            }
+        # column_tooltips = {
+        #     'production_system':"Production System",
+        #     }
 
         # ------------------------------------------------------------------------------
         # Format data to display in the table
@@ -3539,13 +3523,14 @@ def update_case_study_table(country_select, disease_select):
             'lower_95pct_ci_usd',
         ]
         for column in columns_to_format:
-            display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'$ {x:,.0f}')
+            display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'${x:,.0f}')
 
-        # Birr currency
+        # Comma, zero decimals
         columns_to_format = [
             'value_birr',
             'upper_95pct_ci_birr',
             'lower_95pct_ci_birr',
+            'total_biomass_kg',
         ]
         for column in columns_to_format:
             display_data[column] = display_data[column].apply(lambda x: '<not estimated>' if str(x) == 'nan' else f'{x:,.0f}')
@@ -3565,17 +3550,17 @@ def update_case_study_table(country_select, disease_select):
                           'overflowY': 'auto'},
             page_action='none',
 
-            # Hover-over for column headers
-            tooltip_header=column_tooltips,
-            tooltip_delay= 500,
-            tooltip_duration=50000,
+            # # Hover-over for column headers
+            # tooltip_header=column_tooltips,
+            # tooltip_delay= 500,
+            # tooltip_duration=50000,
 
-            # Underline columns with tooltips
-            style_header_conditional=[{
-                'if': {'column_id': col},
-                'textDecoration': 'underline',
-                'textDecorationStyle': 'dotted',
-                } for col in list(column_tooltips)],
+            # # Underline columns with tooltips
+            # style_header_conditional=[{
+            #     'if': {'column_id': col},
+            #     'textDecoration': 'underline',
+            #     'textDecorationStyle': 'dotted',
+            #     } for col in list(column_tooltips)],
             )
         ]
 
@@ -3668,7 +3653,7 @@ def update_den_ahle_table_poplvl(country_select):
             ,"pctl95_usd"
         ]
         for column in columns_to_format:
-            display_data[column] = display_data[column].apply(lambda x: f'$USD {x:,.0f}')
+            display_data[column] = display_data[column].apply(lambda x: f'${x:,.0f}')
 
         return [
             html.H4("Denmark AHLE Reference - Population level"),
@@ -3743,7 +3728,7 @@ def update_den_ahle_table_farmlvl(country_select):
             ,"pctl95_usd"
         ]
         for column in columns_to_format:
-            display_data[column] = display_data[column].apply(lambda x: f'$USD {x:,.0f}')
+            display_data[column] = display_data[column].apply(lambda x: f'${x:,.0f}')
 
         return [
             html.H4("Denmark AHLE Reference - Farm level"),
@@ -3773,6 +3758,88 @@ def update_den_ahle_table_farmlvl(country_select):
                 )
             ]
     elif country_select == 'Ethiopia':
+        return []
+
+# Ethiopia AMR by production system
+@gbadsDash.callback(
+    Output('eth-amr-prodlvl', 'children'),
+    Input('select-case-study-countries-amu', 'value'),
+    )
+def update_eth_amr_table_prodlvl(country_select):
+    if country_select == 'Ethiopia':
+        display_data = eth_amr_prodsys_p_melt_sorted.copy()
+        columns_to_display_with_labels = {
+            "production_system":"Production System"
+            ,"metric":"Metric"
+            ,"value_usd":"Value (USD)"
+            ,'error_high_usd':"Error High (USD)"
+            ,'error_low_usd':"Error Low (USD)"
+            ,'value_birr':"Value (Birr)"
+            ,'error_high_birr':"Error High (Birr)"
+            ,'error_low_birr':"Error Low (Birr)"
+            ,"total_biomass_kg":"Biomass (kg)"
+            }
+
+        # ------------------------------------------------------------------------------
+        # Hover-over text
+        # ------------------------------------------------------------------------------
+        column_tooltips = {
+            'error_high_usd':"Add to the estimate to get the upper 95% confidence bound"
+            ,'error_low_usd':"Subtract from the estimate to get the lower 95% confidence bound"
+            ,'error_high_birr':"Add to the estimate to get the upper 95% confidence bound"
+            ,'error_low_birr':"Subtract from the estimate to get the lower 95% confidence bound"
+            }
+
+        # ------------------------------------------------------------------------------
+        # Format data to display in the table
+        # ------------------------------------------------------------------------------
+        # USD
+        columns_to_format = [
+            "value_usd",
+            "error_high_usd",
+            "error_low_usd",
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'${x:,.0f}')
+
+        # Comma, zero decimals
+        columns_to_format = [
+            "value_birr",
+            "error_high_birr",
+            "error_low_birr",
+            "total_biomass_kg",
+        ]
+        for column in columns_to_format:
+            display_data[column] = display_data[column].apply(lambda x: f'{x:,.0f}')
+
+        return [
+            html.H4("Ethiopia AMR in Clinical Mastitis by Production System"),
+            dash_table.DataTable(
+                columns=[{"name": j, "id": i} for i, j in columns_to_display_with_labels.items()],
+                data=display_data.to_dict('records'),
+                export_format="csv",
+                sort_action='native',
+                style_cell={
+                    'font-family':'sans-serif',
+                    },
+                style_table={'overflowX':'scroll',
+                              'overflowY': 'auto'},
+                page_action='none',
+
+                # Hover-over for column headers
+                tooltip_header=column_tooltips,
+                tooltip_delay= 500,
+                tooltip_duration=50000,
+
+                # Underline columns with tooltips
+                style_header_conditional=[{
+                    'if': {'column_id': col},
+                    'textDecoration': 'underline',
+                    'textDecorationStyle': 'dotted',
+                    } for col in list(column_tooltips)],
+                )
+            ]
+    elif country_select == 'Denmark':
         return []
 
 # ------------------------------------------------------------------------------
