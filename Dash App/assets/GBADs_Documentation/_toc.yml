@@ -30,6 +30,9 @@ parts:
       - file: Tool/amu_case_studies_actual_burden
       - file: Tool/amu_case_studies_percent_of_ahle    
     - file: Tool/amu_case_studies_readingthedata
+      sections:
+      - file: Tool/amu_case_studies_country_disease_data
+      - file: Tool/amu_case_studies_ahle_reference_tables
   - caption: References
     chapters:
     - file: References/ref_amu
