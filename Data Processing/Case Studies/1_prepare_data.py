@@ -699,6 +699,24 @@ rename_cols = {
 }
 den_ahle_bern_farmlvl = den_ahle_bern_farmlvl.rename(columns=rename_cols)
 
+# Farm-level numbers are reported as negative
+# To be consistent with population level, flip the sign
+# Note this means flipping the upper and lower confidence levels (upper becomes lower and vice versa)
+reverse_sign_for_vars = [
+    'median_dkk'
+    ,'pctl5_dkk'
+    ,'pctl95_dkk'
+]
+for COL in reverse_sign_for_vars:
+    den_ahle_bern_farmlvl[COL] = den_ahle_bern_farmlvl[COL] * -1
+
+# Dictionary to define pairs of variables to swap (upper and lower confidence limits)
+exchange_vars = {
+    'pctl5_dkk':'pctl95_dkk'
+}
+for KEY, VALUE in exchange_vars.items():
+    den_ahle_bern_farmlvl = den_ahle_bern_farmlvl.rename(columns={KEY:VALUE, VALUE:KEY})
+
 # Add exchange rate
 den_ahle_bern_farmlvl = den_ahle_bern_farmlvl.eval(
     f'''
@@ -968,6 +986,21 @@ label the dashboard selector for scenario (average, worst, best):
 #%% ETHIOPIA DATA MARCH 5
 # *****************************************************************************
 # =============================================================================
+#### Biomass from Wudu
+# =============================================================================
+eth_biomass = pd.read_excel(
+    os.path.join(RAWDATA_FOLDER, 'Ethiopia biomass.xlsx')
+)
+eth_biomass = clean_colnames(eth_biomass)
+datainfo(eth_biomass)
+
+eth_biomass = eth_biomass.eval(
+    f'''
+    total_biomass_kg = total_biomass__billion_kg_ * 1e9
+    '''
+)
+
+# =============================================================================
 #### AMR from UoL
 # =============================================================================
 # -----------------------------------------------------------------------------
@@ -1026,6 +1059,27 @@ eth_amr['error_high_birr'] = eth_amr['error_high_usd'] * birr_per_usd_2021
 eth_amr['error_low_birr'] = eth_amr['error_low_usd'] * birr_per_usd_2021
 eth_amr['upper_95pct_ci_birr'] = eth_amr['upper_95pct_ci_usd'] * birr_per_usd_2021
 eth_amr['lower_95pct_ci_birr'] = eth_amr['lower_95pct_ci_usd'] * birr_per_usd_2021
+
+# -----------------------------------------------------------------------------
+#### -- Add biomass
+# -----------------------------------------------------------------------------
+eth_amr = pd.merge(
+    left=eth_amr
+    ,right=eth_biomass[['production_system', 'total_biomass_kg']]
+    ,on='production_system'
+    ,how='left'
+)
+eth_amr = eth_amr.eval(
+    f'''
+    value_usd_perkg = value_usd / total_biomass_kg
+    error_high_usd_perkg = error_high_usd / total_biomass_kg
+    error_low_usd_perkg = error_low_usd / total_biomass_kg
+
+    value_birr_perkg = value_birr / total_biomass_kg
+    error_high_birr_perkg = error_high_birr / total_biomass_kg
+    error_low_birr_perkg = error_low_birr / total_biomass_kg
+    '''
+)
 
 # -----------------------------------------------------------------------------
 #### -- Export
@@ -1136,6 +1190,27 @@ eth_amr_prodsys_p_melt['metric'] = eth_amr_prodsys_p_melt['metric'].str.replace(
 eth_amr_prodsys_p_melt['value_birr'] = eth_amr_prodsys_p_melt['value_usd'] * birr_per_usd_2021
 eth_amr_prodsys_p_melt['error_high_birr'] = eth_amr_prodsys_p_melt['error_high_usd'] * birr_per_usd_2021
 eth_amr_prodsys_p_melt['error_low_birr'] = eth_amr_prodsys_p_melt['error_low_usd'] * birr_per_usd_2021
+
+# -----------------------------------------------------------------------------
+#### -- Add biomass
+# -----------------------------------------------------------------------------
+eth_amr_prodsys_p_melt = pd.merge(
+    left=eth_amr_prodsys_p_melt
+    ,right=eth_biomass[['production_system', 'total_biomass_kg']]
+    ,on='production_system'
+    ,how='left'
+)
+eth_amr_prodsys_p_melt = eth_amr_prodsys_p_melt.eval(
+    f'''
+    value_usd_perkg = value_usd / total_biomass_kg
+    error_high_usd_perkg = error_high_usd / total_biomass_kg
+    error_low_usd_perkg = error_low_usd / total_biomass_kg
+
+    value_birr_perkg = value_birr / total_biomass_kg
+    error_high_birr_perkg = error_high_birr / total_biomass_kg
+    error_low_birr_perkg = error_low_birr / total_biomass_kg
+    '''
+)
 
 # -----------------------------------------------------------------------------
 #### -- Export

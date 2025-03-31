@@ -578,7 +578,6 @@ def create_barchart_poplvl_den_amr(
         # This also defines metrics to use
         legend_items = [
             {'label': 'Unattributed AHLE', 'color': '#fbc98e'},
-            # {'label': 'AMR', 'color': '#31bff3'},
             {'label': 'Production losses associated with AMR', 'color': '#31bff3'},
         ]
 
@@ -662,26 +661,27 @@ def create_barchart_poplvl_den_amr(
         barchart_fig = go.Figure(data=traces, layout=layout)
 
         # Add total AHLE and AMR message
-        barchart_fig.add_annotation(
-            text=f"Total AHLE: {population_total_ahle:>16{currency_format}} {currency_label}",
-            xref='paper',
-            yref='paper',
-            x=0,
-            y=1.07,
-            showarrow=False,
-            font=dict(size=16),
-            xanchor='left'
-        )
-        barchart_fig.add_annotation(
-            text=f"AMR:            {population_amr_total:>16{currency_format}} {currency_label}  ({population_amr_prpn_ahle:{percent_format}} of AHLE)",
-            xref='paper',
-            yref='paper',
-            x=0,
-            y=1.03,
-            showarrow=False,
-            font=dict(size=16),
-            xanchor='left'
-        )
+        if farmtype_select == 'total':
+            barchart_fig.add_annotation(
+                text=f"Total AHLE: {population_total_ahle:>16{currency_format}} {currency_label}",
+                xref='paper',
+                yref='paper',
+                x=0,
+                y=1.07,
+                showarrow=False,
+                font=dict(size=16),
+                xanchor='left'
+            )
+            barchart_fig.add_annotation(
+                text=f"AMR:            {population_amr_total:>16{currency_format}} {currency_label}  ({population_amr_prpn_ahle:{percent_format}} of AHLE)",
+                xref='paper',
+                yref='paper',
+                x=0,
+                y=1.03,
+                showarrow=False,
+                font=dict(size=16),
+                xanchor='left'
+            )
 
         # Add custom legend annotations with colored squares
         y_pos = 0.95    # Starting y position for legend items
@@ -795,7 +795,8 @@ def create_barchart_poplvl_den_amr(
     return barchart_fig
 
 def create_barchart_poplvl_eth_amr(
-        option_axis_scale
+        option_tot_pct
+        ,option_axis_scale
         ,disease_select
         ,farmtype_select
         ,currency_select
@@ -803,15 +804,35 @@ def create_barchart_poplvl_eth_amr(
     overall_df = eth_amr_sorted
 
     if currency_select == 'USD':
-        currency_label = 'USD'
-        value_col = 'value_usd'
-        error_high_col = 'error_high_usd'
-        error_low_col = 'error_low_usd'
+        if option_tot_pct == 'Total':
+            value_col = 'value_usd'
+            error_high_col = 'error_high_usd'
+            error_low_col = 'error_low_usd'
+            currency_label = 'USD'
+            currency_format = ',.0f'
+            percent_format = '.1%'
+        elif option_tot_pct == 'perkg':
+            value_col = 'value_usd_perkg'
+            error_high_col = 'error_high_usd_perkg'
+            error_low_col = 'error_low_usd_perkg'
+            currency_label = 'USD per kg'
+            currency_format = ',.2f'
+            percent_format = '.1%'
     elif currency_select == 'Ethiopian Birr (ETB)':
-        currency_label = 'ETB'
-        value_col = 'value_birr'
-        error_high_col = 'error_high_birr'
-        error_low_col = 'error_low_birr'
+        if option_tot_pct == 'Total':
+            value_col = 'value_birr'
+            error_high_col = 'error_high_birr'
+            error_low_col = 'error_low_birr'
+            currency_label = 'ETB'
+            currency_format = ',.0f'
+            percent_format = '.1%'
+        elif option_tot_pct == 'perkg':
+            value_col = 'value_birr_perkg'
+            error_high_col = 'error_high_birr_perkg'
+            error_low_col = 'error_low_birr_perkg'
+            currency_label = 'ETB per kg'
+            currency_format = ',.2f'
+            percent_format = '.1%'
 
     # Get important values to show in title
     population_amr_prod = overall_df.query("metric == 'Production losses associated with AMR'")[value_col].item()
@@ -888,7 +909,7 @@ def create_barchart_poplvl_eth_amr(
             y=metric_df[value_col],
             marker=dict(color=[dct['color'] for dct in legend_items if dct['label'] == selected_metric][0]),
             showlegend=False,
-            hovertemplate=f"Production System: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:,.0f}} {currency_label}<extra></extra>",
+            hovertemplate=f"Production System: %{{x}}<br>Metric: {selected_metric}<br>Value: %{{y:{currency_format}}} {currency_label}<extra></extra>",
         ))
 
         # Add error whiskers
@@ -908,7 +929,7 @@ def create_barchart_poplvl_eth_amr(
                 width=5
             ),
             showlegend=False,
-            hovertemplate=f"Production System: %{{x}}<br>Cumulative Value: %{{y:,.0f}} {currency_label}<br>Error Range: [%{{customdata[0]:,.0f}}, %{{customdata[1]:,.0f}}] {currency_label}<extra></extra>",
+            hovertemplate=f"Production System: %{{x}}<br>Cumulative Value: %{{y:{currency_format}}} {currency_label}<br>Error Range: [%{{customdata[0]:{currency_format}}}, %{{customdata[1]:{currency_format}}}] {currency_label}<extra></extra>",
             customdata=metric_df[['error_range_low', 'error_range_high']].values,
         ))
     layout = go.Layout(
@@ -930,26 +951,27 @@ def create_barchart_poplvl_eth_amr(
     barchart_fig = go.Figure(data=traces, layout=layout)
 
     # Add total AHLE and AMR message
-    barchart_fig.add_annotation(
-        text=f"Total AHLE: {population_total_ahle:>16,.0f} {currency_label}",
-        xref='paper',
-        yref='paper',
-        x=0,
-        y=1.07,
-        showarrow=False,
-        font=dict(size=16),
-        xanchor='left'
-    )
-    barchart_fig.add_annotation(
-        text=f"AMR:             {population_amr_total:>16,.0f} {currency_label}  ({population_amr_prpn_ahle:.1%} of AHLE)",
-        xref='paper',
-        yref='paper',
-        x=0,
-        y=1.03,
-        showarrow=False,
-        font=dict(size=16),
-        xanchor='left'
-    )
+    if farmtype_select == 'total':
+        barchart_fig.add_annotation(
+            text=f"Total AHLE: {population_total_ahle:>16{currency_format}} {currency_label}",
+            xref='paper',
+            yref='paper',
+            x=0,
+            y=1.07,
+            showarrow=False,
+            font=dict(size=16),
+            xanchor='left'
+        )
+        barchart_fig.add_annotation(
+            text=f"AMR:             {population_amr_total:>16{currency_format}} {currency_label}  ({population_amr_prpn_ahle:{percent_format}} of AHLE)",
+            xref='paper',
+            yref='paper',
+            x=0,
+            y=1.03,
+            showarrow=False,
+            font=dict(size=16),
+            xanchor='left'
+        )
 
     # Add custom legend annotations with colored squares
     y_pos = 0.95    # Starting y position for legend items
@@ -2820,6 +2842,7 @@ def update_metric_options_case_study(country_select):
     elif country_select.upper() == 'ETHIOPIA':
         options = [
             {'label': metric_option_actual_burden, 'value': "Total"},
+            {'label': metric_option_burden_perkg, 'value': "perkg"},
             {'label': metric_option_percent_ahle, 'value': "Percent"},
             ]
         value = 'Total'
@@ -3489,12 +3512,11 @@ def update_case_study_table(country_select, disease_select):
         display_data = eth_amr.copy()
         columns_to_display_with_labels = {
             'production_system':"Production System",
+            'total_biomass_kg':"Total Biomass (kg)",
             'metric':"Metric",
-
             'value_usd':"Value (USD)",
             'upper_95pct_ci_usd':"Upper 95% confidence (USD)",
             'lower_95pct_ci_usd':"Lower 95% confidence (USD)",
-
             'value_birr':"Value (Birr)",
             'upper_95pct_ci_birr':"Upper 95% confidence (Birr)",
             'lower_95pct_ci_birr':"Lower 95% confidence (Birr)",
@@ -4774,9 +4796,10 @@ def update_case_study_graphic_poplvl(
                 )
 
     elif country_select == 'Ethiopia':
-        if option_tot_pct == 'Total':
+        if option_tot_pct == 'Total' or option_tot_pct == 'perkg':
             case_study_fig = create_barchart_poplvl_eth_amr(
-                option_axis_scale
+                option_tot_pct
+                ,option_axis_scale
                 ,disease_select
                 ,farmtype_select
                 ,currency_select
