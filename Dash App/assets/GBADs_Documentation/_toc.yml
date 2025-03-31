@@ -28,6 +28,7 @@ parts:
     - file: Tool/amu_case_studies_readingthecharts
       sections:
       - file: Tool/amu_case_studies_actual_burden
+      - file: Tool/amu_case_studies_per_kg_biomass
       - file: Tool/amu_case_studies_percent_of_ahle    
     - file: Tool/amu_case_studies_readingthedata
       sections:
