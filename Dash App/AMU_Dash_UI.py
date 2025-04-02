@@ -1123,6 +1123,7 @@ def create_case_study_piechart_den_poplvl(
                 labels=base_df['metric'],
                 values=base_df[value_col],
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
@@ -1168,6 +1169,7 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Breeding'")[value_col],
                 name="Breeding",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation=-90,
@@ -1183,6 +1185,7 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Nursery'")[value_col],
                 name="Nursery",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
@@ -1198,6 +1201,7 @@ def create_case_study_piechart_den_poplvl(
                 values=base_df.query("farm_type == 'Fattening'")[value_col],
                 name="Fattening",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
@@ -1315,6 +1319,7 @@ def create_case_study_piechart_eth_poplvl(
                 text=input_df['custom_text'],
                 hovertemplate="%{customdata[0]}<extra></extra>",
                 texttemplate="%{text}",
+                textposition='outside',
                 rotation = -90,
                 marker=dict(
                     colors=[legend_items[label] for label in input_df['metric']],
@@ -1358,6 +1363,7 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Crop-Livestock Mixed'")[value_col],
                 name="Crop-Livestock Mixed",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation=-90,
@@ -1373,6 +1379,7 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Pastoral'")[value_col],
                 name="Pastoral",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
@@ -1388,6 +1395,7 @@ def create_case_study_piechart_eth_poplvl(
                 values=input_df.query("production_system == 'Peri-Urban'")[value_col],
                 name="Peri-Urban",
                 textinfo='label+percent',
+                textposition='outside',
                 texttemplate='%{label}<br>%{percent:.1%}',
                 hovertemplate=f"%{{label}} <br>%{{value:,.2f}} {currency_label}<br>%{{percent:.1%}}<extra></extra>",
                 rotation = -90,
@@ -5105,7 +5113,7 @@ if __name__ == "__main__":
     # NOTE: These statements are not executed when in gunicorn, because in gunicorn this program is loaded as module
 
     # use_port = fa.get_open_port()  # selects first unused port >= 8050
-    use_port = 8050                 # set to fixed fixed number
+    use_port = 8055                 # set to fixed fixed number
 
     fa.run_server(app, use_port, debug=True)
 
