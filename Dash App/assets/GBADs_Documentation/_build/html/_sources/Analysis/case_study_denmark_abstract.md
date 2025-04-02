@@ -3,7 +3,7 @@
 <h3>Burden of antimicrobial resistance in post-weaning diarrhoea – a case-study in the Danish pig sector applying the GBADs framework</h3>
 
 <p>
-Joao S. Afonso<sup>1,2</sup> (*), Lis Alban<sup>2</sup>, Camille Doras<sup>3</sup>, Beat Thomann<sup>3</sup>, Pedro Moura<sup>4</sup>, Ana Sofia R. Duarte<sup>5</sup>, Joana Pessoa<sup>5</sup>, Jonathan Rushton<sup>1,2,6</sup>, Sara B. Martins<sup>1,2</sup>
+Joao S. Afonso<sup>1,2</sup> (*), Lis Alban<sup>3</sup>, Camille Doras<sup>4</sup>, Beat Thomann<sup>4</sup>, Pedro Moura<sup>5</sup>, Ana Sofia R. Duarte<sup>6</sup>, Joana Pessoa<sup>6</sup>, Jonathan Rushton<sup>1,2,7</sup>, Sara B. Martins<sup>1,2</sup>
 
 1.	Global Burden of Animal Diseases Programme, https://animalhealthmetrics.org
 2.	University of Liverpool, Liverpool, United Kingdom
