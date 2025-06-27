@@ -1139,6 +1139,9 @@ def create_case_study_piechart_den_poplvl(
                     + f"<i><sup>{scenario_select} scenario ({scenario_rate} rate of resistance)</sup></i>",
                 font=dict(size=20),
             ),
+                margin=dict(
+                l=250,  # Left margin for long pie slice labels
+            ),
         )
 
     elif farmtype_select == 'bytype':
@@ -1216,7 +1219,11 @@ def create_case_study_piechart_den_poplvl(
                 text=f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b><br>" \
                     + f"{scenario_select} scenario<br>",
                 font=dict(size=20),
-            ),)
+            ),
+                margin=dict(
+                l=250,  # Left margin for long pie slice labels
+            ),
+                )
 
     # Legend title
     piechart_fig.update_layout(
@@ -1332,6 +1339,9 @@ def create_case_study_piechart_eth_poplvl(
                 text=f"<b>AHLE and the Burden of AMR in {disease_select}</b><br>",
                 font=dict(size=20),
             ),
+            margin=dict(
+            l=250,  # Left margin for long pie slice labels
+        ),
         )
 
     elif farmtype_select == 'bytype':
@@ -1409,7 +1419,11 @@ def create_case_study_piechart_eth_poplvl(
             title=dict(
                 text=f"<b>AHLE and Production Losses associated with AMR in {disease_select}</b><br>",
                 font=dict(size=20),
-            ),)
+            ),
+            margin=dict(
+            l=250,  # Left margin for long pie slice labels
+        ),
+            )
 
     # Legend title
     piechart_fig.update_layout(
